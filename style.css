@@ -1,0 +1,132 @@
+/* Overlay Container */
+#yourstoryz-plugin-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Overlay Content */
+.yourstoryz-plugin-content {
+    background: #fff;
+    height: calc(100vh - 80px);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    top: 35px;
+}
+
+/* Close Button */
+.yourstoryz-plugin-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+/* Common Button Styles */
+.your-button,
+.yourstoryz-plugin-close,
+.yourstoryz-plugin-open,
+.overlay-close {
+    padding: 15px 30px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    font-family: 'Manrope', sans-serif;
+    border: 1px solid #007bff;
+    border-radius: 25px;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+/* Button Hover State */
+.your-button:hover,
+.yourstoryz-plugin-close:hover,
+.yourstoryz-plugin-open:hover,
+.overlay-close:hover {
+    background-color: #F0F5FF;
+    color: #007bff;
+}
+
+/* Full-Screen Overlay */
+#overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #171e77;
+    z-index: 99;
+}
+
+/* Overlay Close Button */
+.overlay-close {
+    position: absolute;
+    top: 50px;
+    right: 40px;
+}
+
+/* Overlay Text */
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.overlay-text h1,
+.overlay-text h2,
+.overlay-text a,
+.overlay-text p {
+    color: white;
+}
+.overlay-text a:hover {
+    color: #3e7eff;
+}
+
+/* Overlay input */
+.overlay-input {
+    background-color: #ffffff;
+    border-color: #DDDDDD;
+    border-width: 0px 0px 2px 0px;
+    border-radius: 4px 4px 4px 4px;
+    color: rgb(4, 6, 38);
+    width: 100%;
+}
+
+/* Plugin Text */
+.yourstoryz-plugin-text h1,
+.yourstoryz-plugin-text h2 {
+    font-size: 40px;
+    margin: 30px 0;
+}
+
+.yourstoryz-plugin-text h3 {
+    color: #3e7eff;
+    font-size: 24px;
+}
+
+.yourstoryz-plugin-text p {
+    font-size: 18px;
+}
+
+.yourstoryz-plugin-text {
+    margin-left: 30px;
+    margin-top: 40px;
+}
+
+/* WP Admin Wrapper */
+body.wp-admin.wp-core-ui.js.toplevel_page_yourstoryz-plugin-info, body.wp-admin.wp-core-ui.js.yourstoryz_page_yourstoryz-plugin-settings {
+    background: #ffffff;
+}
+.center {
+    align-items: center;
+}
