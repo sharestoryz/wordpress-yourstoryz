@@ -1,7 +1,7 @@
 <?php
 function your_button_shortcode() {
     ?>
-    <button class="your-button" id="yourbutton">Get YourStoryz</button>
+    <?php submit_button('Get YourStoryz', 'primary large', 'yourbutton', false); ?>
     <script type="text/javascript">
         document.getElementById('yourbutton').addEventListener('click', function() {
             fetch('<?php echo admin_url('admin-ajax.php?action=call_api'); ?>')
