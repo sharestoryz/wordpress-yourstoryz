@@ -1,5 +1,5 @@
 <?php
-// Show plugin in sidebar
+
 add_action('admin_menu', 'yourstoryz_plugin_create_menu');
 
 function yourstoryz_plugin_create_menu() {
@@ -9,9 +9,10 @@ function yourstoryz_plugin_create_menu() {
         'manage_options',
         'yourstoryz-plugin-info',
         'yourstoryz_plugin_info_page',
-        'dashicons-buddicons-community',
-        99, // Change position in sidebar
+        'dashicons-admin-generic',
+        100
     );
+
     add_submenu_page(
         'yourstoryz-plugin-info',
         'YourStoryz Settings',
@@ -21,73 +22,105 @@ function yourstoryz_plugin_create_menu() {
         'yourstoryz_plugin_settings_page'
     );
 }
-
-// Plugin info page
+// Yourstoryz page
 function yourstoryz_plugin_info_page() {
+    $api_key = get_option('yourstoryz_plugin_change_token');
+    $validation_message = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['yourstoryz_plugin_change_token'])) {
+        $api_key = sanitize_text_field($_POST['yourstoryz_plugin_change_token']);
+        update_option('yourstoryz_plugin_change_token', $api_key);
+
+        if (yourstoryz_validate_api_key($api_key)) {
+            $validation_message = '<div class="notice notice-success"><p>API key validated successfully!</p></div>';
+        } else {
+            $validation_message = '<div class="notice notice-error"><p>Invalid API key. Please check and try again.</p></div>';
+        }
+    }
+
     ?>
-    <div id="yourstoryz-plugin-overlay" style="display: none;">
-        <div class="yourstoryz-plugin-content">
-            <!-- <iframe src="https://www.yourstoryz.com" width="100%" height="100%"></iframe> -->
-            <button class="yourstoryz-plugin-close" onclick="hide()">Close</button>
-        </div>
-    </div>
-    <div class="yourstoryz-plugin-text">
-        <img src="<?php echo plugin_dir_url( __FILE__ ) . '../assets/images/logo.svg'; ?>" alt="">
+    <div class="wrap">
         <h1>Welcome to YourStoryz</h1>
-
-        <p>Create & tell amazing stories that grab people's attention and bring your story to life seamlessly.</p>
-        <h3 class="sub-title">Plugin</h3>
-        <h2>What does this plugin do?</h2>
-        <p>Create & tell amazing stories that grab people's attention and bring your story to life seamlessly.</p>
-        <h3 class="sub-title">Plugin</h3>
-        <h2>Who can use this plugin?</h2>
-        <p>Create & tell amazing stories that grab people's attention and bring your story to life seamlessly.</p>
-        <p>Please log in to the service to continue.</p>
-
-        <div id="overlay">
-            <button class="overlay-close" onclick="off()">Close</button>
-
-            <div class="overlay-text">
-                <p>Please enter YourStoryz Token in this field.</p>
-                <form method="POST" action="<?php echo $_SERVER['PHP_SELF'];?>">
-                    <p><a class="" href="https://dashboard.yourstoryz.com/en/login" target=”_blank”>Login to YourStoryz.dashboard to create your YourStoryz Token.</a></p>
-                    <input class="overlay-input" type="text" name="token" placeholder="token here"></input>
-
-                    <input class="your-button center" type="submit" >
-               </form>
-                <?php
-                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                    // collect value of input field
-                    $name = $_POST['token'];
-                    if (empty($name)) {
-                        echo "Name is empty";
-                    } else {
-                        echo $name;
-                    }
-                }
-                ?>
+        <p>To use this plugin, you need an active subscription to <a href="https://yourstoryz.com/" target="_blank">YourStoryz</a>.</p>
+        <h2>How to Get Your API Token?</h2>
+        <p>1. Create an Account:</p>
+        <p>&#8226; First, create an account on the YourStoryz platform. You can sign up at yourstoryz.com or via the YourStoryz app available on iOS and Android.</p>
+        <p>
+        <a href="https://play.google.com/store/apps/details?id=com.yourstoryz.storyz&pcampaignid=web_share" target="_blank">
+            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/get-it-on-google.png'); ?>" alt="get-it-on-google" style="width: auto; height: 50px;">
+        </a>
+        <a href="https://apps.apple.com/nl/app/yourstoryz/id1544965290" target="_blank">
+            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/download-on-the-appstore.svg'); ?>" alt="download-on-the-appstore" style="width: auto; height: 50px;">
+        </a>
+        </p>
+        <p>2. Create Your API Token:</p>
+        <p>&#8226; Once you have an account, you're ready to create your API token. Follow these steps:</p>
+        <p>&#8226; Go to the YourStoryz dashboard: <a href="https://dashboard.yourstoryz.com/en/login" target="_blank">dashboard.yourstoryz.com/dashboard</a></p>
+        <p><strong>Navigate to My Companies > Tokens > API Tokens</strong></p>
+        <p>&#8226; Create or find your API token.</p>
+        <p>&#8226; Enter Your API Token:</p>
+        <p>&#8226; After obtaining your API token, enter it in the provided field within the plugin settings to start using the plugin.</p>
+        <?php echo $validation_message; ?>
+        <form method="post" action="">
+            <div>
+                <input type="text" name="yourstoryz_plugin_change_token" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
+                <p class="notice notice-error" style="width:19%">Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
+                <?php submit_button('Validate Token', 'large', '', false); ?>
             </div>
-        </div>
-
-        <button class="your-button" onclick="on()">Instructions</button>
-        <a class="your-button" href="https://dashboard.yourstoryz.com/en/login" target=”_blank”>Login to YourStoryz</a>
-
-        <button class="yourstoryz-plugin-open" onclick="show()">YourStoryz Site</button>
-        <?php echo do_shortcode('[your_button]'); ?>
+        </form>
+        <h2>Need Help?</h2>
+        <p>For further assistance, please <a href="https://yourstoryz.com/contact/" target="_blank">contact our support team</a>.</p>
     </div>
-    
     <?php
 }
+// Settings page
 function yourstoryz_plugin_settings_page() {
+    $api_key = get_option('yourstoryz_plugin_change_token');
+
+    if (empty($api_key) || !yourstoryz_validate_api_key($api_key)) {
+        ?>
+        <div class="notice notice-error"><p>Please enter a valid API key on the YourStoryz Info page.</p></div>
+        <?php
+        return;
+    }
+
     ?>
-        <h1>YourStoryz Settings</h1>
+    <div class="wrap">
+        <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/logo.svg'); ?>" alt="">
         <form method="post" action="options.php">
             <?php
             settings_fields('yourstoryz_plugin_settings_group');
             do_settings_sections('yourstoryz-plugin-settings');
-            submit_button();
             ?>
+            <p class="submit">
+                <?php
+                submit_button('Update settings', 'primary', '', false);
+                echo '&nbsp;';
+                echo do_shortcode('[your_button]');
+                ?>
+            </p>
+
         </form>
+    </div>
     <?php
 }
+
+function yourstoryz_validate_api_key($api_key) {
+    $response = wp_remote_get('https://dashboard.yourstoryz.com/api/v1/videos/', array(
+        'headers' => array(
+            'Authorization' => $api_key,
+            'Content-Type'  => 'application/json',
+        ),
+    ));
+
+    if (is_wp_error($response)) {
+        return false;
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body);
+
+    return !empty($data);
+}
+
 ?>

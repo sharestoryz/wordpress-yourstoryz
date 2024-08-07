@@ -1,9 +1,19 @@
 <?php
-// Connect to api and create posts with api data
+
 function call_api() {
-    $api_url = 'https://dashboard.yourstoryz.com/api/v1/videos/'; 
-    $token = 'Bearer 3453|wSA86D0bogdkirWlXKaFtrjBR9KRPsfSckeaNfhdf9667aa9'; 
+    require_once(ABSPATH . 'wp-admin/includes/file.php');
+    require_once(ABSPATH . 'wp-admin/includes/media.php');
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+
     $autoplay = get_option('yourstoryz_plugin_autoplay') ? 'autoplay' : '';
+    $token = get_option('yourstoryz_plugin_change_token');
+    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos/';
+    $api_url = get_option('yourstoryz_plugin_filter_on_department') ?
+        'https://dashboard.yourstoryz.com/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
+        $api_videos;
+
+    $option_key = 'yourstoryz_processed_ids';
+    $stored_ids = get_option($option_key, array('videos' => array(), 'contents' => array()));
 
     $response = wp_remote_get($api_url, array(
         'headers' => array(
@@ -13,61 +23,159 @@ function call_api() {
     ));
 
     if (is_wp_error($response)) {
+        error_log('API request error: ' . $response->get_error_message());
         wp_send_json_error($response->get_error_message());
-    } else {
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body);
+        return;
+    }
 
-        if ($data === null) {
-            wp_send_json_error('Error decoding JSON response');
-        } else {
-            foreach ($data as $api_data) {
-                // if (!post_exists($api_data->id)) { // check for duplicates based on title
-                if (get_post('99' . $api_data->id)) { // check for duplicates based on id
-                } else {
-                    $create_post = array(
-                        'post_author'           => 'default',
-                        'post_content'          => '
-                        <!-- wp:heading {"level":1} -->
-                        <h1 class="wp-block-heading">' . $api_data->title . '</h1>
-                        <!-- /wp:heading -->
-                        
-                        <!-- wp:heading {"level":3} -->
-                        <h3 class="wp-block-heading">made by: "dit moet nog in de api"</h3>
-                        <!-- /wp:heading -->
-                        
-                        <!-- wp:heading {"level":3} -->
-                        <h3 class="wp-block-heading">' . $api_data->contents[0]->title . '</h3>
-                        <!-- /wp:heading -->
-                        
-                        <!-- wp:paragraph -->
-                        <p>'. $api_data->contents[0]->content . '</p>
-                        <!-- /wp:paragraph -->
-                        
-                        <!-- wp:video -->
-                        <figure class="wp-block-video"><video controls ' . $autoplay . ' src="' . $api_data->video_url . '"></video></figure>
-                        <!-- /wp:video -->
-                        ',
-                        'post_content_filtered' => '',
-                        'post_title'            => $api_data->title,
-                        'post_excerpt'          => '',
-                        'post_status'           => 'draft',
-                        'post_type'             => 'post',
-                        'post_date'             => '',
-                        'post_date_gmt'         => '',
-                        'tags_input'            => $api_data->contents[0]->lang,
-                        'import_id'             => '99' . $api_data->id,
-                    );
-                    wp_insert_post($create_post);
-                    // $post_id = wp_insert_post($create_post);
-                    // if (is_wp_error($post_id)) {
-                    //     wp_send_json_error('Error creating post: ' . $post_id->get_error_message());
-                    // }
-                    //   wp_send_json_success(array('api_data' => $data));
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body);
+
+    if ($data === null) {
+        wp_send_json_error('Error decoding JSON response');
+        return;
+    }
+
+    foreach ($data as $api_data) {
+        if (isset($stored_ids['videos'][$api_data->id])) {
+            continue; 
+        }
+
+        $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
+        $video_url = $api_data->video_url;
+        $tmp_file = download_url($video_url);
+
+        if (is_wp_error($tmp_file)) {
+            error_log('Error downloading video: ' . $tmp_file->get_error_message());
+            continue;
+        }
+
+        $file = array(
+            'name'     => basename($video_url),
+            'type'     => mime_content_type($tmp_file),
+            'tmp_name' => $tmp_file,
+            'error'    => 0,
+            'size'     => filesize($tmp_file),
+        );
+
+        $overrides = array(
+            'test_form' => false,
+            'test_size' => true,
+            'test_upload' => true,
+        );
+
+        $movefile = wp_handle_sideload($file, $overrides);
+
+        if (isset($movefile['error'])) {
+            error_log('Error handling sideload: ' . $movefile['error']);
+            continue;
+        }
+
+        $attachment = array(
+            'guid'           => $movefile['url'],
+            'post_mime_type' => $movefile['type'],
+            'post_title'     => sanitize_file_name($file['name']),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment($attachment, $movefile['file']);
+        $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+
+        $post_content = '
+        <!-- wp:heading {"level":1} -->
+        <h1 class="wp-block-heading">' . esc_html($api_data->title) . '</h1>
+        <!-- /wp:heading -->
+        
+        <!-- wp:heading {"level":3} -->
+        <h3 class="wp-block-heading">' . esc_html($api_data->description) . '</h3>
+        <!-- /wp:heading -->
+        
+        <!-- wp:video -->
+        <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
+        <!-- /wp:video -->
+
+        <!-- wp:paragraph -->
+            <p>Hier moeten nog wat tags komen</p>
+        <!-- /wp:paragraph -->
+        ';
+
+        $new_post = wp_insert_post(array(
+            'post_author'   => get_current_user_id(),
+            'post_content'  => $post_content,
+            'post_title'    => $post_title,
+            'post_status'   => 'draft',
+            'post_type'     => 'post'
+        ));
+
+        if (is_wp_error($new_post)) {
+            error_log('Error creating post: ' . $new_post->get_error_message());
+            continue;
+        }
+
+        $stored_ids['videos'][$api_data->id] = array('post_id' => $new_post);
+
+        if (isset($api_data->contents) && is_array($api_data->contents)) {
+            foreach ($api_data->contents as $content) {
+                if (isset($stored_ids['contents'][$content->id])) {
+                    continue;
                 }
+                
+                $hashtags_html = '';
+
+                if (isset($content->hashtags) && is_array($content->hashtags)) {
+                    $hashtags_html .= '<!-- wp:paragraph --><p>';
+                    $hashtags_html .= implode(' ', array_map('esc_html', $content->hashtags));
+                    $hashtags_html .= '</p><!-- /wp:paragraph -->';
+                }
+                
+                $post_title = $api_data->title . ' - ' . substr($content->created_at, 0, 10);
+                $post_content = '
+                <!-- wp:heading {"level":1} -->
+                <h1 class="wp-block-heading">' . esc_html($api_data->title) . '</h1>
+                <!-- /wp:heading -->
+                
+                <!-- wp:heading {"level":3} -->
+                <h3 class="wp-block-heading">' . esc_html($api_data->description) . '</h3>
+                <!-- /wp:heading -->
+                
+                <!-- wp:heading {"level":3} -->
+                <h3 class="wp-block-heading">' . esc_html($content->title) . '</h3>
+                <!-- /wp:heading -->
+                
+                <!-- wp:paragraph -->
+                <p>' . esc_html($content->content) . '</p>
+                <!-- /wp:paragraph -->
+                
+                <!-- wp:video -->
+                <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
+                <!-- /wp:video -->
+
+                ' . $hashtags_html . '
+                ';
+
+                $new_post_content = wp_insert_post(array(
+                    'post_author'   => get_current_user_id(),
+                    'post_content'  => $post_content,
+                    'post_title'    => $post_title,
+                    'post_status'   => 'draft',
+                    'post_type'     => 'post',
+                    'tags_input'    => $content->lang
+                ));
+
+                if (is_wp_error($new_post_content)) {
+                    error_log('Error creating content post: ' . $new_post_content->get_error_message());
+                    continue;
+                }
+
+                $stored_ids['contents'][$content->id] = array('post_id' => $new_post_content);
             }
         }
+        update_option($option_key, $stored_ids);
     }
 }
-add_action('wp_ajax_call_api', 'call_api'); // Fires ajax action if user is logged in.
+
+add_action('wp_ajax_call_api', 'call_api');
+
 ?>
