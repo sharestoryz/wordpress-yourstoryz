@@ -38,7 +38,7 @@ function yourstoryz_plugin_info_page() {
         if (yourstoryz_validate_api_key($api_key)) {
             $validation_message = '<div class="notice notice-success"><p>API key validated successfully!</p></div>';
         } else {
-            $validation_message = '<div class="notice notice-error"><p>Invalid API key. Please check and try again.</p></div>';
+            $validation_message = '<div class="notice notice-warning"><p>Invalid API key. Please check and try again.</p></div>';
         }
     }
     // HTML for plugin explaination page
@@ -51,10 +51,10 @@ function yourstoryz_plugin_info_page() {
         <p>&#8226; First, create an account on the YourStoryz platform. You can sign up at yourstoryz.com or via the YourStoryz app available on iOS and Android.</p>
         <p>
         <a href="https://play.google.com/store/apps/details?id=com.yourstoryz.storyz&pcampaignid=web_share" target="_blank">
-            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/get-it-on-google.png'); ?>" alt="get-it-on-google" style="width: auto; height: 50px;">
+            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/get-it-on-google.png'); ?>" alt="Get it on google button" style="width: auto; height: 50px;">
         </a>
         <a href="https://apps.apple.com/nl/app/yourstoryz/id1544965290" target="_blank">
-            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/download-on-the-appstore.svg'); ?>" alt="download-on-the-appstore" style="width: auto; height: 50px;">
+            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/download-on-the-appstore.svg'); ?>" alt="Download on the app store button" style="width: auto; height: 50px;">
         </a>
         </p>
         <p>2. Create Your API Token:</p>
@@ -68,7 +68,7 @@ function yourstoryz_plugin_info_page() {
         <form method="post" action="">
             <div>
                 <input type="text" name="yourstoryz_plugin_change_token" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
-                <p class="notice notice-error" style="width:19%">Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
+                <p class="notice notice-warning" style="width:680px">Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
                 <?php submit_button('Validate Token', 'large', '', false); ?>
             </div>
         </form>
@@ -83,14 +83,14 @@ function yourstoryz_plugin_settings_page() {
 
     if (empty($api_key) || !yourstoryz_validate_api_key($api_key)) {
         ?>
-        <div class="notice notice-error"><p>Please enter a valid API key on the YourStoryz Info page.</p></div>
+        <div class="notice notice-warning"><p>Please enter a valid API key on the YourStoryz Info page.</p></div>
         <?php
         return;
     }
     // Buttons and HTML for settings page
     ?>
     <div class="wrap">
-        <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/logo.svg'); ?>" alt="">
+        <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/logo.svg'); ?>" alt="YourStoryz Logo">
         <form method="post" action="options.php">
             <?php
             settings_fields('yourstoryz_plugin_settings_group');
@@ -98,12 +98,12 @@ function yourstoryz_plugin_settings_page() {
             ?>
             <p class="submit">
                 <?php
-                submit_button('Update settings', 'primary', '', false);
+                submit_button('Update settings', 'link large', '', false);
                 echo '&nbsp;';
                 echo do_shortcode('[your_button]');
                 ?>
             </p>
-
+            <p class="notice notice-warning" style="width:680px">Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
         </form>
     </div>
     <?php
@@ -126,5 +126,4 @@ function yourstoryz_validate_api_key($api_key) {
 
     return !empty($data);
 }
-
 ?>

@@ -52,7 +52,7 @@ function yourstoryz_plugin_register_settings() {
 
     add_settings_field(
         'yourstoryz_cron_interval',
-        'Automatic post updates timer',
+        'Automatically get posts timer',
         'yourstoryz_cron_interval_callback',
         'yourstoryz-plugin-settings',
         'yourstoryz_plugin_settings_section'
