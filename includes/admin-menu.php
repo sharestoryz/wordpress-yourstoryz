@@ -44,6 +44,9 @@ function yourstoryz_plugin_info_page() {
     // HTML for plugin explaination page
     ?>
     <div class="wrap">
+        <div class="notice notice-warning" style="width:680px">
+            <p>Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
+        </div>
         <h1>Welcome to YourStoryz</h1>
         <p>To use this plugin, you need an active subscription to <a href="https://yourstoryz.com/" target="_blank">YourStoryz</a>.</p>
         <h2>How to Get Your API Token?</h2>
@@ -68,7 +71,6 @@ function yourstoryz_plugin_info_page() {
         <form method="post" action="">
             <div>
                 <input type="text" name="yourstoryz_plugin_change_token" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
-                <p class="notice notice-warning" style="width:680px">Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
                 <?php submit_button('Validate Token', 'large', '', false); ?>
             </div>
         </form>
@@ -91,6 +93,7 @@ function yourstoryz_plugin_settings_page() {
     ?>
     <div class="wrap">
         <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/logo.svg'); ?>" alt="YourStoryz Logo">
+        <div class="notice notice-warning" style="width:680px"><p>Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p></div>
         <form method="post" action="options.php">
             <?php
             settings_fields('yourstoryz_plugin_settings_group');
@@ -103,7 +106,6 @@ function yourstoryz_plugin_settings_page() {
                 echo do_shortcode('[your_button]');
                 ?>
             </p>
-            <p class="notice notice-warning" style="width:680px">Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
         </form>
     </div>
     <?php
