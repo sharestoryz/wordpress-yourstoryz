@@ -62,6 +62,9 @@ function yourstoryz_plugin_register_settings() {
 function yourstoryz_plugin_autoplay_callback() {
     $autoplay = get_option('yourstoryz_plugin_autoplay');
     echo '<input type="checkbox" name="yourstoryz_plugin_autoplay" value="1" ' . checked(1, $autoplay, false) . ' />';
+    ?>
+    <p class="description">Select this option to turn on autoplay for videos in your blogpost.</p>
+    <?php
 }
 // Dropdown to select a department from api data
 function yourstoryz_plugin_filter_on_department_callback() {
@@ -76,6 +79,9 @@ function yourstoryz_plugin_filter_on_department_callback() {
         echo '<option value="' . $id . '" ' . selected($selected_department, $id, false) . '>' . $name . '</option>';
     }
     echo '</select>';
+    ?>
+    <p class="description">Select the department you want to get posts from. Main company will not filter on any department</p>
+    <?php
 }
 // Connect to api and find available departments
 function fetch_departments() {
@@ -102,20 +108,30 @@ function fetch_departments() {
 function yourstoryz_plugin_change_token_callback() {
     $token = esc_attr(get_option('yourstoryz_plugin_change_token'));
     echo '<input type="text" name="yourstoryz_plugin_change_token" value="' . $token . '" placeholder="' . esc_attr($token) . '" />';
+    ?>
+    <p class="description">Change your API token. An invalid token will result in closing this page.</p>
+    <?php
 }
 // Store cron job value in options.php (on/off switch)
 function yourstoryz_enable_cron_callback() {
     $enable_cron = get_option('yourstoryz_enable_cron', '0');
     echo '<input type="checkbox" name="yourstoryz_enable_cron" value="1" ' . checked(1, $enable_cron, false) . ' />';
+    ?>
+    <p class="description">Select this option to automatically get new posts at a set interval (once per hour by default).</p>
+    <?php
 }
 // Dropdown to set update timer for cron job
 function yourstoryz_cron_interval_callback() {
     $cron_interval = get_option('yourstoryz_cron_interval', 'hourly');
-    echo '<select name="yourstoryz_cron_interval">
+    echo '
+    <select name="yourstoryz_cron_interval">
         <option value="hourly" ' . selected($cron_interval, 'hourly', false) . '>Hourly</option>
         <option value="twicedaily" ' . selected($cron_interval, 'twicedaily', false) . '>Twice Daily</option>
         <option value="daily" ' . selected($cron_interval, 'daily', false) . '>Daily</option>
         <option value="weekly" ' . selected($cron_interval, 'weekly', false) . '>Weekly</option>
     </select>';
+    ?>
+    <p class="description">Set an interval at which to automatically get posts from the API.</p>
+    <?php
 }
 ?>

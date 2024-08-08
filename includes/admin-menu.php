@@ -44,35 +44,47 @@ function yourstoryz_plugin_info_page() {
     // HTML for plugin explaination page
     ?>
     <div class="wrap">
-        <div class="notice notice-warning" style="width:680px">
-            <p>Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
-        </div>
         <h1>Welcome to YourStoryz</h1>
+        <div class="notice notice-info alt">
+            <p><strong>Warning:</strong> This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
+        </div>
         <p>To use this plugin, you need an active subscription to <a href="https://yourstoryz.com/" target="_blank">YourStoryz</a>.</p>
         <h2>How to Get Your API Token?</h2>
-        <p>1. Create an Account:</p>
-        <p>&#8226; First, create an account on the YourStoryz platform. You can sign up at yourstoryz.com or via the YourStoryz app available on iOS and Android.</p>
-        <p>
-        <a href="https://play.google.com/store/apps/details?id=com.yourstoryz.storyz&pcampaignid=web_share" target="_blank">
-            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/get-it-on-google.png'); ?>" alt="Get it on google button" style="width: auto; height: 50px;">
-        </a>
-        <a href="https://apps.apple.com/nl/app/yourstoryz/id1544965290" target="_blank">
-            <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/download-on-the-appstore.svg'); ?>" alt="Download on the app store button" style="width: auto; height: 50px;">
-        </a>
-        </p>
-        <p>2. Create Your API Token:</p>
-        <p>&#8226; Once you have an account, you're ready to create your API token. Follow these steps:</p>
-        <p>&#8226; Go to the YourStoryz dashboard: <a href="https://dashboard.yourstoryz.com/en/login" target="_blank">dashboard.yourstoryz.com/dashboard</a></p>
-        <p><strong>Navigate to My Companies > Tokens > API Tokens</strong></p>
-        <p>&#8226; Create or find your API token.</p>
-        <p>&#8226; Enter Your API Token:</p>
-        <p>&#8226; After obtaining your API token, enter it in the provided field within the plugin settings to start using the plugin.</p>
+        <ol>
+            <li>Create an Account:
+                <p>First, create an account on the YourStoryz platform. You can sign up at <a href="https://yourstoryz.com/" target="_blank">yourstoryz.com</a> or via the YourStoryz app available on iOS and Android.</p>
+                <p>
+                    <a href="https://play.google.com/store/apps/details?id=com.yourstoryz.storyz&pcampaignid=web_share" target="_blank">
+                        <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/get-it-on-google.png'); ?>" alt="Get it on Google Play" style="width: auto; height: 50px;">
+                    </a>
+                    <a href="https://apps.apple.com/nl/app/yourstoryz/id1544965290" target="_blank">
+                        <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/download-on-the-appstore.svg'); ?>" alt="Download on the App Store" style="width: auto; height: 50px;">
+                    </a>
+                </p>
+            </li>
+            <li>Create Your API Token:
+                <p>Once you have an account, you're ready to create your API token. Follow these steps:</p>
+                <ul>
+                    <li>Go to the YourStoryz dashboard: <a href="https://dashboard.yourstoryz.com/en/login" target="_blank">dashboard.yourstoryz.com/dashboard</a></li>
+                    <li><strong>Navigate to My Companies > Tokens > API Tokens</strong></li>
+                    <li>Create or find your API token.</li>
+                    <li>After obtaining your API token, enter it in the provided field within the plugin settings to start using the plugin.</li>
+                </ul>
+            </li>
+        </ol>
         <?php echo $validation_message; ?>
-        <form method="post" action="">
-            <div>
-                <input type="text" name="yourstoryz_plugin_change_token" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
-                <?php submit_button('Validate Token', 'large', '', false); ?>
-            </div>
+        <form method="post" action="" class="yourstoryz-form">
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="yourstoryz_plugin_change_token">API Token:</label>
+                    </th>
+                    <td>
+                        <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
+                        <?php submit_button('Validate Token', 'primary', '', false); ?>
+                    </td>
+                </tr>
+            </table>
         </form>
         <h2>Need Help?</h2>
         <p>For further assistance, please <a href="https://yourstoryz.com/contact/" target="_blank">contact our support team</a>.</p>
@@ -93,7 +105,9 @@ function yourstoryz_plugin_settings_page() {
     ?>
     <div class="wrap">
         <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/logo.svg'); ?>" alt="YourStoryz Logo">
-        <div class="notice notice-warning" style="width:680px"><p>Warning: This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p></div>
+        <div class="notice notice-info alt">
+            <p><strong>Warning:</strong> This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
+        </div>
         <form method="post" action="options.php">
             <?php
             settings_fields('yourstoryz_plugin_settings_group');
@@ -107,6 +121,7 @@ function yourstoryz_plugin_settings_page() {
                 ?>
             </p>
         </form>
+        <p class="description">Place the "Get YourStoryz" button anywhere with it's shortcode [your-button].</p>
     </div>
     <?php
 }
