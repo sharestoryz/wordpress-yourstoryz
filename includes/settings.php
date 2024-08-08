@@ -101,7 +101,7 @@ function yourstoryz_plugin_autoplay_callback() {
     ?>
     <label for="yourstoryz_plugin_autoplay">
         <input type="checkbox" name="yourstoryz_plugin_autoplay" id="yourstoryz_plugin_autoplay" value="1" <?php checked(1, $autoplay); ?> />
-        Select this option to turn on autoplay for videos in your blog posts.
+        Enable autoplay for videos in your blog posts.
     </label>
     <?php
 }
@@ -111,7 +111,7 @@ function yourstoryz_enable_cron_callback() {
     ?>
     <label for="yourstoryz_enable_cron">
         <input type="checkbox" name="yourstoryz_enable_cron" id="yourstoryz_enable_cron" value="1" <?php checked(1, $enable_cron); ?> />
-        Select this option to automatically get new posts at a set interval (once per hour by default).
+        Enable automatic fetching of posts from the API at your selected interval (default is hourly).
     </label>
     <?php
 }
@@ -133,7 +133,7 @@ function yourstoryz_plugin_change_token_callback() {
     $token = esc_attr(get_option('yourstoryz_plugin_change_token'));
     ?>
     <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" value="<?php echo $token; ?>" placeholder="Enter your API token here" />
-    <p class="description">Enter your API token. An invalid token may cause issues with plugin functionality.</p>
+    <p class="description">Change your API token. An invalid token will remove acces to this page.</p>
     <?php
 }
 ?>
