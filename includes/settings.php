@@ -1,7 +1,9 @@
 <?php
-
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 add_action('admin_init', 'yourstoryz_plugin_register_settings');
-
+// Create settings page and fields
 function yourstoryz_plugin_register_settings() {
     register_setting('yourstoryz_plugin_settings_group', 'yourstoryz_plugin_autoplay');
     register_setting('yourstoryz_plugin_settings_group', 'yourstoryz_plugin_filter_on_department');
@@ -56,12 +58,12 @@ function yourstoryz_plugin_register_settings() {
         'yourstoryz_plugin_settings_section'
     );
 }
-
+// Store autoplay value in options.php (on/off switch)
 function yourstoryz_plugin_autoplay_callback() {
     $autoplay = get_option('yourstoryz_plugin_autoplay');
     echo '<input type="checkbox" name="yourstoryz_plugin_autoplay" value="1" ' . checked(1, $autoplay, false) . ' />';
 }
-
+// Dropdown to select a department from api data
 function yourstoryz_plugin_filter_on_department_callback() {
     $departments = fetch_departments();
     $selected_department = get_option('yourstoryz_plugin_filter_on_department');
@@ -75,7 +77,7 @@ function yourstoryz_plugin_filter_on_department_callback() {
     }
     echo '</select>';
 }
-
+// Connect to api and find available departments
 function fetch_departments() {
     $token = get_option('yourstoryz_plugin_change_token');
     $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments';
@@ -96,12 +98,17 @@ function fetch_departments() {
 
     return is_array($data) ? $data : array();
 }
-
+// Input for changing bearer token (api token)
 function yourstoryz_plugin_change_token_callback() {
     $token = esc_attr(get_option('yourstoryz_plugin_change_token'));
     echo '<input type="text" name="yourstoryz_plugin_change_token" value="' . $token . '" placeholder="' . esc_attr($token) . '" />';
 }
-
+// Store cron job value in options.php (on/off switch)
+function yourstoryz_enable_cron_callback() {
+    $enable_cron = get_option('yourstoryz_enable_cron', '0');
+    echo '<input type="checkbox" name="yourstoryz_enable_cron" value="1" ' . checked(1, $enable_cron, false) . ' />';
+}
+// Dropdown to set update timer for cron job
 function yourstoryz_cron_interval_callback() {
     $cron_interval = get_option('yourstoryz_cron_interval', 'hourly');
     echo '<select name="yourstoryz_cron_interval">
@@ -110,10 +117,5 @@ function yourstoryz_cron_interval_callback() {
         <option value="daily" ' . selected($cron_interval, 'daily', false) . '>Daily</option>
         <option value="weekly" ' . selected($cron_interval, 'weekly', false) . '>Weekly</option>
     </select>';
-}
-
-function yourstoryz_enable_cron_callback() {
-    $enable_cron = get_option('yourstoryz_enable_cron', '0');
-    echo '<input type="checkbox" name="yourstoryz_enable_cron" value="1" ' . checked(1, $enable_cron, false) . ' />';
 }
 ?>

@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+// Create a button that can be placed on the site using the shortcode [your_button] that fires the call_api function
 function your_button_shortcode() {
     ?>
     <?php submit_button('Get YourStoryz', 'primary large', 'yourbutton', false); ?>

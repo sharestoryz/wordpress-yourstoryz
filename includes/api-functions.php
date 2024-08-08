@@ -1,6 +1,10 @@
 <?php
-
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+// Create posts from API data
 function call_api() {
+    // Call required files for video upload
     require_once(ABSPATH . 'wp-admin/includes/file.php');
     require_once(ABSPATH . 'wp-admin/includes/media.php');
     require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -11,7 +15,7 @@ function call_api() {
     $api_url = get_option('yourstoryz_plugin_filter_on_department') ?
         'https://dashboard.yourstoryz.com/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
         $api_videos;
-
+    // Set and get stored id's from serialized data options.php
     $option_key = 'yourstoryz_processed_ids';
     $stored_ids = get_option($option_key, array('videos' => array(), 'contents' => array()));
 
@@ -37,19 +41,21 @@ function call_api() {
     }
 
     foreach ($data as $api_data) {
-        if (isset($stored_ids['videos'][$api_data->id])) {
+        if (isset($stored_ids['videos'][$api_data->id])) { // Check for duplicates based on stored id's
             continue; 
         }
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
+        // Get video url
         $video_url = $api_data->video_url;
+        // Download video to temp dir
         $tmp_file = download_url($video_url);
 
         if (is_wp_error($tmp_file)) {
             error_log('Error downloading video: ' . $tmp_file->get_error_message());
             continue;
         }
-
+        // Array based on $_FILE as seen in PHP file uploads
         $file = array(
             'name'     => basename($video_url),
             'type'     => mime_content_type($tmp_file),
@@ -59,18 +65,23 @@ function call_api() {
         );
 
         $overrides = array(
+            /*
+            * Tells WordPress to not look for the POST form fields that would
+            * normally be present, default is true, we downloaded the file from
+            * a remote server, so there will be no form fields
+            */
             'test_form' => false,
             'test_size' => true,
             'test_upload' => true,
         );
-
+        // Move file to uploads dir
         $movefile = wp_handle_sideload($file, $overrides);
 
         if (isset($movefile['error'])) {
             error_log('Error handling sideload: ' . $movefile['error']);
             continue;
         }
-
+        // Prepare media video upload
         $attachment = array(
             'guid'           => $movefile['url'],
             'post_mime_type' => $movefile['type'],
@@ -78,11 +89,11 @@ function call_api() {
             'post_content'   => '',
             'post_status'    => 'inherit'
         );
-
+        // Insert video into media
         $attach_id = wp_insert_attachment($attachment, $movefile['file']);
         $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
         wp_update_attachment_metadata($attach_id, $attach_data);
-
+        // Prepare post content
         $post_content = '
         <!-- wp:heading {"level":1} -->
         <h1 class="wp-block-heading">' . esc_html($api_data->title) . '</h1>
@@ -96,7 +107,7 @@ function call_api() {
         <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
         <!-- /wp:video -->
         ';
-
+        // Insert post
         $new_post = wp_insert_post(array(
             'post_author'   => get_current_user_id(),
             'post_content'  => $post_content,
@@ -109,7 +120,7 @@ function call_api() {
             error_log('Error creating post: ' . $new_post->get_error_message());
             continue;
         }
-
+        // Store id's for checking duplicates
         $stored_ids['videos'][$api_data->id] = array('post_id' => $new_post);
 
         if (isset($api_data->contents) && is_array($api_data->contents)) {
@@ -117,16 +128,17 @@ function call_api() {
                 if (isset($stored_ids['contents'][$content->id])) {
                     continue;
                 }
-                
-                $hashtags_html = '';
-
+                // Set variable for hashtags
+                $hashtags_data = '';
+                // Put hashtags in a paragraph
                 if (isset($content->hashtags) && is_array($content->hashtags)) {
-                    $hashtags_html .= '<!-- wp:paragraph --><p>';
-                    $hashtags_html .= implode(' ', array_map('esc_html', $content->hashtags));
-                    $hashtags_html .= '</p><!-- /wp:paragraph -->';
+                    $hashtags_data .= '<!-- wp:paragraph --><p>';
+                    $hashtags_data .= implode(' ', $content->hashtags);
+                    $hashtags_data .= '</p><!-- /wp:paragraph -->';
                 }
-                
+                // Set title with date, leave out unnecessary data
                 $post_title = $api_data->title . ' - ' . substr($content->created_at, 0, 10);
+                // Prepare post content
                 $post_content = '
                 <!-- wp:heading {"level":1} -->
                 <h1 class="wp-block-heading">' . esc_html($api_data->title) . '</h1>
@@ -148,9 +160,9 @@ function call_api() {
                 <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
                 <!-- /wp:video -->
 
-                ' . $hashtags_html . '
+                ' . $hashtags_data . '
                 ';
-
+                // Insert post
                 $new_post_content = wp_insert_post(array(
                     'post_author'   => get_current_user_id(),
                     'post_content'  => $post_content,
@@ -164,7 +176,7 @@ function call_api() {
                     error_log('Error creating content post: ' . $new_post_content->get_error_message());
                     continue;
                 }
-
+                // Store id's for checking duplicates
                 $stored_ids['contents'][$content->id] = array('post_id' => $new_post_content);
             }
         }

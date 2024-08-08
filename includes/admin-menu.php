@@ -1,5 +1,8 @@
 <?php
-
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+// Create plugin menu in sidebar
 add_action('admin_menu', 'yourstoryz_plugin_create_menu');
 
 function yourstoryz_plugin_create_menu() {
@@ -22,8 +25,9 @@ function yourstoryz_plugin_create_menu() {
         'yourstoryz_plugin_settings_page'
     );
 }
-// Yourstoryz page
+// Plugin explaination page with check for api key
 function yourstoryz_plugin_info_page() {
+    // Get api key from options.php
     $api_key = get_option('yourstoryz_plugin_change_token');
     $validation_message = '';
 
@@ -37,7 +41,7 @@ function yourstoryz_plugin_info_page() {
             $validation_message = '<div class="notice notice-error"><p>Invalid API key. Please check and try again.</p></div>';
         }
     }
-
+    // HTML for plugin explaination page
     ?>
     <div class="wrap">
         <h1>Welcome to YourStoryz</h1>
@@ -83,7 +87,7 @@ function yourstoryz_plugin_settings_page() {
         <?php
         return;
     }
-
+    // Buttons and HTML for settings page
     ?>
     <div class="wrap">
         <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/logo.svg'); ?>" alt="">
@@ -104,7 +108,7 @@ function yourstoryz_plugin_settings_page() {
     </div>
     <?php
 }
-
+// Connect to api for api validation
 function yourstoryz_validate_api_key($api_key) {
     $response = wp_remote_get('https://dashboard.yourstoryz.com/api/v1/videos/', array(
         'headers' => array(

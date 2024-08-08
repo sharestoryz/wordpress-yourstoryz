@@ -7,7 +7,11 @@ Author: Concept 7
 Author URI: https://concept7.nl/
 Developer: Nathan Kruit
 */
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
+// Include all files
 include_once plugin_dir_path(__FILE__) . 'includes/admin-menu.php';
 include_once plugin_dir_path(__FILE__) . 'includes/shortcodes.php';
 include_once plugin_dir_path(__FILE__) . 'includes/cron-job.php';
