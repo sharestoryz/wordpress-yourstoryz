@@ -95,10 +95,6 @@ function call_api() {
         <!-- wp:video -->
         <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
         <!-- /wp:video -->
-
-        <!-- wp:paragraph -->
-            <p>Hier moeten nog wat tags komen</p>
-        <!-- /wp:paragraph -->
         ';
 
         $new_post = wp_insert_post(array(
