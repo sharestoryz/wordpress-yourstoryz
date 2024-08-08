@@ -185,5 +185,4 @@ function call_api() {
 }
 
 add_action('wp_ajax_call_api', 'call_api');
-
 ?>

@@ -10,7 +10,6 @@ Developer: Nathan Kruit
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-
 // Include all files
 include_once plugin_dir_path(__FILE__) . 'includes/admin-menu.php';
 include_once plugin_dir_path(__FILE__) . 'includes/shortcodes.php';

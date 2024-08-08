@@ -20,6 +20,7 @@ function yourstoryz_manage_cron_event() {
 }
 add_action('wp', 'yourstoryz_manage_cron_event');
 add_action('yourstoryz_cron_event', 'call_api');
+
 // Removes cron event on plugin deactivation
 function yourstoryz_plugin_deactivation() {
     $timestamp = wp_next_scheduled('yourstoryz_cron_event');
