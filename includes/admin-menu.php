@@ -64,27 +64,19 @@ function yourstoryz_plugin_info_page() {
             </li>
             <li>Create Your API Token:
                 <p>Once you have an account, you're ready to create your API token. Follow these steps:</p>
-                <ul>
+                <ol>
                     <li>Go to the YourStoryz dashboard: <a href="https://dashboard.yourstoryz.com/en/login" target="_blank">dashboard.yourstoryz.com/dashboard</a></li>
                     <li><strong>Navigate to My Companies > Tokens > API Tokens</strong></li>
-                    <li>Create or find your API token.</li>
+                    <li>Create your API token.</li>
                     <li>After obtaining your API token, enter it in the provided field within the plugin settings to start using the plugin.</li>
-                </ul>
+                </ol>
             </li>
         </ol>
         <?php echo $validation_message; ?>
         <form method="post" action="" class="yourstoryz-form">
-            <table class="form-table">
-                <tr>
-                    <th scope="row">
-                        <label for="yourstoryz_plugin_change_token">API Token:</label>
-                    </th>
-                    <td>
-                        <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
-                        <?php submit_button('Validate Token', 'primary', '', false); ?>
-                    </td>
-                </tr>
-            </table>
+            <strong>API Token:</strong>
+            <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
+            <?php submit_button('Validate Token', 'primary', '', false); ?>
         </form>
         <h2>Need Help?</h2>
         <p>For further assistance, please <a href="https://yourstoryz.com/contact/" target="_blank">contact our support team</a>.</p>

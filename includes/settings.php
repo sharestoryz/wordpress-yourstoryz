@@ -10,6 +10,14 @@ function yourstoryz_plugin_register_settings() {
     register_setting('yourstoryz_plugin_settings_group', 'yourstoryz_plugin_change_token');
     register_setting('yourstoryz_plugin_settings_group', 'yourstoryz_cron_interval');
     register_setting('yourstoryz_plugin_settings_group', 'yourstoryz_enable_cron');
+    
+    add_settings_field(
+        'yourstoryz_plugin_filter_on_department',
+        'Filter on department',
+        'yourstoryz_plugin_filter_on_department_callback',
+        'yourstoryz-plugin-settings',
+        'yourstoryz_plugin_settings_section'
+    );
 
     add_settings_section(
         'yourstoryz_plugin_settings_section',
@@ -22,22 +30,6 @@ function yourstoryz_plugin_register_settings() {
         'yourstoryz_plugin_autoplay',
         'Autoplay videos',
         'yourstoryz_plugin_autoplay_callback',
-        'yourstoryz-plugin-settings',
-        'yourstoryz_plugin_settings_section'
-    );
-
-    add_settings_field(
-        'yourstoryz_plugin_filter_on_department',
-        'Filter on department',
-        'yourstoryz_plugin_filter_on_department_callback',
-        'yourstoryz-plugin-settings',
-        'yourstoryz_plugin_settings_section'
-    );
-
-    add_settings_field(
-        'yourstoryz_plugin_change_token',
-        'Change API token',
-        'yourstoryz_plugin_change_token_callback',
         'yourstoryz-plugin-settings',
         'yourstoryz_plugin_settings_section'
     );
@@ -57,30 +49,29 @@ function yourstoryz_plugin_register_settings() {
         'yourstoryz-plugin-settings',
         'yourstoryz_plugin_settings_section'
     );
-}
-// Store autoplay value in options.php (on/off switch)
-function yourstoryz_plugin_autoplay_callback() {
-    $autoplay = get_option('yourstoryz_plugin_autoplay');
-    echo '<input type="checkbox" name="yourstoryz_plugin_autoplay" value="1" ' . checked(1, $autoplay, false) . ' />';
-    ?>
-    <p class="description">Select this option to turn on autoplay for videos in your blogpost.</p>
-    <?php
+    
+    add_settings_field(
+        'yourstoryz_plugin_change_token',
+        'Change API token',
+        'yourstoryz_plugin_change_token_callback',
+        'yourstoryz-plugin-settings',
+        'yourstoryz_plugin_settings_section'
+    );
 }
 // Dropdown to select a department from api data
 function yourstoryz_plugin_filter_on_department_callback() {
     $departments = fetch_departments();
     $selected_department = get_option('yourstoryz_plugin_filter_on_department');
-
-    echo '<select name="yourstoryz_plugin_filter_on_department">
-        <option value="" ' . selected('', $selected_department, false) . '>Main company</option>';
-    foreach ($departments as $department) {
-        $id = esc_attr($department->id);
-        $name = esc_html($department->name);
-        echo '<option value="' . $id . '" ' . selected($selected_department, $id, false) . '>' . $name . '</option>';
-    }
-    echo '</select>';
     ?>
-    <p class="description">Select the department you want to get posts from. Main company will not filter on any department</p>
+    <select name="yourstoryz_plugin_filter_on_department" id="yourstoryz_plugin_filter_on_department">
+        <option value="" <?php selected('', $selected_department); ?>>Main company</option>
+        <?php foreach ($departments as $department): ?>
+            <option value="<?php echo esc_attr($department->id); ?>" <?php selected($selected_department, $department->id); ?>>
+                <?php echo esc_html($department->name); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <p class="description">Select the department to filter posts from. Choosing 'Main company' will not apply any filter.</p>
     <?php
 }
 // Connect to api and find available departments
@@ -104,34 +95,45 @@ function fetch_departments() {
 
     return is_array($data) ? $data : array();
 }
-// Input for changing bearer token (api token)
-function yourstoryz_plugin_change_token_callback() {
-    $token = esc_attr(get_option('yourstoryz_plugin_change_token'));
-    echo '<input type="text" name="yourstoryz_plugin_change_token" value="' . $token . '" placeholder="' . esc_attr($token) . '" />';
+// Store autoplay value in options.php (on/off switch)
+function yourstoryz_plugin_autoplay_callback() {
+    $autoplay = get_option('yourstoryz_plugin_autoplay', '0');
     ?>
-    <p class="description">Change your API token. An invalid token will result in closing this page.</p>
+    <label for="yourstoryz_plugin_autoplay">
+        <input type="checkbox" name="yourstoryz_plugin_autoplay" id="yourstoryz_plugin_autoplay" value="1" <?php checked(1, $autoplay); ?> />
+        Select this option to turn on autoplay for videos in your blog posts.
+    </label>
     <?php
 }
 // Store cron job value in options.php (on/off switch)
 function yourstoryz_enable_cron_callback() {
     $enable_cron = get_option('yourstoryz_enable_cron', '0');
-    echo '<input type="checkbox" name="yourstoryz_enable_cron" value="1" ' . checked(1, $enable_cron, false) . ' />';
     ?>
-    <p class="description">Select this option to automatically get new posts at a set interval (once per hour by default).</p>
+    <label for="yourstoryz_enable_cron">
+        <input type="checkbox" name="yourstoryz_enable_cron" id="yourstoryz_enable_cron" value="1" <?php checked(1, $enable_cron); ?> />
+        Select this option to automatically get new posts at a set interval (once per hour by default).
+    </label>
     <?php
 }
 // Dropdown to set update timer for cron job
 function yourstoryz_cron_interval_callback() {
     $cron_interval = get_option('yourstoryz_cron_interval', 'hourly');
-    echo '
-    <select name="yourstoryz_cron_interval">
-        <option value="hourly" ' . selected($cron_interval, 'hourly', false) . '>Hourly</option>
-        <option value="twicedaily" ' . selected($cron_interval, 'twicedaily', false) . '>Twice Daily</option>
-        <option value="daily" ' . selected($cron_interval, 'daily', false) . '>Daily</option>
-        <option value="weekly" ' . selected($cron_interval, 'weekly', false) . '>Weekly</option>
-    </select>';
     ?>
-    <p class="description">Set an interval at which to automatically get posts from the API.</p>
+    <select name="yourstoryz_cron_interval" id="yourstoryz_cron_interval">
+        <option value="hourly" <?php selected($cron_interval, 'hourly'); ?>>Hourly</option>
+        <option value="twicedaily" <?php selected($cron_interval, 'twicedaily'); ?>>Twice Daily</option>
+        <option value="daily" <?php selected($cron_interval, 'daily'); ?>>Daily</option>
+        <option value="weekly" <?php selected($cron_interval, 'weekly'); ?>>Weekly</option>
+    </select>
+    <p class="description">Set an interval after which to automatically fetch posts from the API.</p>
+    <?php
+}
+// Input for changing bearer token (api token)
+function yourstoryz_plugin_change_token_callback() {
+    $token = esc_attr(get_option('yourstoryz_plugin_change_token'));
+    ?>
+    <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" value="<?php echo $token; ?>" placeholder="Enter your API token here" />
+    <p class="description">Enter your API token. An invalid token may cause issues with plugin functionality.</p>
     <?php
 }
 ?>
