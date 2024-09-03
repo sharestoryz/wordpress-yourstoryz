@@ -17,14 +17,8 @@ function call_api() {
         $api_videos;
     // Set and get stored id's from serialized data options.php
     $option_key = 'yourstoryz_processed_ids';
-    $stored_ids = get_option($option_key, array('videos' => array(), 'contents' => array()));
-
-    $response = wp_remote_get($api_url, array(
-        'headers' => array(
-            'Authorization' => $token,
-            'Content-Type'  => 'application/json',
-        ),
-    ));
+    $stored_ids = get_option($option_key) ?? ['videos' => [], 'contents' => []];
+    $response = wp_remote_get($api_url, ['headers' => ['Authorization' => $token, 'Content-Type' => 'application/json']]);
 
     if (is_wp_error($response)) {
         error_log('API request error: ' . $response->get_error_message());
@@ -108,20 +102,20 @@ function call_api() {
         <!-- /wp:video -->
         ';
         // Insert post
-        $new_post = wp_insert_post(array(
+        $new_post = wp_insert_post([
             'post_author'   => get_current_user_id(),
             'post_content'  => $post_content,
             'post_title'    => $post_title,
             'post_status'   => 'draft',
             'post_type'     => 'post'
-        ));
+        ]);
 
         if (is_wp_error($new_post)) {
             error_log('Error creating post: ' . $new_post->get_error_message());
             continue;
         }
         // Store id's for checking duplicates
-        $stored_ids['videos'][$api_data->id] = array('post_id' => $new_post);
+        $stored_ids['videos'][$api_data->id] = ['post_id' => $new_post];
 
         if (isset($api_data->contents) && is_array($api_data->contents)) {
             foreach ($api_data->contents as $content) {
@@ -163,21 +157,21 @@ function call_api() {
                 ' . $hashtags_data . '
                 ';
                 // Insert post
-                $new_post_content = wp_insert_post(array(
+                $new_post_content = wp_insert_post([
                     'post_author'   => get_current_user_id(),
                     'post_content'  => $post_content,
                     'post_title'    => $post_title,
                     'post_status'   => 'draft',
                     'post_type'     => 'post',
                     'tags_input'    => $content->lang
-                ));
+                ]);
 
                 if (is_wp_error($new_post_content)) {
                     error_log('Error creating content post: ' . $new_post_content->get_error_message());
                     continue;
                 }
                 // Store id's for checking duplicates
-                $stored_ids['contents'][$content->id] = array('post_id' => $new_post_content);
+                $stored_ids['contents'][$content->id] = ['post_id' => $new_post_content];
             }
         }
         update_option($option_key, $stored_ids);
@@ -185,4 +179,3 @@ function call_api() {
 }
 
 add_action('wp_ajax_call_api', 'call_api');
-?>

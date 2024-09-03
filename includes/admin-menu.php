@@ -135,4 +135,3 @@ function yourstoryz_validate_api_key($api_key) {
 
     return !empty($data);
 }
-?>
