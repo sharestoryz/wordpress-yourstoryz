@@ -50,15 +50,15 @@ function call_api() {
             continue;
         }
         // Array based on $_FILE as seen in PHP file uploads
-        $file = array(
+        $file = [
             'name'     => basename($video_url),
             'type'     => mime_content_type($tmp_file),
             'tmp_name' => $tmp_file,
             'error'    => 0,
             'size'     => filesize($tmp_file),
-        );
+        ];
 
-        $overrides = array(
+        $overrides = [
             /*
             * Tells WordPress to not look for the POST form fields that would
             * normally be present, default is true, we downloaded the file from
@@ -67,7 +67,7 @@ function call_api() {
             'test_form' => false,
             'test_size' => true,
             'test_upload' => true,
-        );
+        ];
         // Move file to uploads dir
         $movefile = wp_handle_sideload($file, $overrides);
 
