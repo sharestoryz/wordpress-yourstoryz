@@ -64,12 +64,12 @@ function fetch_departments() {
     $token = get_option('yourstoryz_plugin_change_token');
     $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments';
 
-    $response = wp_remote_get($api_url, array(
-        'headers' => array(
+    $response = wp_remote_get($api_url, [
+        'headers' => [
             'Authorization' => 'Bearer ' . $token,
             'Content-Type'  => 'application/json',
-        ),
-    ));
+        ],
+    ]);
 
     if (is_wp_error($response)) {
         return [];

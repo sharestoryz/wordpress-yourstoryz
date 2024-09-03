@@ -119,12 +119,12 @@ function yourstoryz_plugin_settings_page() {
 }
 // Connect to api for api validation
 function yourstoryz_validate_api_key($api_key) {
-    $response = wp_remote_get('https://dashboard.yourstoryz.com/api/v1/videos/', array(
-        'headers' => array(
+    $response = wp_remote_get('https://dashboard.yourstoryz.com/api/v1/videos/', [
+        'headers' => [
             'Authorization' => $api_key,
             'Content-Type'  => 'application/json',
-        ),
-    ));
+        ],
+    ]);
 
     if (is_wp_error($response)) {
         return false;
