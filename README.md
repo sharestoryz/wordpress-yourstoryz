@@ -1,6 +1,6 @@
 === YourStoryz ===
 Tags: plugin, api, freemium
-Contributors: Concept7
+Contributors: yourstoryz
 Tested up to: 6.0
 Stable tag: 6.0
 License: GPLv2 or later
