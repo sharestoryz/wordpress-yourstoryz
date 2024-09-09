@@ -96,7 +96,7 @@ function call_api() {
         $file = [
             'name'     => basename($video_url),
             'type'     => mime_content_type($tmp_video_file),
-            'tmp_name' => $tmp_file,
+            'tmp_name' => $tmp_video_file,
             'error'    => 0,
             'size'     => filesize($tmp_video_file),
         ];
