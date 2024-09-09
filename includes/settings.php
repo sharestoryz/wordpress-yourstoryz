@@ -85,21 +85,17 @@ function fetch_departments() {
 function yourstoryz_plugin_filter_on_department_callback() {
     $departments = fetch_departments();
     $selected_department = get_option('yourstoryz_plugin_filter_on_department');
-
-    $options = '<option value="" ' . selected('', $selected_department) . '>Main company</option>';
-    
-    foreach ($departments as $department) {
-        $options .= '<option value="' . esc_attr($department->id) . '" ' . selected($selected_department, $department->id) . '>'
-                    . esc_html($department->name) . 
-                    '</option>';
-    }
-    
-    echo <<<HTML
+    ?>
     <select name="yourstoryz_plugin_filter_on_department" id="yourstoryz_plugin_filter_on_department">
-        $options
+        <option value="" <?php selected('', $selected_department); ?>>Main company</option>
+        <?php foreach ($departments as $department): ?>
+            <option value="<?php echo esc_attr($department->id); ?>" <?php selected($selected_department, $department->id); ?>>
+                <?php echo esc_html($department->name); ?>
+            </option>
+        <?php endforeach; ?>
     </select>
     <p class="description">Select the department to filter posts from. Choosing 'Main company' will not apply any filter.</p>
-    HTML;
+    <?php
 }
 
 // Store autoplay value in options.php (on/off switch)
