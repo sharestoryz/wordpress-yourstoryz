@@ -2,6 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+add_theme_support('post-thumbnails');
+
 add_action('admin_init', 'yourstoryz_plugin_register_settings');
 // Create settings page and fields
 function yourstoryz_plugin_register_settings() {
