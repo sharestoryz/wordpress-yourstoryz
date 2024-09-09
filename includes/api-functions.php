@@ -2,6 +2,97 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+function getThumbnail($post_id, $thumbnail_url) {
+    if (!empty($thumbnail_url)) {
+        $tmp_thumbnail_file = download_url($thumbnail_url);
+
+        if (is_wp_error($tmp_thumbnail_file)) {
+            error_log('Error downloading thumbnail: ' . $tmp_thumbnail_file->get_error_message());
+        }
+
+        $thumbnail_file = [
+            'name'     => basename($thumbnail_url),
+            'type'     => mime_content_type($tmp_thumbnail_file),
+            'tmp_name' => $tmp_thumbnail_file,
+            'error'    => 0,
+            'size'     => filesize($tmp_thumbnail_file),
+        ];
+
+        $thumbnail_movefile = wp_handle_sideload($thumbnail_file, $overrides);
+
+        if (isset($thumbnail_movefile['error'])) {
+            error_log('Error handling thumbnail sideload: ' . $thumbnail_movefile['error']);
+        }
+
+        $thumbnail_attachment = array(
+            'guid'           => $thumbnail_movefile['url'],
+            'post_mime_type' => $thumbnail_movefile['type'],
+            'post_title'     => sanitize_file_name($thumbnail_file['name']),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
+
+        // Insert thumbnail into media
+        $thumbnail_attach_id = wp_insert_attachment($thumbnail_attachment, $thumbnail_movefile['file']);
+        $thumbnail_attach_data = wp_generate_attachment_metadata($thumbnail_attach_id, $thumbnail_movefile['file']);
+        wp_update_attachment_metadata($thumbnail_attach_id, $thumbnail_attach_data);
+
+        // Set the thumbnail as the featured image for the post
+        set_post_thumbnail($post_id, $thumbnail_attach_id);
+    }
+}
+
+function getVideo($video_url) {
+    // Download video to temp dir
+    $tmp_video_file = download_url($video_url);
+
+    if (is_wp_error($tmp_video_file)) {
+        error_log('Error downloading video: ' . $tmp_video_file->get_error_message());
+    }
+
+    // Array based on $_FILE as seen in PHP file uploads
+    $file = [
+        'name'     => basename($video_url),
+        'type'     => mime_content_type($tmp_video_file),
+        'tmp_name' => $tmp_video_file,
+        'error'    => 0,
+        'size'     => filesize($tmp_video_file),
+    ];
+
+    $overrides = [
+        /*
+        * Tells WordPress to not look for the POST form fields that would
+        * normally be present, default is true, we downloaded the file from
+        * a remote server, so there will be no form fields
+        */
+        'test_form' => false,
+        'test_size' => true,
+        'test_upload' => true,
+    ];
+    // Move file to uploads dir
+    $movefile = wp_handle_sideload($file, $overrides);
+
+    if (isset($movefile['error'])) {
+        error_log('Error handling sideload: ' . $movefile['error']);
+    }
+
+    // Prepare media video upload
+    $attachment = array(
+        'guid'           => $movefile['url'],
+        'post_mime_type' => $movefile['type'],
+        'post_title'     => sanitize_file_name($file['name']),
+        'post_content'   => '',
+        'post_status'    => 'inherit'
+    );
+    // Insert video into media
+    $attach_id = wp_insert_attachment($attachment, $movefile['file']);
+    $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
+    wp_update_attachment_metadata($attach_id, $attach_data);
+
+    return $attach_id;
+}
+
 // Create posts from API data
 function call_api() {
     // Call required files for video upload
@@ -40,53 +131,9 @@ function call_api() {
         }
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
-        // Get video url
-        $video_url = $api_data->video_url;
-        // Download video to temp dir
-        $tmp_file = download_url($video_url);
 
-        if (is_wp_error($tmp_file)) {
-            error_log('Error downloading video: ' . $tmp_file->get_error_message());
-            continue;
-        }
-        // Array based on $_FILE as seen in PHP file uploads
-        $file = [
-            'name'     => basename($video_url),
-            'type'     => mime_content_type($tmp_file),
-            'tmp_name' => $tmp_file,
-            'error'    => 0,
-            'size'     => filesize($tmp_file),
-        ];
+       $attach_id = getVideo($api_data->video_url);
 
-        $overrides = [
-            /*
-            * Tells WordPress to not look for the POST form fields that would
-            * normally be present, default is true, we downloaded the file from
-            * a remote server, so there will be no form fields
-            */
-            'test_form' => false,
-            'test_size' => true,
-            'test_upload' => true,
-        ];
-        // Move file to uploads dir
-        $movefile = wp_handle_sideload($file, $overrides);
-
-        if (isset($movefile['error'])) {
-            error_log('Error handling sideload: ' . $movefile['error']);
-            continue;
-        }
-        // Prepare media video upload
-        $attachment = array(
-            'guid'           => $movefile['url'],
-            'post_mime_type' => $movefile['type'],
-            'post_title'     => sanitize_file_name($file['name']),
-            'post_content'   => '',
-            'post_status'    => 'inherit'
-        );
-        // Insert video into media
-        $attach_id = wp_insert_attachment($attachment, $movefile['file']);
-        $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
-        wp_update_attachment_metadata($attach_id, $attach_data);
         // Prepare post content
         $post_content = '
         <!-- wp:heading {"level":1} -->
@@ -174,6 +221,9 @@ function call_api() {
                 $stored_ids['contents'][$content->id] = ['post_id' => $new_post_content];
             }
         }
+
+        getThumbnail($new_post, $api_data->thumbnail_url);
+
         update_option($option_key, $stored_ids);
     }
 }
