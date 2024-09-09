@@ -9,7 +9,6 @@ function getThumbnail($post_id, $thumbnail_url) {
 
         if (is_wp_error($tmp_thumbnail_file)) {
             error_log('Error downloading thumbnail: ' . $tmp_thumbnail_file->get_error_message());
-            continue;
         }
 
         $thumbnail_file = [
@@ -24,7 +23,6 @@ function getThumbnail($post_id, $thumbnail_url) {
 
         if (isset($thumbnail_movefile['error'])) {
             error_log('Error handling thumbnail sideload: ' . $thumbnail_movefile['error']);
-            continue;
         }
 
         $thumbnail_attachment = array(
