@@ -36,7 +36,10 @@ register_deactivation_hook(__FILE__, 'yourstoryz_plugin_deactivation');
 // Update cron job settings after settings page is updated
 function yourstoryz_update_cron_schedule() {
     if (isset($_POST['option_page']) && $_POST['option_page'] === 'yourstoryz_plugin_settings_group') {
-        yourstoryz_manage_cron_event();
+        if (isset($_POST['yourstoryz_plugin_nonce_field']) && check_admin_referer('yourstoryz_plugin_nonce_action', 'yourstoryz_plugin_nonce_field')) {
+            yourstoryz_manage_cron_event();
+        }
+
     }
 }
 add_action('admin_init', 'yourstoryz_update_cron_schedule');

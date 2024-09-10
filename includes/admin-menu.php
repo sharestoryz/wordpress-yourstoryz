@@ -31,15 +31,18 @@ function yourstoryz_plugin_info_page() {
     $api_key = get_option('yourstoryz_plugin_change_token');
     $validation_message = '';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['yourstoryz_plugin_change_token'])) {
-        $api_key = sanitize_text_field($_POST['yourstoryz_plugin_change_token']);
-        update_option('yourstoryz_plugin_change_token', $api_key);
-
-        if (yourstoryz_validate_api_key($api_key)) {
-            $validation_message = '<div class="notice notice-success"><p>API key validated successfully!</p></div>';
-        } else {
-            $validation_message = '<div class="notice notice-warning"><p>Invalid API key. Please check and try again.</p></div>';
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['yourstoryz_plugin_change_token'])) {
+        if (isset($_POST['yourstoryz_plugin_nonce_field']) && check_admin_referer('yourstoryz_plugin_nonce_action', 'yourstoryz_plugin_nonce_field')) {
+            $api_key = sanitize_text_field(wp_unslash($_POST['yourstoryz_plugin_change_token']));
+            update_option('yourstoryz_plugin_change_token', $api_key);
+    
+            if (yourstoryz_validate_api_key($api_key)) {
+                $validation_message = '<div class="notice notice-success"><p>API key validated successfully!</p></div>';
+            } else {
+                $validation_message = '<div class="notice notice-warning"><p>Invalid API key. Please check and try again.</p></div>';
+            }
         }
+
     }
     // HTML for plugin explaination page
     ?>
@@ -72,10 +75,11 @@ function yourstoryz_plugin_info_page() {
                 </ol>
             </li>
         </ol>
-        <?php echo $validation_message; ?>
+        <?php echo esc_url($validation_message); ?>
         <form method="post" action="" class="yourstoryz-form">
             <strong>API Token:</strong>
             <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
+            <?php wp_nonce_field('yourstoryz_plugin_nonce_action', 'yourstoryz_plugin_nonce_field'); ?>
             <?php submit_button('Validate Token', 'primary', '', false); ?>
         </form>
         <h2>Need Help?</h2>
@@ -101,6 +105,7 @@ function yourstoryz_plugin_settings_page() {
             <p><strong>Warning:</strong> This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
         </div>
         <form method="post" action="options.php">
+        <?php wp_nonce_field('yourstoryz_plugin_nonce_action', 'yourstoryz_plugin_nonce_field'); ?>
             <?php
             settings_fields('yourstoryz_plugin_settings_group');
             do_settings_sections('yourstoryz-plugin-settings');

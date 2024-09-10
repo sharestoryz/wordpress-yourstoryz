@@ -103,58 +103,52 @@ function yourstoryz_plugin_filter_on_department_callback() {
 
 // Store autoplay value in options.php (on/off switch)
 function yourstoryz_plugin_autoplay_callback() {
-    $autoplay = get_option('yourstoryz_plugin_autoplay', '0');
-
-    $checked = checked(1, $autoplay, false);
-
-    echo <<<HTML
+    // Haal de optie op, standaard is autoplay uitgeschakeld ('0')
+    $autoplay = esc_attr(get_option('yourstoryz_plugin_autoplay', '0'));
+    ?>
     <label for="yourstoryz_plugin_autoplay">
-        <input type="checkbox" name="yourstoryz_plugin_autoplay" id="yourstoryz_plugin_autoplay" value="1" $checked />
+        <input type="checkbox" name="yourstoryz_plugin_autoplay" id="yourstoryz_plugin_autoplay" value="1" <?php checked(1, $autoplay); ?> />
         Enable autoplay for videos in your blog posts.
     </label>
-    HTML;
+    <?php
 }
+
 
 // Store cron job value in options.php (on/off switch)
 function yourstoryz_enable_cron_callback() {
-    $enable_cron = get_option('yourstoryz_enable_cron', '0');
-
-    $checked = checked(1, $enable_cron, false);
-
-    echo <<<HTML
+    // Haal de optie op, standaard is uitgeschakeld ('0')
+    $enable_cron = esc_attr(get_option('yourstoryz_enable_cron', '0'));
+    ?>
     <label for="yourstoryz_enable_cron">
-        <input type="checkbox" name="yourstoryz_enable_cron" id="yourstoryz_enable_cron" value="1" $checked />
+        <input type="checkbox" name="yourstoryz_enable_cron" id="yourstoryz_enable_cron" value="1" <?php checked(1, $enable_cron); ?> />
         Enable automatic fetching of posts from the API at your selected interval (default is hourly).
     </label>
-    HTML;
+    <?php
 }
 
 // Dropdown to set update timer for cron job
 function yourstoryz_cron_interval_callback() {
-    $cron_interval = get_option('yourstoryz_cron_interval', 'hourly');
-    $hourly_selected = selected($cron_interval, 'hourly', false);
-    $twicedaily_selected = selected($cron_interval, 'twicedaily', false);
-    $daily_selected = selected($cron_interval, 'daily', false);
-    $weekly_selected = selected($cron_interval, 'weekly', false);
-
-    echo <<<HTML
+    // Haal de geselecteerde cron-interval optie op, standaard 'hourly'
+    $cron_interval = esc_attr(get_option('yourstoryz_cron_interval', 'hourly'));
+    ?>
     <select name="yourstoryz_cron_interval" id="yourstoryz_cron_interval">
-        <option value="hourly" $hourly_selected>Hourly</option>
-        <option value="twicedaily" $twicedaily_selected>Twice Daily</option>
-        <option value="daily" $daily_selected>Daily</option>
-        <option value="weekly" $weekly_selected>Weekly</option>
+        <option value="<?php echo esc_attr('hourly'); ?>" <?php selected($cron_interval, 'hourly'); ?>>Hourly</option>
+        <option value="<?php echo esc_attr('twicedaily'); ?>" <?php selected($cron_interval, 'twicedaily'); ?>>Twice Daily</option>
+        <option value="<?php echo esc_attr('daily'); ?>" <?php selected($cron_interval, 'daily'); ?>>Daily</option>
+        <option value="<?php echo esc_attr('weekly'); ?>" <?php selected($cron_interval, 'weekly'); ?>>Weekly</option>
     </select>
     <p class="description">Set an interval after which to automatically fetch posts from the API.</p>
-    HTML;
+    <?php
 }
 
 
 // Input for changing bearer token (api token)
 function yourstoryz_plugin_change_token_callback() {
+    // Haal het token op en escape het om HTML-injecties te voorkomen
     $token = esc_attr(get_option('yourstoryz_plugin_change_token'));
-
-    echo <<<HTML
-    <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" value="$token" placeholder="Enter your API token here" />
+    ?>
+    <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" value="<?php echo esc_attr($token); ?>" placeholder="Enter your API token here" />
     <p class="description">Change your API token. An invalid token will remove access to this page.</p>
-    HTML;
+    <?php
 }
+

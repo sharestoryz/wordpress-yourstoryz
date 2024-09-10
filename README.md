@@ -1,13 +1,13 @@
 === YourStoryz ===
-Tags: plugin, api, freemium
+Tags: freemium, yourstoryz
 Contributors: yourstoryz
-Tested up to: 6.0
-Stable tag: 6.0
+Tested up to: 6.6
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://yourstoryz.com/donate
 Requires PHP: 8.3
-Requires at least: 6.0
+Requires at least: 5.5
 
 The YourStoryz Plugin connects your WordPress site to YourStoryz application, allowing you to create posts directly from the YourStoryz API.
 
