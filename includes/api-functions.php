@@ -19,6 +19,17 @@ function getThumbnail($post_id, $thumbnail_url) {
             'size'     => filesize($tmp_thumbnail_file),
         ];
 
+        $overrides = [
+            /*
+            * Tells WordPress to not look for the POST form fields that would
+            * normally be present, default is true, we downloaded the file from
+            * a remote server, so there will be no form fields
+            */
+            'test_form' => false,
+            'test_size' => true,
+            'test_upload' => true,
+        ];
+
         $thumbnail_movefile = wp_handle_sideload($thumbnail_file, $overrides);
 
         if (isset($thumbnail_movefile['error'])) {
