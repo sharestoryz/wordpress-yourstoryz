@@ -1,11 +1,13 @@
 <?php
 /*
-Plugin Name: YourStoryz Plugin
+Plugin Name: YourStoryz
 Description: A plugin to create posts with data from YourStoryz API.
 Version: 1.0
-Author: Concept 7
+Author: Concept7
 Author URI: https://concept7.nl/
 Developer: Nathan Kruit
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
