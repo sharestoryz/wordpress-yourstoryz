@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 // Include all files
 include_once plugin_dir_path(__FILE__) . 'includes/admin-menu.php';
-include_once plugin_dir_path(__FILE__) . 'includes/shortcodes.php';
 include_once plugin_dir_path(__FILE__) . 'includes/cron-job.php';
 include_once plugin_dir_path(__FILE__) . 'includes/api-functions.php';
 include_once plugin_dir_path(__FILE__) . 'includes/settings.php';
+include_once plugin_dir_path(__FILE__) . 'includes/scripts.php';

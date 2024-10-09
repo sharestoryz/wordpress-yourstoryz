@@ -63,7 +63,7 @@ function yourstoryz_plugin_register_settings() {
 }
 
 // Connect to api and find available departments
-function fetch_departments() {
+function yourstoryz_fetch_departments() {
     $token = get_option('yourstoryz_plugin_change_token');
     $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments';
 
@@ -86,7 +86,7 @@ function fetch_departments() {
 
 // Dropdown to select a department from api data
 function yourstoryz_plugin_filter_on_department_callback() {
-    $departments = fetch_departments();
+    $departments = yourstoryz_fetch_departments();
     $selected_department = get_option('yourstoryz_plugin_filter_on_department');
     ?>
     <select name="yourstoryz_plugin_filter_on_department" id="yourstoryz_plugin_filter_on_department">

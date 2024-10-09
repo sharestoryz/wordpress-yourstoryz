@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-function getThumbnail($post_id, $thumbnail_url) {
+function yourstoryz_getThumbnail($post_id, $thumbnail_url) {
     if (!empty($thumbnail_url)) {
         $tmp_thumbnail_file = download_url($thumbnail_url);
 
@@ -54,7 +54,7 @@ function getThumbnail($post_id, $thumbnail_url) {
     }
 }
 
-function getVideo($video_url) {
+function yourstoryz_getVideo($video_url) {
     // Download video to temp dir
     $tmp_video_file = download_url($video_url);
 
@@ -105,7 +105,7 @@ function getVideo($video_url) {
 }
 
 // Create posts from API data
-function call_api() {
+function yourstoryz_call_api() {
     // Call required files for video upload
     require_once(ABSPATH . 'wp-admin/includes/file.php');
     require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -143,7 +143,7 @@ function call_api() {
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
 
-       $attach_id = getVideo($api_data->video_url);
+       $attach_id = yourstoryz_getVideo($api_data->video_url);
 
         // Prepare post content
         $post_content = '
@@ -233,10 +233,10 @@ function call_api() {
             }
         }
 
-        getThumbnail($new_post, $api_data->thumbnail_url);
+        yourstoryz_getThumbnail($new_post, $api_data->thumbnail_url);
 
         update_option($option_key, $stored_ids);
     }
 }
 
-add_action('wp_ajax_call_api', 'call_api');
+add_action('wp_ajax_call_api', 'yourstoryz_call_api');
