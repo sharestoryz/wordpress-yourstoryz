@@ -19,6 +19,12 @@ Follow the instructions on the plugin settings page to obtain and enter your API
 = Why is my API key validation failing? =
 Ensure the key is correct and has required permissions.
 
+== Third party integrations ==
+This plugins relies on the Yourstoryz API to fetch your personal content. You need an API key to use this plugin.
+The API key can be obtained by creating an account on the YourStoryz platform. You can sign up at https://dashboard.yourstoryz.com/en/register or via the YourStoryz app available on iOS and Android.
+The terms and conditions for the API can be found at https://yourstoryz.com/wp-content/uploads/2023/12/yourstoryz-termsconditions-apple-eula-2022.pdf
+The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies/
+
 == Changelog ==
 = 1.0 =
 Initial release.

@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+set_time_limit(300);
+
 function yourstoryz_getThumbnail($post_id, $thumbnail_url) {
     if (!empty($thumbnail_url)) {
         $tmp_thumbnail_file = download_url($thumbnail_url);
@@ -60,6 +62,7 @@ function yourstoryz_getVideo($video_url) {
 
     if (is_wp_error($tmp_video_file)) {
         error_log('Error downloading video: ' . $tmp_video_file->get_error_message());
+        return;
     }
 
     // Array based on $_FILE as seen in PHP file uploads
