@@ -2,7 +2,7 @@
 Tags: freemium, yourstoryz
 Contributors: yourstoryz
 Tested up to: 6.6
-Stable tag: 1.1
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://yourstoryz.com/donate
@@ -41,3 +41,7 @@ Not yet
 Initial release.
 = 1.1 =
 Small bugfix and add support for markdown content.
+= 1.2 =
+Small bugfix
+= 1.3 =
+Small bugfix
