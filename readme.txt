@@ -1,7 +1,7 @@
 === YourStoryz ===
 Tags: api, freemium
 Tested up to: 6.6
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,3 +28,5 @@ The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies
 == Changelog ==
 = 1.0 =
 Initial release.
+= 1.1 =
+Small bugfix and add support for markdown content.

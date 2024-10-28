@@ -12,6 +12,10 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+// Vendor files
+include_once plugin_dir_path(__FILE__) . 'vendor/parsedown.php';
+
 // Include all files
 include_once plugin_dir_path(__FILE__) . 'includes/admin-menu.php';
 include_once plugin_dir_path(__FILE__) . 'includes/cron-job.php';

@@ -125,6 +125,8 @@ function yourstoryz_call_api() {
     $stored_ids = get_option($option_key) ?? ['videos' => [], 'contents' => []];
     $response = wp_remote_get($api_url, ['headers' => ['Authorization' => $token, 'Content-Type' => 'application/json']]);
 
+    $parsedown = new Parsedown();
+
     if (is_wp_error($response)) {
         error_log('API request error: ' . $response->get_error_message());
         wp_send_json_error($response->get_error_message());
@@ -146,7 +148,7 @@ function yourstoryz_call_api() {
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
 
-       $attach_id = yourstoryz_getVideo($api_data->video_url);
+        $attach_id = yourstoryz_getVideo($api_data->video_url);
 
         // Prepare post content
         $post_content = '
@@ -183,6 +185,7 @@ function yourstoryz_call_api() {
                 if (isset($stored_ids['contents'][$content->id])) {
                     continue;
                 }
+
                 // Set variable for hashtags
                 $hashtags_data = '';
                 // Put hashtags in a paragraph
@@ -196,20 +199,10 @@ function yourstoryz_call_api() {
                 // Prepare post content
                 $post_content = '
                 <!-- wp:heading {"level":1} -->
-                <h1 class="wp-block-heading">' . esc_html($api_data->title) . '</h1>
+                <h1 class="wp-block-heading">' . esc_html($content->title) . '</h1>
                 <!-- /wp:heading -->
                 
-                <!-- wp:heading {"level":3} -->
-                <h3 class="wp-block-heading">' . esc_html($api_data->description) . '</h3>
-                <!-- /wp:heading -->
-                
-                <!-- wp:heading {"level":3} -->
-                <h3 class="wp-block-heading">' . esc_html($content->title) . '</h3>
-                <!-- /wp:heading -->
-                
-                <!-- wp:paragraph -->
-                <p>' . esc_html($content->content) . '</p>
-                <!-- /wp:paragraph -->
+                ' . $parsedown->text($content->content) . '
                 
                 <!-- wp:video -->
                 <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
