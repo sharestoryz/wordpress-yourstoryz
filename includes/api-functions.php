@@ -5,6 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 set_time_limit(300);
 
+function yourstoryz_add_orientation_class($orientation = 'horizontal') {
+    if($orientation === 'verical') {
+        return 'yourstoryz-video-vertical';
+    } else {
+        return 'yourstoryz-video-horizontal';
+    }
+}
+
 function yourstoryz_getThumbnail($post_id, $thumbnail_url) {
     if (!empty($thumbnail_url)) {
         $tmp_thumbnail_file = download_url($thumbnail_url);
@@ -148,7 +156,7 @@ function yourstoryz_call_api() {
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
 
-        $attach_id = yourstoryz_getVideo($api_data->video_url);
+       $attach_id = yourstoryz_getVideo($api_data->video_url);
 
         // Prepare post content
         $post_content = '
@@ -161,7 +169,7 @@ function yourstoryz_call_api() {
         <!-- /wp:heading -->
         
         <!-- wp:video -->
-        <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
+        <figure class="wp-block-video"><video class="' . yourstoryz_add_orientation_class($api_data->orientation ?? 'horizontal') . '" controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
         <!-- /wp:video -->
         ';
         // Insert post
@@ -205,7 +213,7 @@ function yourstoryz_call_api() {
                 ' . $parsedown->text($content->content) . '
                 
                 <!-- wp:video -->
-                <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
+                <figure class="wp-block-video"><video class="' . yourstoryz_add_orientation_class($api_data->orientation ?? 'horizontal') . '" controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
                 <!-- /wp:video -->
 
                 ' . $hashtags_data . '
