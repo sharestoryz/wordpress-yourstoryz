@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 set_time_limit(300);
 
 function yourstoryz_add_orientation_class($orientation = 'horizontal') {
-    if($orientation === 'verical') {
+    if($orientation == 'vertical') {
         return 'yourstoryz-video-vertical';
     } else {
         return 'yourstoryz-video-horizontal';

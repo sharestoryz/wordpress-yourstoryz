@@ -2,7 +2,7 @@
 /*
 Plugin Name: YourStoryz
 Description: A plugin to create posts with data from YourStoryz API.
-Version: 1.3.1
+Version: 1.3.2
 Author: Concept7
 Author URI: https://concept7.nl/
 Developer: Nathan Kruit
