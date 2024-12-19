@@ -117,7 +117,7 @@ function yourstoryz_getVideo($video_url) {
 
 // Fetch department name from api
 function yourstoryz_fetch_department_name($department_id) {
-    $api_url = 'https://yourstoryz-dashboard.staging.concept7.dev/api/v1/departments/' . $department_id;
+    $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments/' . $department_id;
     $response = wp_remote_get($api_url, ['headers' => ['Authorization' => get_option('yourstoryz_plugin_change_token'), 'Content-Type' => 'application/json']]);
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body);
@@ -133,9 +133,9 @@ function yourstoryz_call_api() {
 
     $autoplay = get_option('yourstoryz_plugin_autoplay') ? 'autoplay' : '';
     $token = get_option('yourstoryz_plugin_change_token');
-    $api_videos = 'https://yourstoryz-dashboard.staging.concept7.dev/api/v1/videos/';
+    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos/';
     $api_url = get_option('yourstoryz_plugin_filter_on_department') ?
-        'https://yourstoryz-dashboard.staging.concept7.dev/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
+        'https://dashboard.yourstoryz.com/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
         $api_videos;
     // Set and get stored id's from serialized data options.php
     $option_key = 'yourstoryz_processed_ids';
