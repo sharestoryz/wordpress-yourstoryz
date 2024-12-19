@@ -198,7 +198,8 @@ function yourstoryz_call_api() {
                     'department'
                 );
             }
-            wp_set_post_terms($new_post, $department_name, 'department', true);
+            $id = term_exists($department_name, 'department')['term_id'];
+            wp_set_post_terms($new_post, $id, 'department', false);
         }
 
 
