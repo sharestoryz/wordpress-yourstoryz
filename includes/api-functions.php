@@ -133,16 +133,19 @@ function yourstoryz_call_api() {
 
     $autoplay = get_option('yourstoryz_plugin_autoplay') ? 'autoplay' : '';
     $token = get_option('yourstoryz_plugin_change_token');
-    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos/';
+    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos?include_departments_videos=true';
     $api_url = get_option('yourstoryz_plugin_filter_on_department') ?
         'https://dashboard.yourstoryz.com/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
         $api_videos;
     // Set and get stored id's from serialized data options.php
     $option_key = 'yourstoryz_processed_ids';
     $stored_ids = get_option($option_key) ?? ['videos' => [], 'contents' => []];
-    $response = wp_remote_get($api_url, ['headers' => ['Authorization' => $token, 'Content-Type' => 'application/json']]);
+    $response = wp_remote_get($api_url, [
+        'headers' => ['Authorization' => $token, 'Content-Type' => 'application/json'],
+    ]);
 
     $parsedown = new Parsedown();
+
 
     if (is_wp_error($response)) {
         error_log('API request error: ' . $response->get_error_message());
@@ -165,7 +168,7 @@ function yourstoryz_call_api() {
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
 
-       $attach_id = yourstoryz_getVideo($api_data->video_url);
+        $attach_id = yourstoryz_getVideo($api_data->video_url);
 
         // Prepare post content
         $post_content = '
@@ -189,7 +192,6 @@ function yourstoryz_call_api() {
             'post_status'   => 'draft',
             'post_type'     => 'post'
         ]);
-        
         if(isset($api_data->department_id)) {
             $department_name = yourstoryz_fetch_department_name($api_data->department_id);
             if (!term_exists($department_name, 'department')) {
