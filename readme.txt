@@ -1,7 +1,7 @@
 === YourStoryz ===
 Tags: api, freemium
 Tested up to: 6.6
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,3 +38,5 @@ Small bugfix
 Add horizontal/vertical styling for video embed
 = 1.3.2 =
 Typo fix
+= 1.3.3 =
+Add departments as category to posts
