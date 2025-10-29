@@ -2,7 +2,7 @@
 Tags: freemium, yourstoryz
 Contributors: yourstoryz
 Tested up to: 6.6
-Stable tag: 1.0
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://yourstoryz.com/donate
@@ -39,3 +39,15 @@ Not yet
 == Changelog ==
 = 1.0 =
 Initial release.
+= 1.1 =
+Small bugfix and add support for markdown content.
+= 1.2 =
+Small bugfix
+= 1.3 =
+Small bugfix
+= 1.3.1 =
+Add horizontal/vertical styling for video embed
+= 1.3.2 =
+Typo fix
+= 1.3.3 =
+Add departments as category to posts

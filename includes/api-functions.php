@@ -5,6 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 set_time_limit(300);
 
+function yourstoryz_add_orientation_class($orientation = 'horizontal') {
+    if($orientation == 'vertical') {
+        return 'yourstoryz-video-vertical';
+    } else {
+        return 'yourstoryz-video-horizontal';
+    }
+}
+
 function yourstoryz_getThumbnail($post_id, $thumbnail_url) {
     if (!empty($thumbnail_url)) {
         $tmp_thumbnail_file = download_url($thumbnail_url);
@@ -107,6 +115,15 @@ function yourstoryz_getVideo($video_url) {
     return $attach_id;
 }
 
+// Fetch department name from api
+function yourstoryz_fetch_department_name($department_id) {
+    $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments/' . $department_id;
+    $response = wp_remote_get($api_url, ['headers' => ['Authorization' => get_option('yourstoryz_plugin_change_token'), 'Content-Type' => 'application/json']]);
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body);
+    return $data->name;
+}
+
 // Create posts from API data
 function yourstoryz_call_api() {
     // Call required files for video upload
@@ -116,14 +133,19 @@ function yourstoryz_call_api() {
 
     $autoplay = get_option('yourstoryz_plugin_autoplay') ? 'autoplay' : '';
     $token = get_option('yourstoryz_plugin_change_token');
-    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos/';
+    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos?include_departments_videos=true';
     $api_url = get_option('yourstoryz_plugin_filter_on_department') ?
         'https://dashboard.yourstoryz.com/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
         $api_videos;
     // Set and get stored id's from serialized data options.php
     $option_key = 'yourstoryz_processed_ids';
     $stored_ids = get_option($option_key) ?? ['videos' => [], 'contents' => []];
-    $response = wp_remote_get($api_url, ['headers' => ['Authorization' => $token, 'Content-Type' => 'application/json']]);
+    $response = wp_remote_get($api_url, [
+        'headers' => ['Authorization' => $token, 'Content-Type' => 'application/json'],
+    ]);
+
+    $parsedown = new Parsedown();
+
 
     if (is_wp_error($response)) {
         error_log('API request error: ' . $response->get_error_message());
@@ -146,7 +168,7 @@ function yourstoryz_call_api() {
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
 
-       $attach_id = yourstoryz_getVideo($api_data->video_url);
+        $attach_id = yourstoryz_getVideo($api_data->video_url);
 
         // Prepare post content
         $post_content = '
@@ -159,7 +181,7 @@ function yourstoryz_call_api() {
         <!-- /wp:heading -->
         
         <!-- wp:video -->
-        <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
+        <figure class="wp-block-video"><video class="' . yourstoryz_add_orientation_class($api_data->orientation ?? 'horizontal') . '" controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
         <!-- /wp:video -->
         ';
         // Insert post
@@ -170,6 +192,18 @@ function yourstoryz_call_api() {
             'post_status'   => 'draft',
             'post_type'     => 'post'
         ]);
+        if(isset($api_data->department_id)) {
+            $department_name = yourstoryz_fetch_department_name($api_data->department_id);
+            if (!term_exists($department_name, 'department')) {
+                wp_insert_term(
+                    $department_name,
+                    'department'
+                );
+            }
+            $id = term_exists($department_name, 'department')['term_id'];
+            wp_set_post_terms($new_post, $id, 'department', false);
+        }
+
 
         if (is_wp_error($new_post)) {
             error_log('Error creating post: ' . $new_post->get_error_message());
@@ -183,6 +217,7 @@ function yourstoryz_call_api() {
                 if (isset($stored_ids['contents'][$content->id])) {
                     continue;
                 }
+
                 // Set variable for hashtags
                 $hashtags_data = '';
                 // Put hashtags in a paragraph
@@ -196,23 +231,13 @@ function yourstoryz_call_api() {
                 // Prepare post content
                 $post_content = '
                 <!-- wp:heading {"level":1} -->
-                <h1 class="wp-block-heading">' . esc_html($api_data->title) . '</h1>
+                <h1 class="wp-block-heading">' . esc_html($content->title) . '</h1>
                 <!-- /wp:heading -->
                 
-                <!-- wp:heading {"level":3} -->
-                <h3 class="wp-block-heading">' . esc_html($api_data->description) . '</h3>
-                <!-- /wp:heading -->
-                
-                <!-- wp:heading {"level":3} -->
-                <h3 class="wp-block-heading">' . esc_html($content->title) . '</h3>
-                <!-- /wp:heading -->
-                
-                <!-- wp:paragraph -->
-                <p>' . esc_html($content->content) . '</p>
-                <!-- /wp:paragraph -->
+                ' . $parsedown->text($content->content) . '
                 
                 <!-- wp:video -->
-                <figure class="wp-block-video"><video controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
+                <figure class="wp-block-video"><video class="' . yourstoryz_add_orientation_class($api_data->orientation ?? 'horizontal') . '" controls ' . esc_attr($autoplay) . ' src="' . esc_url(wp_get_attachment_url($attach_id)) . '"></video></figure>
                 <!-- /wp:video -->
 
                 ' . $hashtags_data . '
