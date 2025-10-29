@@ -147,6 +147,8 @@ function yourstoryz_call_api() {
     $parsedown = new Parsedown();
 
 
+    $parsedown = new Parsedown();
+
     if (is_wp_error($response)) {
         error_log('API request error: ' . $response->get_error_message());
         wp_send_json_error($response->get_error_message());
