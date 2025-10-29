@@ -115,6 +115,15 @@ function yourstoryz_getVideo($video_url) {
     return $attach_id;
 }
 
+// Fetch department name from api
+function yourstoryz_fetch_department_name($department_id) {
+    $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments/' . $department_id;
+    $response = wp_remote_get($api_url, ['headers' => ['Authorization' => get_option('yourstoryz_plugin_change_token'), 'Content-Type' => 'application/json']]);
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body);
+    return $data->name;
+}
+
 // Create posts from API data
 function yourstoryz_call_api() {
     // Call required files for video upload
@@ -124,14 +133,19 @@ function yourstoryz_call_api() {
 
     $autoplay = get_option('yourstoryz_plugin_autoplay') ? 'autoplay' : '';
     $token = get_option('yourstoryz_plugin_change_token');
-    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos/';
+    $api_videos = 'https://dashboard.yourstoryz.com/api/v1/videos?include_departments_videos=true';
     $api_url = get_option('yourstoryz_plugin_filter_on_department') ?
         'https://dashboard.yourstoryz.com/api/v1/departments/' . get_option('yourstoryz_plugin_filter_on_department') . '/videos' :
         $api_videos;
     // Set and get stored id's from serialized data options.php
     $option_key = 'yourstoryz_processed_ids';
     $stored_ids = get_option($option_key) ?? ['videos' => [], 'contents' => []];
-    $response = wp_remote_get($api_url, ['headers' => ['Authorization' => $token, 'Content-Type' => 'application/json']]);
+    $response = wp_remote_get($api_url, [
+        'headers' => ['Authorization' => $token, 'Content-Type' => 'application/json'],
+    ]);
+
+    $parsedown = new Parsedown();
+
 
     $parsedown = new Parsedown();
 
@@ -180,6 +194,18 @@ function yourstoryz_call_api() {
             'post_status'   => 'draft',
             'post_type'     => 'post'
         ]);
+        if(isset($api_data->department_id)) {
+            $department_name = yourstoryz_fetch_department_name($api_data->department_id);
+            if (!term_exists($department_name, 'department')) {
+                wp_insert_term(
+                    $department_name,
+                    'department'
+                );
+            }
+            $id = term_exists($department_name, 'department')['term_id'];
+            wp_set_post_terms($new_post, $id, 'department', false);
+        }
+
 
         if (is_wp_error($new_post)) {
             error_log('Error creating post: ' . $new_post->get_error_message());
