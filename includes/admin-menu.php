@@ -75,7 +75,7 @@ function yourstoryz_plugin_info_page() {
                 </ol>
             </li>
         </ol>
-        <?php echo esc_url($validation_message); ?>
+        <?php echo $validation_message; ?>
         <form method="post" action="" class="yourstoryz-form">
             <strong>API Token:</strong>
             <input type="text" name="yourstoryz_plugin_change_token" id="yourstoryz_plugin_change_token" class="regular-text" placeholder="Bearer 1234|abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwx" value="<?php echo esc_attr($api_key); ?>">
@@ -90,7 +90,7 @@ function yourstoryz_plugin_info_page() {
 // Settings page
 function yourstoryz_plugin_settings_page() {
     $api_key = get_option('yourstoryz_plugin_change_token');
-
+    
     if (empty($api_key) || !yourstoryz_validate_api_key($api_key)) {
         ?>
         <div class="notice notice-warning"><p>Please enter a valid API key on the YourStoryz Info page.</p></div>
@@ -114,11 +114,10 @@ function yourstoryz_plugin_settings_page() {
                 <?php
                 submit_button('Update settings', 'link large', '', false);
                 echo '&nbsp;';
-                echo do_shortcode('[your_button]');
+                echo submit_button('Get YourStoryz', 'primary large', 'yourstoryz_getstoryz', false);
                 ?>
             </p>
         </form>
-        <p class="description">Place the "Get YourStoryz" button anywhere with it's shortcode [your-button].</p>
     </div>
     <?php
 }

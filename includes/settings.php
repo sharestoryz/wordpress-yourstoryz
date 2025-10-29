@@ -62,8 +62,39 @@ function yourstoryz_plugin_register_settings() {
     );
 }
 
+// Register category taxonomy
+add_action('init', 'yourstoryz_taxonomy');
+
+function yourstoryz_taxonomy() {
+    $labels = array(
+        'name'              => __('Departments'),
+        'singular_name'     => __('Department'),
+        'search_items'      => __('Search deparments'),
+        'all_items'         => __('All deparments'),
+        'parent_item'       => __('Head deparment'),
+        'parent_item_colon' => __('Head deparment:'),
+        'edit_item'         => __('Edit deparments'),
+        'update_item'       => __('Edit department'),
+        'add_new_item'      => __('Add department'),
+        'new_item_name'     => __('New department'),
+        'menu_name'         => __('Departments'),
+    );
+
+    $args = array(
+        'hierarchical'      => true,
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite'           => array('slug' => 'department'),
+    );
+
+    // Registreer de taxonomy voor een post type (bijv. 'post' of een custom post type)
+    register_taxonomy('department', array('post'), $args);
+}
+
 // Connect to api and find available departments
-function fetch_departments() {
+function yourstoryz_fetch_departments() {
     $token = get_option('yourstoryz_plugin_change_token');
     $api_url = 'https://dashboard.yourstoryz.com/api/v1/departments';
 
@@ -86,7 +117,7 @@ function fetch_departments() {
 
 // Dropdown to select a department from api data
 function yourstoryz_plugin_filter_on_department_callback() {
-    $departments = fetch_departments();
+    $departments = yourstoryz_fetch_departments();
     $selected_department = get_option('yourstoryz_plugin_filter_on_department');
     ?>
     <select name="yourstoryz_plugin_filter_on_department" id="yourstoryz_plugin_filter_on_department">
