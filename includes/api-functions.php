@@ -170,7 +170,7 @@ function yourstoryz_call_api() {
 
         $post_title = $api_data->title . ' - ' . substr($api_data->created_at, 0, 10);
 
-        $attach_id = yourstoryz_getVideo($api_data->video_url);
+       $attach_id = yourstoryz_getVideo($api_data->video_url);
 
         // Prepare post content
         $post_content = '
