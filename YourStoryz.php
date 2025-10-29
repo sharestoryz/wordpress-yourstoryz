@@ -2,7 +2,7 @@
 /*
 Plugin Name: YourStoryz
 Description: A plugin to create posts with data from YourStoryz API.
-Version: 1.3
+Version: 1.3.3
 Author: Concept7
 Author URI: https://concept7.nl/
 Developer: Nathan Kruit
@@ -20,3 +20,4 @@ include_once plugin_dir_path(__FILE__) . 'includes/cron-job.php';
 include_once plugin_dir_path(__FILE__) . 'includes/api-functions.php';
 include_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 include_once plugin_dir_path(__FILE__) . 'includes/scripts.php';
+include_once plugin_dir_path(__FILE__) . 'includes/styles.php';
