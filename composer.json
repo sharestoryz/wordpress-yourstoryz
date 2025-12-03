@@ -1,0 +1,21 @@
+{
+    "name": "sharestoryz/wordpress-yourstoryz",
+    "type": "wordpress-plugin",
+    "authors": [
+        {
+            "name": "Jan Henk Hazelaar",
+            "email": "janhenk@concept7.nl"
+        }
+    ],
+    "require": {
+        "sharestoryz/yourstoryz-php-sdk": "0.x-dev",
+        "erusev/parsedown": "dev-master"
+    },
+    "config": {
+        "vendor-dir": "lib"
+    },
+    "minimum-stability": "dev",
+    "require-dev": {
+        "laravel/pint": "dev-main"
+    }
+}

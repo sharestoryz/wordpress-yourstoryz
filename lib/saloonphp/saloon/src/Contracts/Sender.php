@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Saloon\Contracts;
+
+use GuzzleHttp\Promise\PromiseInterface;
+use Saloon\Data\FactoryCollection;
+use Saloon\Http\PendingRequest;
+use Saloon\Http\Response;
+
+interface Sender
+{
+    /**
+     * Get the factory collection
+     */
+    public function getFactoryCollection(): FactoryCollection;
+
+    /**
+     * Send the request synchronously
+     */
+    public function send(PendingRequest $pendingRequest): Response;
+
+    /**
+     * Send the request asynchronously
+     */
+    public function sendAsync(PendingRequest $pendingRequest): PromiseInterface;
+}
