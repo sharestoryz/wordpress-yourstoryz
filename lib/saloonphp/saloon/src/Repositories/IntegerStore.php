@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Saloon\Repositories;
 
-use Saloon\Contracts\IntegerStore as IntegerStoreContract;
 use Saloon\Traits\Conditionable;
+use Saloon\Contracts\IntegerStore as IntegerStoreContract;
 
 class IntegerStore implements IntegerStoreContract
 {

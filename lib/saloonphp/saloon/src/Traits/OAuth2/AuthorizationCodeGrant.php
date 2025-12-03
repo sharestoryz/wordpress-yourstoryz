@@ -6,18 +6,18 @@ namespace Saloon\Traits\OAuth2;
 
 use DateInterval;
 use DateTimeImmutable;
-use InvalidArgumentException;
-use Saloon\Contracts\OAuthAuthenticator;
-use Saloon\Exceptions\InvalidStateException;
-use Saloon\Helpers\OAuth2\OAuthConfig;
-use Saloon\Helpers\StringHelpers;
-use Saloon\Helpers\URLHelper;
-use Saloon\Http\Auth\AccessTokenAuthenticator;
-use Saloon\Http\OAuth2\GetAccessTokenRequest;
-use Saloon\Http\OAuth2\GetRefreshTokenRequest;
-use Saloon\Http\OAuth2\GetUserRequest;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
+use InvalidArgumentException;
+use Saloon\Helpers\URLHelper;
+use Saloon\Helpers\StringHelpers;
+use Saloon\Helpers\OAuth2\OAuthConfig;
+use Saloon\Http\OAuth2\GetUserRequest;
+use Saloon\Contracts\OAuthAuthenticator;
+use Saloon\Exceptions\InvalidStateException;
+use Saloon\Http\OAuth2\GetAccessTokenRequest;
+use Saloon\Http\Auth\AccessTokenAuthenticator;
+use Saloon\Http\OAuth2\GetRefreshTokenRequest;
 
 /**
  * @phpstan-ignore trait.unused
@@ -34,7 +34,7 @@ trait AuthorizationCodeGrant
     /**
      * Get the Authorization URL.
      *
-     * @param  array<string>  $scopes
+     * @param array<string> $scopes
      */
     public function getAuthorizationUrl(array $scopes = [], ?string $state = null, string $scopeSeparator = ' ', array $additionalQueryParameters = []): string
     {
@@ -64,7 +64,7 @@ trait AuthorizationCodeGrant
 
         $glue = str_contains($url, '?') ? '&' : '?';
 
-        return $url.$glue.$query;
+        return $url . $glue . $query;
     }
 
     /**
@@ -72,7 +72,8 @@ trait AuthorizationCodeGrant
      *
      * @template TRequest of \Saloon\Http\Request
      *
-     * @param  callable(TRequest): (void)|null  $requestModifier
+     * @param callable(TRequest): (void)|null $requestModifier
+     *
      * @return ($returnResponse is true ? \Saloon\Http\Response : \Saloon\Contracts\OAuthAuthenticator)
      *
      * @throws \Saloon\Exceptions\InvalidStateException
@@ -109,7 +110,8 @@ trait AuthorizationCodeGrant
      *
      * @template TRequest of \Saloon\Http\Request
      *
-     * @param  callable(TRequest): (void)|null  $requestModifier
+     * @param callable(TRequest): (void)|null $requestModifier
+     *
      * @return ($returnResponse is true ? \Saloon\Http\Response : \Saloon\Contracts\OAuthAuthenticator)
      */
     public function refreshAccessToken(OAuthAuthenticator|string $refreshToken, bool $returnResponse = false, ?callable $requestModifier = null): OAuthAuthenticator|Response
@@ -157,7 +159,7 @@ trait AuthorizationCodeGrant
 
         if (isset($responseData->expires_in) && is_numeric($responseData->expires_in)) {
             $expiresAt = (new DateTimeImmutable)->add(
-                DateInterval::createFromDateString((int) $responseData->expires_in.' seconds')
+                DateInterval::createFromDateString((int)$responseData->expires_in . ' seconds')
             );
         }
 
@@ -177,7 +179,7 @@ trait AuthorizationCodeGrant
      *
      * @template TRequest of \Saloon\Http\Request
      *
-     * @param  callable(TRequest): (void)|null  $requestModifier
+     * @param callable(TRequest): (void)|null $requestModifier
      */
     public function getUser(OAuthAuthenticator $oauthAuthenticator, ?callable $requestModifier = null): Response
     {

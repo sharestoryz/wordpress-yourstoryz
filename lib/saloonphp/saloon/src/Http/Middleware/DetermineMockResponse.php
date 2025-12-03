@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Saloon\Http\Middleware;
 
-use Saloon\Contracts\RequestMiddleware;
 use Saloon\Enums\PipeOrder;
 use Saloon\Http\Faking\Fixture;
-use Saloon\Http\Faking\MockResponse;
 use Saloon\Http\PendingRequest;
+use Saloon\Http\Faking\MockResponse;
+use Saloon\Contracts\RequestMiddleware;
 
 class DetermineMockResponse implements RequestMiddleware
 {

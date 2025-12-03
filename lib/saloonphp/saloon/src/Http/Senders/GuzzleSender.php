@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace Saloon\Http\Senders;
 
 use Exception;
+use Saloon\Config;
+use Saloon\Http\Response;
+use GuzzleHttp\HandlerStack;
+use Saloon\Contracts\Sender;
+use GuzzleHttp\RequestOptions;
+use Saloon\Http\PendingRequest;
+use GuzzleHttp\Psr7\HttpFactory;
+use Saloon\Data\FactoryCollection;
 use GuzzleHttp\Client as GuzzleClient;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\HttpFactory;
-use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Saloon\Config;
-use Saloon\Contracts\Sender;
-use Saloon\Data\FactoryCollection;
 use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
 use Saloon\Http\Senders\Factories\GuzzleMultipartBodyFactory;
 
 class GuzzleSender implements Sender

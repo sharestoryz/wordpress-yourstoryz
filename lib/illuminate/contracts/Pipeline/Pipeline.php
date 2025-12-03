@@ -33,6 +33,7 @@ interface Pipeline
     /**
      * Run the pipeline with a final destination callback.
      *
+     * @param  \Closure  $destination
      * @return mixed
      */
     public function then(Closure $destination);

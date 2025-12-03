@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Saloon\Http\Auth;
 
 use GuzzleHttp\RequestOptions;
-use Saloon\Contracts\Authenticator;
-use Saloon\Exceptions\SaloonException;
 use Saloon\Http\PendingRequest;
+use Saloon\Contracts\Authenticator;
 use Saloon\Http\Senders\GuzzleSender;
+use Saloon\Exceptions\SaloonException;
 
 class CertificateAuthenticator implements Authenticator
 {
@@ -16,7 +16,7 @@ class CertificateAuthenticator implements Authenticator
      * Constructor
      */
     public function __construct(
-        public string $path,
+        public string  $path,
         public ?string $password = null,
     ) {
         //

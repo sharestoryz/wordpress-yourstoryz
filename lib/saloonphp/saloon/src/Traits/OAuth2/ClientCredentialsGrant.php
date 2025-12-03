@@ -6,12 +6,12 @@ namespace Saloon\Traits\OAuth2;
 
 use DateInterval;
 use DateTimeImmutable;
-use Saloon\Contracts\OAuthAuthenticator;
-use Saloon\Helpers\OAuth2\OAuthConfig;
-use Saloon\Http\Auth\AccessTokenAuthenticator;
-use Saloon\Http\OAuth2\GetClientCredentialsTokenRequest;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
+use Saloon\Helpers\OAuth2\OAuthConfig;
+use Saloon\Contracts\OAuthAuthenticator;
+use Saloon\Http\Auth\AccessTokenAuthenticator;
+use Saloon\Http\OAuth2\GetClientCredentialsTokenRequest;
 
 /**
  * @phpstan-ignore trait.unused
@@ -25,8 +25,8 @@ trait ClientCredentialsGrant
      *
      * @template TRequest of \Saloon\Http\Request
      *
-     * @param  array<string>  $scopes
-     * @param  callable(TRequest): (void)|null  $requestModifier
+     * @param array<string> $scopes
+     * @param callable(TRequest): (void)|null $requestModifier
      */
     public function getAccessToken(array $scopes = [], string $scopeSeparator = ' ', bool $returnResponse = false, ?callable $requestModifier = null): OAuthAuthenticator|Response
     {
@@ -63,7 +63,7 @@ trait ClientCredentialsGrant
 
         if (isset($responseData->expires_in) && is_numeric($responseData->expires_in)) {
             $expiresAt = (new DateTimeImmutable)->add(
-                DateInterval::createFromDateString((int) $responseData->expires_in.' seconds')
+                DateInterval::createFromDateString((int)$responseData->expires_in . ' seconds')
             );
         }
 

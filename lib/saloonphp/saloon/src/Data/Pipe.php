@@ -17,11 +17,11 @@ class Pipe
     /**
      * Constructor
      *
-     * @param  callable(mixed $payload): (mixed)  $callable
+     * @param callable(mixed $payload): (mixed) $callable
      */
     public function __construct(
-        callable $callable,
-        public readonly ?string $name = null,
+        callable                   $callable,
+        public readonly ?string    $name = null,
         public readonly ?PipeOrder $order = null,
     ) {
         $this->callable = $callable(...);

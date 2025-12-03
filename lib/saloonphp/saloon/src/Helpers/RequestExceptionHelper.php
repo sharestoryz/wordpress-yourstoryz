@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Saloon\Helpers;
 
-use Saloon\Exceptions\Request\ClientException;
-use Saloon\Exceptions\Request\RequestException;
-use Saloon\Exceptions\Request\ServerException;
-use Saloon\Exceptions\Request\Statuses\ForbiddenException;
-use Saloon\Exceptions\Request\Statuses\GatewayTimeoutException;
-use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
-use Saloon\Exceptions\Request\Statuses\MethodNotAllowedException;
-use Saloon\Exceptions\Request\Statuses\NotFoundException;
-use Saloon\Exceptions\Request\Statuses\PaymentRequiredException;
-use Saloon\Exceptions\Request\Statuses\RequestTimeOutException;
-use Saloon\Exceptions\Request\Statuses\ServiceUnavailableException;
-use Saloon\Exceptions\Request\Statuses\TooManyRequestsException;
-use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
-use Saloon\Exceptions\Request\Statuses\UnprocessableEntityException;
-use Saloon\Http\Response;
 use Throwable;
+use Saloon\Http\Response;
+use Saloon\Exceptions\Request\ClientException;
+use Saloon\Exceptions\Request\ServerException;
+use Saloon\Exceptions\Request\RequestException;
+use Saloon\Exceptions\Request\Statuses\NotFoundException;
+use Saloon\Exceptions\Request\Statuses\ForbiddenException;
+use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
+use Saloon\Exceptions\Request\Statuses\GatewayTimeoutException;
+use Saloon\Exceptions\Request\Statuses\RequestTimeOutException;
+use Saloon\Exceptions\Request\Statuses\PaymentRequiredException;
+use Saloon\Exceptions\Request\Statuses\TooManyRequestsException;
+use Saloon\Exceptions\Request\Statuses\MethodNotAllowedException;
+use Saloon\Exceptions\Request\Statuses\ServiceUnavailableException;
+use Saloon\Exceptions\Request\Statuses\InternalServerErrorException;
+use Saloon\Exceptions\Request\Statuses\UnprocessableEntityException;
 
 class RequestExceptionHelper
 {

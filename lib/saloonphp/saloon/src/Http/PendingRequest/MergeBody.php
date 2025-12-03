@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Saloon\Http\PendingRequest;
 
+use Saloon\Http\PendingRequest;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Contracts\Body\MergeableBody;
 use Saloon\Exceptions\PendingRequestException;
-use Saloon\Http\PendingRequest;
 use Saloon\Repositories\Body\MultipartBodyRepository;
 
 class MergeBody

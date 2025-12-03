@@ -6,11 +6,11 @@ namespace Saloon\Traits\Auth;
 
 use Saloon\Contracts\Authenticator;
 use Saloon\Http\Auth\BasicAuthenticator;
-use Saloon\Http\Auth\CertificateAuthenticator;
-use Saloon\Http\Auth\DigestAuthenticator;
-use Saloon\Http\Auth\HeaderAuthenticator;
 use Saloon\Http\Auth\QueryAuthenticator;
 use Saloon\Http\Auth\TokenAuthenticator;
+use Saloon\Http\Auth\DigestAuthenticator;
+use Saloon\Http\Auth\HeaderAuthenticator;
+use Saloon\Http\Auth\CertificateAuthenticator;
 
 trait AuthenticatesRequests
 {
@@ -51,7 +51,6 @@ trait AuthenticatesRequests
      * Authenticate the request with an Authorization header.
      *
      * @deprecated This method will be removed in Saloon v4. You should use the defaultAuth method or the `->authenticate(new TokenAuthenticator)` instead.
-     *
      * @return $this
      */
     public function withTokenAuth(string $token, string $prefix = 'Bearer'): static
@@ -63,7 +62,6 @@ trait AuthenticatesRequests
      * Authenticate the request with "basic" authentication.
      *
      * @deprecated This method will be removed in Saloon v4. You should use the defaultAuth method or the `->authenticate(new BasicAuthenticator)` instead.
-     *
      * @return $this
      */
     public function withBasicAuth(string $username, string $password): static
@@ -75,7 +73,6 @@ trait AuthenticatesRequests
      * Authenticate the request with "digest" authentication.
      *
      * @deprecated This method will be removed in Saloon v4. You should use the defaultAuth method or the `->authenticate(new DigestAuthenticator)` instead.
-     *
      * @return $this
      */
     public function withDigestAuth(string $username, string $password, string $digest): static
@@ -87,7 +84,6 @@ trait AuthenticatesRequests
      * Authenticate the request with a query parameter token.
      *
      * @deprecated This method will be removed in Saloon v4. You should use the defaultAuth method or the `->authenticate(new QueryAuthenticator)` instead.
-     *
      * @return $this
      */
     public function withQueryAuth(string $parameter, string $value): static
@@ -99,7 +95,6 @@ trait AuthenticatesRequests
      * Authenticate the request with a header.
      *
      * @deprecated This method will be removed in Saloon v4. You should use the defaultAuth method or the `->authenticate(new HeaderAuthenticator)` instead.
-     *
      * @return $this
      */
     public function withHeaderAuth(string $accessToken, string $headerName = 'Authorization'): static
@@ -111,7 +106,6 @@ trait AuthenticatesRequests
      * Authenticate the request with a certificate.
      *
      * @deprecated This method will be removed in Saloon v4. You should use the defaultAuth method or the `->authenticate(new CertificateAuthenticator)` instead.
-     *
      * @return $this
      */
     public function withCertificateAuth(string $path, ?string $password = null): static

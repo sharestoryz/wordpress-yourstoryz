@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Saloon\Helpers;
 
 use Saloon\Exceptions\DirectoryNotFoundException;
-use Saloon\Exceptions\UnableToCreateDirectoryException;
 use Saloon\Exceptions\UnableToCreateFileException;
+use Saloon\Exceptions\UnableToCreateDirectoryException;
 
 /**
  * @internal
@@ -46,9 +46,9 @@ class Storage
      */
     protected function buildPath(string $path): string
     {
-        $trimRules = DIRECTORY_SEPARATOR.' ';
+        $trimRules = DIRECTORY_SEPARATOR . ' ';
 
-        return rtrim($this->baseDirectory, $trimRules).DIRECTORY_SEPARATOR.ltrim($path, $trimRules);
+        return rtrim($this->baseDirectory, $trimRules) . DIRECTORY_SEPARATOR . ltrim($path, $trimRules);
     }
 
     /**
@@ -79,7 +79,6 @@ class Storage
      * Put an item in storage
      *
      * @return $this
-     *
      * @throws \Saloon\Exceptions\UnableToCreateDirectoryException
      * @throws \Saloon\Exceptions\UnableToCreateFileException
      */

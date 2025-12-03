@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Saloon\Repositories\Body;
 
+use Stringable;
+use Saloon\Traits\Conditionable;
 use Saloon\Contracts\Body\BodyRepository;
 use Saloon\Traits\Body\CreatesStreamFromString;
-use Saloon\Traits\Conditionable;
-use Stringable;
 
 class StringBodyRepository implements BodyRepository, Stringable
 {
-    use Conditionable;
     use CreatesStreamFromString;
+    use Conditionable;
 
     /**
      * Repository Data
@@ -22,7 +22,7 @@ class StringBodyRepository implements BodyRepository, Stringable
     /**
      * Constructor
      */
-    public function __construct(?string $value = null)
+    public function __construct(string|null $value = null)
     {
         $this->set($value);
     }
@@ -30,7 +30,7 @@ class StringBodyRepository implements BodyRepository, Stringable
     /**
      * Set a value inside the repository
      *
-     * @param  string|null  $value
+     * @param string|null $value
      * @return $this
      */
     public function set(mixed $value): static

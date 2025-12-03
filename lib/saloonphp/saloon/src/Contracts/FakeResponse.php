@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Saloon\Contracts;
 
 use Closure;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Saloon\Contracts\Body\BodyRepository;
+use Throwable;
 use Saloon\Http\Faking\Fixture;
 use Saloon\Http\PendingRequest;
-use Throwable;
+use Psr\Http\Message\ResponseInterface;
+use Saloon\Contracts\Body\BodyRepository;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 
 interface FakeResponse
 {

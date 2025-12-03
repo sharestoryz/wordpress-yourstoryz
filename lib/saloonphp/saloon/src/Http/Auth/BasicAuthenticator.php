@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Saloon\Http\Auth;
 
-use Saloon\Contracts\Authenticator;
 use Saloon\Http\PendingRequest;
+use Saloon\Contracts\Authenticator;
 
 class BasicAuthenticator implements Authenticator
 {
@@ -24,6 +24,6 @@ class BasicAuthenticator implements Authenticator
      */
     public function set(PendingRequest $pendingRequest): void
     {
-        $pendingRequest->headers()->add('Authorization', 'Basic '.base64_encode($this->username.':'.$this->password));
+        $pendingRequest->headers()->add('Authorization', 'Basic ' . base64_encode($this->username . ':' . $this->password));
     }
 }

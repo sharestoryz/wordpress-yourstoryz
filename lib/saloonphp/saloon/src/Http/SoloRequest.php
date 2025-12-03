@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Saloon\Http;
 
-use Saloon\Http\Connectors\NullConnector;
 use Saloon\Traits\Request\HasConnector;
+use Saloon\Http\Connectors\NullConnector;
 
 abstract class SoloRequest extends Request
 {

@@ -9,6 +9,7 @@ interface ResponseFactory
      *
      * @param  array|string  $content
      * @param  int  $status
+     * @param  array  $headers
      * @return \Illuminate\Http\Response
      */
     public function make($content = '', $status = 200, array $headers = []);
@@ -17,6 +18,7 @@ interface ResponseFactory
      * Create a new "no content" response.
      *
      * @param  int  $status
+     * @param  array  $headers
      * @return \Illuminate\Http\Response
      */
     public function noContent($status = 204, array $headers = []);
@@ -27,6 +29,7 @@ interface ResponseFactory
      * @param  string|array  $view
      * @param  array  $data
      * @param  int  $status
+     * @param  array  $headers
      * @return \Illuminate\Http\Response
      */
     public function view($view, $data = [], $status = 200, array $headers = []);
@@ -36,6 +39,7 @@ interface ResponseFactory
      *
      * @param  mixed  $data
      * @param  int  $status
+     * @param  array  $headers
      * @param  int  $options
      * @return \Illuminate\Http\JsonResponse
      */
@@ -47,6 +51,7 @@ interface ResponseFactory
      * @param  string  $callback
      * @param  mixed  $data
      * @param  int  $status
+     * @param  array  $headers
      * @param  int  $options
      * @return \Illuminate\Http\JsonResponse
      */
@@ -57,6 +62,7 @@ interface ResponseFactory
      *
      * @param  callable  $callback
      * @param  int  $status
+     * @param  array  $headers
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function stream($callback, $status = 200, array $headers = []);
@@ -77,6 +83,7 @@ interface ResponseFactory
      *
      * @param  callable  $callback
      * @param  string|null  $name
+     * @param  array  $headers
      * @param  string|null  $disposition
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
@@ -87,6 +94,7 @@ interface ResponseFactory
      *
      * @param  \SplFileInfo|string  $file
      * @param  string|null  $name
+     * @param  array  $headers
      * @param  string|null  $disposition
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
@@ -96,6 +104,7 @@ interface ResponseFactory
      * Return the raw contents of a binary file.
      *
      * @param  \SplFileInfo|string  $file
+     * @param  array  $headers
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function file($file, array $headers = []);

@@ -14,7 +14,7 @@ use Psr\Http\Message\UriInterface;
 /**
  * @final
  */
-class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
+class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
 {
     use ClientTrait;
 
@@ -50,15 +50,15 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
      *   into relative URIs. Can be a string or instance of UriInterface.
      * - **: any request option
      *
-     * @param  array  $config  Client configuration settings.
+     * @param array $config Client configuration settings.
      *
      * @see RequestOptions for a list of available request options.
      */
     public function __construct(array $config = [])
     {
-        if (! isset($config['handler'])) {
+        if (!isset($config['handler'])) {
             $config['handler'] = HandlerStack::create();
-        } elseif (! \is_callable($config['handler'])) {
+        } elseif (!\is_callable($config['handler'])) {
             throw new InvalidArgumentException('handler must be a callable');
         }
 
@@ -71,8 +71,9 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
     }
 
     /**
-     * @param  string  $method
-     * @param  array  $args
+     * @param string $method
+     * @param array  $args
+     *
      * @return PromiseInterface|ResponseInterface
      *
      * @deprecated Client::__call will be removed in guzzlehttp/guzzle:8.0.
@@ -94,8 +95,8 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
     /**
      * Asynchronously send an HTTP request.
      *
-     * @param  array  $options  Request options to apply to the given
-     *                          request and to the transfer. See \GuzzleHttp\RequestOptions.
+     * @param array $options Request options to apply to the given
+     *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
      */
     public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
@@ -111,8 +112,8 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
     /**
      * Send an HTTP request.
      *
-     * @param  array  $options  Request options to apply to the given
-     *                          request and to the transfer. See \GuzzleHttp\RequestOptions.
+     * @param array $options Request options to apply to the given
+     *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
      *
      * @throws GuzzleException
      */
@@ -145,9 +146,9 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
      * contain the query string as well. Use an array to provide a URL
      * template and additional variables to use in the URL template expansion.
      *
-     * @param  string  $method  HTTP method
-     * @param  string|UriInterface  $uri  URI object or string.
-     * @param  array  $options  Request options to apply. See \GuzzleHttp\RequestOptions.
+     * @param string              $method  HTTP method
+     * @param string|UriInterface $uri     URI object or string.
+     * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
      */
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
@@ -175,9 +176,9 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
      * relative path to append to the base path of the client. The URL can
      * contain the query string as well.
      *
-     * @param  string  $method  HTTP method.
-     * @param  string|UriInterface  $uri  URI object or string.
-     * @param  array  $options  Request options to apply. See \GuzzleHttp\RequestOptions.
+     * @param string              $method  HTTP method.
+     * @param string|UriInterface $uri     URI object or string.
+     * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
      *
      * @throws GuzzleException
      */
@@ -195,7 +196,8 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
      * (if utilized by the concrete client), and a "base_uri" if utilized by
      * the concrete client.
      *
-     * @param  string|null  $option  The config option to retrieve.
+     * @param string|null $option The config option to retrieve.
+     *
      * @return mixed
      *
      * @deprecated Client::getConfig will be removed in guzzlehttp/guzzle:8.0.
@@ -255,12 +257,12 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
 
         $this->config = $config + $defaults;
 
-        if (! empty($config['cookies']) && $config['cookies'] === true) {
-            $this->config['cookies'] = new CookieJar;
+        if (!empty($config['cookies']) && $config['cookies'] === true) {
+            $this->config['cookies'] = new CookieJar();
         }
 
         // Add the default user-agent header.
-        if (! isset($this->config['headers'])) {
+        if (!isset($this->config['headers'])) {
             $this->config['headers'] = ['User-Agent' => Utils::defaultUserAgent()];
         } else {
             // Add the User-Agent header if one was not already set.
@@ -276,13 +278,13 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
     /**
      * Merges default options into the array.
      *
-     * @param  array  $options  Options to modify by reference
+     * @param array $options Options to modify by reference
      */
     private function prepareDefaults(array $options): array
     {
         $defaults = $this->config;
 
-        if (! empty($defaults['headers'])) {
+        if (!empty($defaults['headers'])) {
             // Default headers are only added if they are not present.
             $defaults['_conditional'] = $defaults['headers'];
             unset($defaults['headers']);
@@ -295,7 +297,7 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
             if ($options['headers'] === null) {
                 $defaults['_conditional'] = [];
                 unset($options['headers']);
-            } elseif (! \is_array($options['headers'])) {
+            } elseif (!\is_array($options['headers'])) {
                 throw new InvalidArgumentException('headers must be an array');
             }
         }
@@ -319,7 +321,7 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
      * The URI of the request is not modified and the request options are used
      * as-is without merging in default options.
      *
-     * @param  array  $options  See \GuzzleHttp\RequestOptions.
+     * @param array $options See \GuzzleHttp\RequestOptions.
      */
     private function transfer(RequestInterface $request, array $options): PromiseInterface
     {
@@ -379,7 +381,7 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
             $options['_conditional']['Content-Type'] = 'application/json';
         }
 
-        if (! empty($options['decode_content'])
+        if (!empty($options['decode_content'])
             && $options['decode_content'] !== true
         ) {
             // Ensure that we don't have the header in different case and set the new value.
@@ -395,7 +397,7 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
             unset($options['body']);
         }
 
-        if (! empty($options['auth']) && \is_array($options['auth'])) {
+        if (!empty($options['auth']) && \is_array($options['auth'])) {
             $value = $options['auth'];
             $type = isset($value[2]) ? \strtolower($value[2]) : 'basic';
             switch ($type) {
@@ -422,7 +424,7 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
             if (\is_array($value)) {
                 $value = \http_build_query($value, '', '&', \PHP_QUERY_RFC3986);
             }
-            if (! \is_string($value)) {
+            if (!\is_string($value)) {
                 throw new InvalidArgumentException('query must be a string or array');
             }
             $modify['query'] = $value;
@@ -455,7 +457,7 @@ class Client implements \Psr\Http\Client\ClientInterface, ClientInterface
             // Build up the changes so it's in a single clone of the message.
             $modify = [];
             foreach ($options['_conditional'] as $k => $v) {
-                if (! $request->hasHeader($k)) {
+                if (!$request->hasHeader($k)) {
                     $modify['set_headers'][$k] = $v;
                 }
             }

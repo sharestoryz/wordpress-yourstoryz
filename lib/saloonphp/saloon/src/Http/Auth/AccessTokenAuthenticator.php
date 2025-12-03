@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Saloon\Http\Auth;
 
 use DateTimeImmutable;
-use Saloon\Contracts\OAuthAuthenticator;
 use Saloon\Http\PendingRequest;
+use Saloon\Contracts\OAuthAuthenticator;
 
 class AccessTokenAuthenticator implements OAuthAuthenticator
 {
@@ -14,8 +14,8 @@ class AccessTokenAuthenticator implements OAuthAuthenticator
      * Constructor
      */
     public function __construct(
-        public readonly string $accessToken,
-        public readonly ?string $refreshToken = null,
+        public readonly string             $accessToken,
+        public readonly ?string            $refreshToken = null,
         public readonly ?DateTimeImmutable $expiresAt = null,
     ) {
         //
@@ -26,7 +26,7 @@ class AccessTokenAuthenticator implements OAuthAuthenticator
      */
     public function set(PendingRequest $pendingRequest): void
     {
-        $pendingRequest->headers()->add('Authorization', 'Bearer '.$this->getAccessToken());
+        $pendingRequest->headers()->add('Authorization', 'Bearer ' . $this->getAccessToken());
     }
 
     /**

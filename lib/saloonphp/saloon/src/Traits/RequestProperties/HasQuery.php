@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Saloon\Traits\RequestProperties;
 
-use Saloon\Contracts\ArrayStore as ArrayStoreContract;
 use Saloon\Repositories\ArrayStore;
+use Saloon\Contracts\ArrayStore as ArrayStoreContract;
 
 trait HasQuery
 {

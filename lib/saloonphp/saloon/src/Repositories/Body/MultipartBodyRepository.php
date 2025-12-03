@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Saloon\Repositories\Body;
 
 use InvalidArgumentException;
-use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Message\StreamInterface;
-use Saloon\Contracts\Body\BodyRepository;
-use Saloon\Contracts\Body\MergeableBody;
-use Saloon\Contracts\MultipartBodyFactory;
 use Saloon\Data\MultipartValue;
-use Saloon\Exceptions\BodyException;
-use Saloon\Helpers\StringHelpers;
 use Saloon\Traits\Conditionable;
+use Saloon\Helpers\StringHelpers;
+use Saloon\Exceptions\BodyException;
+use Psr\Http\Message\StreamInterface;
+use Saloon\Contracts\Body\MergeableBody;
+use Saloon\Contracts\Body\BodyRepository;
+use Saloon\Contracts\MultipartBodyFactory;
+use Psr\Http\Message\StreamFactoryInterface;
 
 class MultipartBodyRepository implements BodyRepository, MergeableBody
 {
@@ -37,8 +37,7 @@ class MultipartBodyRepository implements BodyRepository, MergeableBody
     /**
      * Constructor
      *
-     * @param  array<\Saloon\Data\MultipartValue>  $value
-     *
+     * @param array<\Saloon\Data\MultipartValue> $value
      * @throws \Exception
      */
     public function __construct(array $value = [], ?string $boundary = null)
@@ -52,7 +51,7 @@ class MultipartBodyRepository implements BodyRepository, MergeableBody
     /**
      * Set a value inside the repository
      *
-     * @param  array<\Saloon\Data\MultipartValue>  $value
+     * @param array<\Saloon\Data\MultipartValue> $value
      * @return $this
      */
     public function set(mixed $value): static
@@ -71,7 +70,7 @@ class MultipartBodyRepository implements BodyRepository, MergeableBody
     /**
      * Merge another array into the repository
      *
-     * @param  array<\Saloon\Data\MultipartValue>  ...$arrays
+     * @param array<\Saloon\Data\MultipartValue> ...$arrays
      * @return $this
      */
     public function merge(array ...$arrays): static
@@ -87,8 +86,8 @@ class MultipartBodyRepository implements BodyRepository, MergeableBody
     /**
      * Add an element to the repository.
      *
-     * @param  \Psr\Http\Message\StreamInterface|resource|string  $contents
-     * @param  array<string, mixed>  $headers
+     * @param \Psr\Http\Message\StreamInterface|resource|string $contents
+     * @param array<string, mixed> $headers
      * @return $this
      */
     public function add(string $name, mixed $contents, ?string $filename = null, array $headers = []): static
@@ -123,7 +122,7 @@ class MultipartBodyRepository implements BodyRepository, MergeableBody
     /**
      * Get a specific key of the array
      *
-     * @param  array-key  $key
+     * @param array-key $key
      * @return MultipartValue|array<MultipartValue>
      */
     public function get(string|int $key, mixed $default = null): MultipartValue|array
@@ -178,7 +177,7 @@ class MultipartBodyRepository implements BodyRepository, MergeableBody
     /**
      * Parse a multipart array
      *
-     * @param  array<string, mixed>  $value
+     * @param array<string, mixed> $value
      * @return array<\Saloon\Data\MultipartValue>
      */
     protected function parseMultipartArray(array $value): array

@@ -58,7 +58,7 @@ class UploadedFile implements UploadedFileInterface
     private $stream;
 
     /**
-     * @param  StreamInterface|string|resource  $streamOrFile
+     * @param StreamInterface|string|resource $streamOrFile
      */
     public function __construct(
         $streamOrFile,
@@ -80,7 +80,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * Depending on the value set file or stream variable
      *
-     * @param  StreamInterface|string|resource  $streamOrFile
+     * @param StreamInterface|string|resource $streamOrFile
      *
      * @throws InvalidArgumentException
      */
@@ -104,7 +104,7 @@ class UploadedFile implements UploadedFileInterface
      */
     private function setError(int $error): void
     {
-        if (! isset(UploadedFile::ERROR_MAP[$error])) {
+        if (!isset(UploadedFile::ERROR_MAP[$error])) {
             throw new InvalidArgumentException(
                 'Invalid error status for UploadedFile'
             );
@@ -115,7 +115,7 @@ class UploadedFile implements UploadedFileInterface
 
     private static function isStringNotEmpty($param): bool
     {
-        return is_string($param) && empty($param) === false;
+        return is_string($param) && false === empty($param);
     }
 
     /**
@@ -136,7 +136,7 @@ class UploadedFile implements UploadedFileInterface
      */
     private function validateActive(): void
     {
-        if ($this->isOk() === false) {
+        if (false === $this->isOk()) {
             throw new RuntimeException(\sprintf('Cannot retrieve stream due to upload error (%s)', self::ERROR_MAP[$this->error]));
         }
 
@@ -163,7 +163,7 @@ class UploadedFile implements UploadedFileInterface
     {
         $this->validateActive();
 
-        if (self::isStringNotEmpty($targetPath) === false) {
+        if (false === self::isStringNotEmpty($targetPath)) {
             throw new InvalidArgumentException(
                 'Invalid path provided for move operation; must be a non-empty string'
             );
@@ -182,7 +182,7 @@ class UploadedFile implements UploadedFileInterface
             $this->moved = true;
         }
 
-        if ($this->moved === false) {
+        if (false === $this->moved) {
             throw new RuntimeException(
                 sprintf('Uploaded file could not be moved to %s', $targetPath)
             );

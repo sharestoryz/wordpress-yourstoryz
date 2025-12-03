@@ -24,7 +24,7 @@ trait HasMultipartBody
      */
     public function bootHasMultipartBody(PendingRequest $pendingRequest): void
     {
-        $pendingRequest->headers()->add('Content-Type', 'multipart/form-data; boundary='.$this->body()->getBoundary());
+        $pendingRequest->headers()->add('Content-Type', 'multipart/form-data; boundary=' . $this->body()->getBoundary());
     }
 
     /**

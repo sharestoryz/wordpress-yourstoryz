@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Saloon\Http\Faking;
 
 use Closure;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-use Saloon\Contracts\ArrayStore as ArrayStoreContract;
-use Saloon\Contracts\Body\BodyRepository;
-use Saloon\Contracts\FakeResponse as FakeResponseContract;
+use Throwable;
+use Saloon\Traits\Makeable;
 use Saloon\Http\PendingRequest;
 use Saloon\Repositories\ArrayStore;
+use Psr\Http\Message\ResponseInterface;
+use Saloon\Contracts\Body\BodyRepository;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Saloon\Repositories\Body\JsonBodyRepository;
 use Saloon\Repositories\Body\StringBodyRepository;
-use Saloon\Traits\Makeable;
-use Throwable;
+use Saloon\Contracts\ArrayStore as ArrayStoreContract;
+use Saloon\Contracts\FakeResponse as FakeResponseContract;
 
 /**
  * @method static static make(mixed $body = [], int $status = 200, array<string, string|int|float|bool> $headers = [])
@@ -48,8 +48,8 @@ class FakeResponse implements FakeResponseContract
     /**
      * Create a new mock response
      *
-     * @param  array<string, mixed>|string  $body
-     * @param  array<string, mixed>  $headers
+     * @param array<string, mixed>|string $body
+     * @param array<string, mixed> $headers
      */
     public function __construct(array|string $body = [], int $status = 200, array $headers = [])
     {

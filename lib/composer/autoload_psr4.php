@@ -5,21 +5,18 @@
 $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
-return [
-    'YourStoryz\\PhpSdk\\' => [$vendorDir.'/sharestoryz/yourstoryz-php-sdk/src'],
-    'Symfony\\Polyfill\\Php85\\' => [$vendorDir.'/symfony/polyfill-php85'],
-    'Symfony\\Polyfill\\Php84\\' => [$vendorDir.'/symfony/polyfill-php84'],
-    'Saloon\\' => [$vendorDir.'/saloonphp/saloon/src'],
-    'Psr\\SimpleCache\\' => [$vendorDir.'/psr/simple-cache/src'],
-    'Psr\\Http\\Message\\' => [$vendorDir.'/psr/http-factory/src', $vendorDir.'/psr/http-message/src'],
-    'Psr\\Http\\Client\\' => [$vendorDir.'/psr/http-client/src'],
-    'Psr\\Container\\' => [$vendorDir.'/psr/container/src'],
-    'Illuminate\\Support\\' => [$vendorDir.'/illuminate/collections', $vendorDir.'/illuminate/macroable', $vendorDir.'/illuminate/conditionable'],
-    'Illuminate\\Contracts\\' => [$vendorDir.'/illuminate/contracts'],
-    'GuzzleHttp\\Psr7\\' => [$vendorDir.'/guzzlehttp/psr7/src'],
-    'GuzzleHttp\\Promise\\' => [$vendorDir.'/guzzlehttp/promises/src'],
-    'GuzzleHttp\\' => [$vendorDir.'/guzzlehttp/guzzle/src'],
-    'Database\\Seeders\\' => [$vendorDir.'/laravel/pint/database/seeders'],
-    'Database\\Factories\\' => [$vendorDir.'/laravel/pint/database/factories'],
-    'App\\' => [$vendorDir.'/laravel/pint/app'],
-];
+return array(
+    'YourStoryz\\PhpSdk\\' => array($vendorDir . '/sharestoryz/yourstoryz-php-sdk/src'),
+    'Symfony\\Polyfill\\Php85\\' => array($vendorDir . '/symfony/polyfill-php85'),
+    'Symfony\\Polyfill\\Php84\\' => array($vendorDir . '/symfony/polyfill-php84'),
+    'Saloon\\' => array($vendorDir . '/saloonphp/saloon/src'),
+    'Psr\\SimpleCache\\' => array($vendorDir . '/psr/simple-cache/src'),
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
+    'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
+    'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
+    'Illuminate\\Support\\' => array($vendorDir . '/illuminate/collections', $vendorDir . '/illuminate/macroable', $vendorDir . '/illuminate/conditionable'),
+    'Illuminate\\Contracts\\' => array($vendorDir . '/illuminate/contracts'),
+    'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
+    'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
+    'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
+);

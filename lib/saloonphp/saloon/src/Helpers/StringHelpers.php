@@ -12,7 +12,7 @@ final class StringHelpers
     /**
      * Determine if a given string matches a given pattern.
      *
-     * @param  string|iterable<string>  $pattern
+     * @param string|iterable<string> $pattern
      */
     public static function matchesPattern(string|iterable $pattern, string $value): bool
     {
@@ -21,7 +21,7 @@ final class StringHelpers
         }
 
         foreach ($pattern as $pattern) {
-            $pattern = (string) $pattern;
+            $pattern = (string)$pattern;
 
             // If the given value is an exact match we can of course return true right
             // from the beginning. Otherwise, we will translate asterisks and do an
@@ -37,7 +37,7 @@ final class StringHelpers
             // pattern such as "library/*", making any string check convenient.
             $pattern = str_replace('\*', '.*', $pattern);
 
-            if (preg_match('#^'.$pattern.'\z#u', $value) === 1) {
+            if (preg_match('#^' . $pattern . '\z#u', $value) === 1) {
                 return true;
             }
         }
@@ -52,14 +52,13 @@ final class StringHelpers
     {
         $quoted = preg_quote($prefix, '/');
 
-        return $prefix.preg_replace('/^(?:'.$quoted.')+/u', '', $value);
+        return $prefix . preg_replace('/^(?:' . $quoted . ')+/u', '', $value);
     }
 
     /**
      * Generate a more truly "random" alpha-numeric string.
      *
-     * @param  int<1, max>  $length
-     *
+     * @param int<1, max> $length
      * @throws \Exception
      */
     public static function random(int $length = 16): string

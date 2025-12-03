@@ -34,9 +34,9 @@ class URLHelper
 
         $baseEndpoint = rtrim($baseUrl, '/ ');
 
-        $baseEndpoint = $requiresTrailingSlash ? $baseEndpoint.'/' : $baseEndpoint;
+        $baseEndpoint = $requiresTrailingSlash ? $baseEndpoint . '/' : $baseEndpoint;
 
-        return $baseEndpoint.$endpoint;
+        return $baseEndpoint . $endpoint;
     }
 
     /**
@@ -66,8 +66,8 @@ class URLHelper
         $parameters = [];
 
         foreach (explode('&', $query) as $parameter) {
-            $name = urldecode((string) strtok($parameter, '='));
-            $value = urldecode((string) strtok('='));
+            $name = urldecode((string)strtok($parameter, '='));
+            $value = urldecode((string)strtok('='));
 
             if (! $name || str_starts_with($parameter, '=')) {
                 continue;

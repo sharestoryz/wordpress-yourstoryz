@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Saloon\Http\Middleware;
 
+use Saloon\Http\PendingRequest;
 use Saloon\Contracts\RequestMiddleware;
 use Saloon\Exceptions\InvalidHeaderException;
-use Saloon\Http\PendingRequest;
 
 class ValidateProperties implements RequestMiddleware
 {

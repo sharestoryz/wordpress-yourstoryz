@@ -17,6 +17,7 @@ interface Store
      *
      * Items not found in the cache will have a null value.
      *
+     * @param  array  $keys
      * @return array
      */
     public function many(array $keys);
@@ -34,6 +35,7 @@ interface Store
     /**
      * Store multiple items in the cache for a given number of seconds.
      *
+     * @param  array  $values
      * @param  int  $seconds
      * @return bool
      */

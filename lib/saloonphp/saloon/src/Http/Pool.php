@@ -50,12 +50,12 @@ class Pool
     /**
      * Constructor
      *
-     * @param  iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>|callable(\Saloon\Http\Connector): iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>  $requests
-     * @param  int|callable(int $pendingRequests): (int)  $concurrency
-     * @param  callable(\Saloon\Http\Response, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null  $responseHandler
-     * @param  callable(mixed $reason, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null  $exceptionHandler
+     * @param iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>|callable(\Saloon\Http\Connector): iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request> $requests
+     * @param int|callable(int $pendingRequests): (int) $concurrency
+     * @param callable(\Saloon\Http\Response, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null $responseHandler
+     * @param callable(mixed $reason, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null $exceptionHandler
      */
-    public function __construct(Connector $connector, iterable|callable $requests = [], int|callable $concurrency = 5, ?callable $responseHandler = null, ?callable $exceptionHandler = null)
+    public function __construct(Connector $connector, iterable|callable $requests = [], int|callable $concurrency = 5, callable|null $responseHandler = null, callable|null $exceptionHandler = null)
     {
         $this->connector = $connector;
         $this->setRequests($requests);
@@ -73,7 +73,7 @@ class Pool
     /**
      * Specify a callback to happen for each successful request
      *
-     * @param  callable(\Saloon\Http\Response, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)  $callable
+     * @param callable(\Saloon\Http\Response, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void) $callable
      * @return $this
      */
     public function withResponseHandler(callable $callable): static
@@ -86,7 +86,7 @@ class Pool
     /**
      * Specify a callback to happen for each failed request
      *
-     * @param  callable(mixed $reason, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)  $callable
+     * @param callable(mixed $reason, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void) $callable
      * @return $this
      */
     public function withExceptionHandler(callable $callable): static
@@ -99,7 +99,7 @@ class Pool
     /**
      * Set the amount of concurrent requests that should be sent
      *
-     * @param  int|callable(int $pendingRequests): (int)  $concurrency
+     * @param int|callable(int $pendingRequests): (int) $concurrency
      * @return $this
      */
     public function setConcurrency(int|callable $concurrency): static
@@ -112,7 +112,7 @@ class Pool
     /**
      * Set the requests
      *
-     * @param  iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>|callable(\Saloon\Http\Connector): iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>  $requests
+     * @param iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>|callable(\Saloon\Http\Connector): iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request> $requests
      * @return $this
      */
     public function setRequests(iterable|callable $requests): static

@@ -21,7 +21,7 @@ interface ArrayStore
     /**
      * Overwrite the entire repository's contents.
      *
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      * @return $this
      */
     public function set(array $data): static;
@@ -29,7 +29,7 @@ interface ArrayStore
     /**
      * Merge in other arrays.
      *
-     * @param  array<string, mixed>  ...$arrays
+     * @param array<string, mixed> ...$arrays
      * @return $this
      */
     public function merge(array ...$arrays): static;

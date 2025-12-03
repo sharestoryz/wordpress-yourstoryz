@@ -51,6 +51,7 @@ interface Dispatcher
     /**
      * Set the pipes commands should be piped through before dispatching.
      *
+     * @param  array  $pipes
      * @return $this
      */
     public function pipeThrough(array $pipes);
@@ -58,6 +59,7 @@ interface Dispatcher
     /**
      * Map a command to a handler.
      *
+     * @param  array  $map
      * @return $this
      */
     public function map(array $map);

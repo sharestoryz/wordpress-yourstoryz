@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Saloon\Http\Auth;
 
 use GuzzleHttp\RequestOptions;
-use Saloon\Contracts\Authenticator;
-use Saloon\Exceptions\SaloonException;
 use Saloon\Http\PendingRequest;
+use Saloon\Contracts\Authenticator;
 use Saloon\Http\Senders\GuzzleSender;
+use Saloon\Exceptions\SaloonException;
 
 class DigestAuthenticator implements Authenticator
 {

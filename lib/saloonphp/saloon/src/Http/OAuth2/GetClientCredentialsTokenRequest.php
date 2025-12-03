@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Saloon\Http\OAuth2;
 
-use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
-use Saloon\Helpers\OAuth2\OAuthConfig;
 use Saloon\Http\Request;
+use Saloon\Contracts\Body\HasBody;
 use Saloon\Traits\Body\HasFormBody;
+use Saloon\Helpers\OAuth2\OAuthConfig;
 use Saloon\Traits\Plugins\AcceptsJson;
 
 class GetClientCredentialsTokenRequest extends Request implements HasBody
 {
-    use AcceptsJson;
     use HasFormBody;
+    use AcceptsJson;
 
     /**
      * Define the method that the request will use.
@@ -32,7 +32,7 @@ class GetClientCredentialsTokenRequest extends Request implements HasBody
     /**
      * Requires the authorization code and OAuth 2 config.
      *
-     * @param  array<string>  $scopes
+     * @param array<string> $scopes
      */
     public function __construct(protected OAuthConfig $oauthConfig, protected array $scopes = [], protected string $scopeSeparator = ' ')
     {

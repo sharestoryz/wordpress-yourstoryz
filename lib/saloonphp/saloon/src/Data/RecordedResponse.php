@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Saloon\Data;
 
 use JsonSerializable;
-use Saloon\Http\Faking\MockResponse;
 use Saloon\Http\Response;
+use Saloon\Http\Faking\MockResponse;
 
 class RecordedResponse implements JsonSerializable
 {
     /**
      * Constructor
      *
-     * @param  array<string, mixed>  $headers
-     * @param  array<string, mixed>  $context
+     * @param array<string, mixed> $headers
+     * @param array<string, mixed> $context
      */
     public function __construct(
-        public int $statusCode,
+        public int   $statusCode,
         public array $headers = [],
         public mixed $data = null,
         public array $context = []

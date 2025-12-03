@@ -5,6 +5,6 @@
 $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
-return [
-    'Parsedown' => [$vendorDir.'/erusev/parsedown'],
-];
+return array(
+    'Parsedown' => array($vendorDir . '/erusev/parsedown'),
+);

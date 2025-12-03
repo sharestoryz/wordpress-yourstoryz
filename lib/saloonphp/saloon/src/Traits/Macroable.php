@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Saloon\Traits;
 
-use BadMethodCallException;
 use Closure;
 use ReflectionClass;
 use ReflectionMethod;
+use BadMethodCallException;
 
 /**
  * Many thanks to Spatie for building this excellent trait.
@@ -34,7 +34,7 @@ trait Macroable
     /**
      * Add a mixin
      *
-     * @param  object|class-string  $mixin
+     * @param object|class-string $mixin
      */
     public static function mixin(object|string $mixin): void
     {
@@ -60,7 +60,7 @@ trait Macroable
     /**
      * Handle a static call
      *
-     * @param  array<string, mixed>  $parameters
+     * @param array<string, mixed> $parameters
      */
     public static function __callStatic(string $method, array $parameters): mixed
     {
@@ -80,7 +80,7 @@ trait Macroable
     /**
      * Handle a method call
      *
-     * @param  array<string, mixed>  $parameters
+     * @param array<string, mixed> $parameters
      */
     public function __call(string $method, array $parameters): mixed
     {

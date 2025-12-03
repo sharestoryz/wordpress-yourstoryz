@@ -20,7 +20,7 @@ class Pipeline
     /**
      * Add a pipe to the pipeline
      *
-     * @param  callable(mixed $payload): (mixed)  $callable
+     * @param callable(mixed $payload): (mixed) $callable
      * @return $this
      */
     public function pipe(callable $callable, ?string $name = null, ?PipeOrder $order = null): static
@@ -76,7 +76,7 @@ class Pipeline
     /**
      * Set the pipes on the pipeline.
      *
-     * @param  array<\Saloon\Data\Pipe>  $pipes
+     * @param array<\Saloon\Data\Pipe> $pipes
      * @return $this
      */
     public function setPipes(array $pipes): static

@@ -26,13 +26,13 @@ final class ArrayHelpers
     /**
      * Determine if the given key exists in the provided array.
      *
-     * @param  array<array-key, mixed>|ArrayAccess<array-key, mixed>  $array
-     * @param  array-key|float  $key
+     * @param array<array-key, mixed>|ArrayAccess<array-key, mixed> $array
+     * @param array-key|float $key
      */
     private static function exists(array|ArrayAccess $array, string|int|float $key): bool
     {
         if (is_float($key)) {
-            $key = (string) $key;
+            $key = (string)$key;
         }
 
         return $array instanceof ArrayAccess
@@ -43,8 +43,8 @@ final class ArrayHelpers
     /**
      * Get an item from an array using "dot" notation.
      *
-     * @param  array<array-key, mixed>  $array
-     * @param  array-key|null  $key
+     * @param array<array-key, mixed> $array
+     * @param array-key|null $key
      * @return ($key is null ? array<array-key, mixed> : mixed)
      */
     public static function get(array $array, string|int|null $key, mixed $default = null): mixed
@@ -53,7 +53,7 @@ final class ArrayHelpers
             return $array;
         }
 
-        if (self::exists($array, $key)) {
+        if (static::exists($array, $key)) {
             return $array[$key];
         }
 
@@ -62,7 +62,7 @@ final class ArrayHelpers
         }
 
         foreach (explode('.', $key) as $segment) {
-            if (self::accessible($array) && self::exists($array, $segment)) {
+            if (static::accessible($array) && static::exists($array, $segment)) {
                 $array = $array[$segment];
             } else {
                 return Helpers::value($default);
@@ -77,9 +77,9 @@ final class ArrayHelpers
      *
      * If no key is given to the method, the entire array will be replaced.
      *
-     * @param  array<array-key, mixed>  $array
-     * @param  string|int|null  $key
-     * @param  mixed  $value
+     * @param array<array-key, mixed> $array
+     * @param string|int|null $key
+     * @param mixed $value
      * @return array<array-key, mixed>
      */
     public static function set(&$array, $key, $value)
@@ -88,7 +88,7 @@ final class ArrayHelpers
             return $array = $value;
         }
 
-        $keys = explode('.', (string) $key);
+        $keys = explode('.', (string)$key);
 
         foreach ($keys as $i => $key) {
             if (count($keys) === 1) {

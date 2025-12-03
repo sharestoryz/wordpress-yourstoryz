@@ -6,9 +6,9 @@ namespace Saloon\Traits\RequestProperties;
 
 trait HasRequestProperties
 {
-    use HasConfig;
-    use HasDelay;
     use HasHeaders;
-    use HasMiddleware;
     use HasQuery;
+    use HasConfig;
+    use HasMiddleware;
+    use HasDelay;
 }

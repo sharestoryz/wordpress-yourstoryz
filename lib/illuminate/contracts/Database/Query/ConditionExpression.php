@@ -2,4 +2,6 @@
 
 namespace Illuminate\Contracts\Database\Query;
 
-interface ConditionExpression extends Expression {}
+interface ConditionExpression extends Expression
+{
+}

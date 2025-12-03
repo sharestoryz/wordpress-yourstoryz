@@ -14,7 +14,8 @@ final class Utils
     /**
      * Debug function used to describe the provided value type and class.
      *
-     * @param  mixed  $input
+     * @param mixed $input
+     *
      * @return string Returns a string containing the type of the variable and
      *                if a class is provided, the class name.
      */
@@ -39,8 +40,8 @@ final class Utils
     /**
      * Parses an array of header lines into an associative array of headers.
      *
-     * @param  iterable  $lines  Header lines array of strings in the following
-     *                           format: "Name: Value"
+     * @param iterable $lines Header lines array of strings in the following
+     *                        format: "Name: Value"
      */
     public static function headersFromLines(iterable $lines): array
     {
@@ -57,7 +58,8 @@ final class Utils
     /**
      * Returns a debug stream based on the provided variable.
      *
-     * @param  mixed  $value  Optional value
+     * @param mixed $value Optional value
+     *
      * @return resource
      */
     public static function debugResource($value = null)
@@ -87,19 +89,19 @@ final class Utils
 
         if (\defined('CURLOPT_CUSTOMREQUEST') && \function_exists('curl_version') && version_compare(curl_version()['version'], '7.21.2') >= 0) {
             if (\function_exists('curl_multi_exec') && \function_exists('curl_exec')) {
-                $handler = Proxy::wrapSync(new CurlMultiHandler, new CurlHandler);
+                $handler = Proxy::wrapSync(new CurlMultiHandler(), new CurlHandler());
             } elseif (\function_exists('curl_exec')) {
-                $handler = new CurlHandler;
+                $handler = new CurlHandler();
             } elseif (\function_exists('curl_multi_exec')) {
-                $handler = new CurlMultiHandler;
+                $handler = new CurlMultiHandler();
             }
         }
 
         if (\ini_get('allow_url_fopen')) {
             $handler = $handler
-                ? Proxy::wrapStreaming($handler, new StreamHandler)
-                : new StreamHandler;
-        } elseif (! $handler) {
+                ? Proxy::wrapStreaming($handler, new StreamHandler())
+                : new StreamHandler();
+        } elseif (!$handler) {
             throw new \RuntimeException('GuzzleHttp requires cURL, the allow_url_fopen ini setting, or a custom HTTP handler.');
         }
 
@@ -169,7 +171,7 @@ final class Utils
         }
 
         throw new \RuntimeException(
-            <<< 'EOT'
+            <<< EOT
 No system CA bundle could be found in any of the the common system locations.
 PHP versions earlier than 5.6 are not properly configured to use the system's
 CA bundle by default. In order to verify peer certificates, you will need to
@@ -213,8 +215,8 @@ EOT
      * 3. The area starts with "." and the area is the last part of the host. e.g.
      *    '.mit.edu' will match any host that ends with '.mit.edu'.
      *
-     * @param  string  $host  Host to check against the patterns.
-     * @param  string[]  $noProxyArray  An array of host patterns.
+     * @param string   $host         Host to check against the patterns.
+     * @param string[] $noProxyArray An array of host patterns.
      *
      * @throws InvalidArgumentException
      */
@@ -256,11 +258,12 @@ EOT
     /**
      * Wrapper for json_decode that throws when an error occurs.
      *
-     * @param  string  $json  JSON data to parse
-     * @param  bool  $assoc  When true, returned objects will be converted
-     *                       into associative arrays.
-     * @param  int  $depth  User specified recursion depth.
-     * @param  int  $options  Bitmask of JSON decode options.
+     * @param string $json    JSON data to parse
+     * @param bool   $assoc   When true, returned objects will be converted
+     *                        into associative arrays.
+     * @param int    $depth   User specified recursion depth.
+     * @param int    $options Bitmask of JSON decode options.
+     *
      * @return object|array|string|int|float|bool|null
      *
      * @throws InvalidArgumentException if the JSON cannot be decoded.
@@ -270,7 +273,7 @@ EOT
     public static function jsonDecode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
     {
         $data = \json_decode($json, $assoc, $depth, $options);
-        if (\json_last_error() !== \JSON_ERROR_NONE) {
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
             throw new InvalidArgumentException('json_decode error: '.\json_last_error_msg());
         }
 
@@ -280,9 +283,9 @@ EOT
     /**
      * Wrapper for JSON encoding that throws when an error occurs.
      *
-     * @param  mixed  $value  The value being encoded
-     * @param  int  $options  JSON encode option bitmask
-     * @param  int  $depth  Set the maximum depth. Must be greater than zero.
+     * @param mixed $value   The value being encoded
+     * @param int   $options JSON encode option bitmask
+     * @param int   $depth   Set the maximum depth. Must be greater than zero.
      *
      * @throws InvalidArgumentException if the JSON cannot be encoded.
      *
@@ -291,7 +294,7 @@ EOT
     public static function jsonEncode($value, int $options = 0, int $depth = 512): string
     {
         $json = \json_encode($value, $options, $depth);
-        if (\json_last_error() !== \JSON_ERROR_NONE) {
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
             throw new InvalidArgumentException('json_encode error: '.\json_last_error_msg());
         }
 

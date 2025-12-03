@@ -12,5 +12,7 @@
 if (\PHP_VERSION_ID < 80500) {
     // @author Daniel Scherzer <daniel.e.scherzer@gmail.com>
     #[Attribute(Attribute::TARGET_ALL)]
-    final class DelayedTargetValidation {}
+    final class DelayedTargetValidation
+    {
+    }
 }

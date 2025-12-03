@@ -46,6 +46,7 @@ class ModelIdentifier
      *
      * @param  class-string<\Illuminate\Database\Eloquent\Model>  $class
      * @param  mixed  $id
+     * @param  array  $relations
      * @param  mixed  $connection
      */
     public function __construct($class, $id, array $relations, $connection)

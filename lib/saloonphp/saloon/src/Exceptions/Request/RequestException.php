@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Saloon\Exceptions\Request;
 
-use Saloon\Exceptions\SaloonException;
-use Saloon\Helpers\StatusCodeHelper;
-use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
 use Throwable;
+use Saloon\Http\Response;
+use Saloon\Http\PendingRequest;
+use Saloon\Helpers\StatusCodeHelper;
+use Saloon\Exceptions\SaloonException;
 
 /**
  * RequestException

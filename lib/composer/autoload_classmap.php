@@ -5,10 +5,10 @@
 $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
-return [
-    'Composer\\InstalledVersions' => $vendorDir.'/composer/InstalledVersions.php',
-    'DelayedTargetValidation' => $vendorDir.'/symfony/polyfill-php85/Resources/stubs/DelayedTargetValidation.php',
-    'Deprecated' => $vendorDir.'/symfony/polyfill-php84/Resources/stubs/Deprecated.php',
-    'NoDiscard' => $vendorDir.'/symfony/polyfill-php85/Resources/stubs/NoDiscard.php',
-    'ReflectionConstant' => $vendorDir.'/symfony/polyfill-php84/Resources/stubs/ReflectionConstant.php',
-];
+return array(
+    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'DelayedTargetValidation' => $vendorDir . '/symfony/polyfill-php85/Resources/stubs/DelayedTargetValidation.php',
+    'Deprecated' => $vendorDir . '/symfony/polyfill-php84/Resources/stubs/Deprecated.php',
+    'NoDiscard' => $vendorDir . '/symfony/polyfill-php85/Resources/stubs/NoDiscard.php',
+    'ReflectionConstant' => $vendorDir . '/symfony/polyfill-php84/Resources/stubs/ReflectionConstant.php',
+);

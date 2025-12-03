@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Saloon\Traits\Connector;
 
-use GuzzleHttp\Promise\Promise;
-use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Promise\Utils;
 use LogicException;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Exceptions\Request\RequestException;
-use Saloon\Http\Faking\MockClient;
-use Saloon\Http\PendingRequest;
 use Saloon\Http\Pool;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
+use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Promise\Promise;
+use Saloon\Http\PendingRequest;
+use Saloon\Http\Faking\MockClient;
+use GuzzleHttp\Promise\PromiseInterface;
+use Saloon\Exceptions\Request\RequestException;
+use Saloon\Exceptions\Request\FatalRequestException;
 
 trait SendsRequests
 {
@@ -24,7 +24,7 @@ trait SendsRequests
     /**
      * Send a request synchronously
      *
-     * @param  callable(\Throwable, \Saloon\Http\Request): (bool)|null  $handleRetry
+     * @param callable(\Throwable, \Saloon\Http\Request): (bool)|null $handleRetry
      */
     public function send(Request $request, ?MockClient $mockClient = null, ?callable $handleRetry = null): Response
     {
@@ -161,7 +161,7 @@ trait SendsRequests
      *
      * @deprecated This method will be removed in Saloon v4. Please refer to the documentation to see connector or request-based retry functionality.
      *
-     * @param  callable(\Throwable, \Saloon\Http\Request): (bool)|null  $handleRetry
+     * @param callable(\Throwable, \Saloon\Http\Request): (bool)|null $handleRetry
      */
     public function sendAndRetry(Request $request, int $tries, int $interval = 0, ?callable $handleRetry = null, bool $throw = true, ?MockClient $mockClient = null, bool $useExponentialBackoff = false): Response
     {
@@ -184,12 +184,12 @@ trait SendsRequests
     /**
      * Create a request pool
      *
-     * @param  iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>|callable(\Saloon\Http\Connector): iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>  $requests
-     * @param  int|callable(int $pendingRequests): (int)  $concurrency
-     * @param  callable(\Saloon\Http\Response, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null  $responseHandler
-     * @param  callable(mixed $reason, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null  $exceptionHandler
+     * @param iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request>|callable(\Saloon\Http\Connector): iterable<\GuzzleHttp\Promise\PromiseInterface|\Saloon\Http\Request> $requests
+     * @param int|callable(int $pendingRequests): (int) $concurrency
+     * @param callable(\Saloon\Http\Response, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null $responseHandler
+     * @param callable(mixed $reason, array-key $key, \GuzzleHttp\Promise\PromiseInterface $poolAggregate): (void)|null $exceptionHandler
      */
-    public function pool(iterable|callable $requests = [], int|callable $concurrency = 5, ?callable $responseHandler = null, ?callable $exceptionHandler = null): Pool
+    public function pool(iterable|callable $requests = [], int|callable $concurrency = 5, callable|null $responseHandler = null, callable|null $exceptionHandler = null): Pool
     {
         return new Pool($this, $requests, $concurrency, $responseHandler, $exceptionHandler);
     }

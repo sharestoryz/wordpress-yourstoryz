@@ -5,39 +5,39 @@ declare(strict_types=1);
 namespace Saloon\Http;
 
 use Saloon\Config;
-use Saloon\Contracts\Authenticator;
-use Saloon\Contracts\Body\BodyRepository;
-use Saloon\Contracts\FakeResponse;
 use Saloon\Enums\Method;
-use Saloon\Exceptions\InvalidResponseClassException;
-use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Helpers\Helpers;
+use Saloon\Traits\Macroable;
 use Saloon\Helpers\URLHelper;
-use Saloon\Http\Faking\MockClient;
-use Saloon\Http\Middleware\DelayMiddleware;
-use Saloon\Http\Middleware\DetermineMockResponse;
-use Saloon\Http\Middleware\ValidateProperties;
-use Saloon\Http\PendingRequest\AuthenticatePendingRequest;
-use Saloon\Http\PendingRequest\BootConnectorAndRequest;
-use Saloon\Http\PendingRequest\BootPlugins;
-use Saloon\Http\PendingRequest\MergeBody;
-use Saloon\Http\PendingRequest\MergeDelay;
-use Saloon\Http\PendingRequest\MergeRequestProperties;
-use Saloon\Traits\Auth\AuthenticatesRequests;
 use Saloon\Traits\Conditionable;
 use Saloon\Traits\HasMockClient;
-use Saloon\Traits\Macroable;
+use Saloon\Contracts\FakeResponse;
+use Saloon\Http\Faking\MockClient;
+use Saloon\Contracts\Authenticator;
+use Saloon\Contracts\Body\BodyRepository;
+use Saloon\Http\PendingRequest\MergeBody;
+use Saloon\Http\PendingRequest\MergeDelay;
+use Saloon\Http\Middleware\DelayMiddleware;
+use Saloon\Http\PendingRequest\BootPlugins;
+use Saloon\Traits\Auth\AuthenticatesRequests;
+use Saloon\Http\Middleware\ValidateProperties;
+use Saloon\Http\Middleware\DetermineMockResponse;
+use Saloon\Exceptions\InvalidResponseClassException;
+use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Traits\PendingRequest\ManagesPsrRequests;
+use Saloon\Http\PendingRequest\MergeRequestProperties;
+use Saloon\Http\PendingRequest\BootConnectorAndRequest;
 use Saloon\Traits\RequestProperties\HasRequestProperties;
+use Saloon\Http\PendingRequest\AuthenticatePendingRequest;
 
 class PendingRequest
 {
     use AuthenticatesRequests;
+    use HasRequestProperties;
+    use ManagesPsrRequests;
     use Conditionable;
     use HasMockClient;
-    use HasRequestProperties;
     use Macroable;
-    use ManagesPsrRequests;
 
     /**
      * The connector making the request.
@@ -292,7 +292,6 @@ class PendingRequest
      * Get the response class
      *
      * @return class-string<\Saloon\Http\Response>
-     *
      * @throws \Saloon\Exceptions\InvalidResponseClassException
      */
     public function getResponseClass(): string

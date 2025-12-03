@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Saloon\Traits\Auth;
 
+use Saloon\Http\PendingRequest;
 use Saloon\Contracts\Authenticator;
 use Saloon\Exceptions\MissingAuthenticatorException;
-use Saloon\Http\PendingRequest;
 
 /**
  * @phpstan-ignore trait.unused

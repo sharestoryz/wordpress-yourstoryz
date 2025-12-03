@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Saloon\Http\Faking;
 
-use PHPUnit\Framework\Assert as PHPUnit;
 use ReflectionClass;
-use Saloon\Exceptions\NoMockResponseFoundException;
-use Saloon\Helpers\Helpers;
-use Saloon\Helpers\URLHelper;
-use Saloon\Http\Connector;
-use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
+use Saloon\Http\Connector;
+use Saloon\Helpers\Helpers;
+use Saloon\Helpers\URLHelper;
+use Saloon\Http\PendingRequest;
+use PHPUnit\Framework\Assert as PHPUnit;
+use Saloon\Exceptions\NoMockResponseFoundException;
 
 class MockClient
 {
@@ -61,7 +61,7 @@ class MockClient
     /**
      * Constructor
      *
-     * @param  array<\Saloon\Http\Faking\MockResponse|\Saloon\Http\Faking\Fixture|callable>  $mockData
+     * @param array<\Saloon\Http\Faking\MockResponse|\Saloon\Http\Faking\Fixture|callable> $mockData
      */
     public function __construct(array $mockData = [])
     {
@@ -71,7 +71,7 @@ class MockClient
     /**
      * Store the mock responses in the correct places.
      *
-     * @param  array<\Saloon\Http\Faking\MockResponse|\Saloon\Http\Faking\Fixture|callable>  $responses
+     * @param array<\Saloon\Http\Faking\MockResponse|\Saloon\Http\Faking\Fixture|callable> $responses
      */
     public function addResponses(array $responses): void
     {
@@ -257,7 +257,7 @@ class MockClient
     /**
      * Assert that given requests were sent in order
      *
-     * @param  array<\Closure|class-string<Request>|string>  $callbacks
+     * @param array<\Closure|class-string<Request>|string> $callbacks
      */
     public function assertSentInOrder(array $callbacks): void
     {
@@ -266,15 +266,14 @@ class MockClient
         foreach ($callbacks as $index => $callback) {
             $result = $this->checkRequestWasSent($callback, $index);
 
-            PHPUnit::assertTrue($result, 'An expected request (#'.($index + 1).') was not sent.');
+            PHPUnit::assertTrue($result, 'An expected request (#' . ($index + 1) . ') was not sent.');
         }
     }
 
     /**
      * Assert JSON response data was received
      *
-     * @param  array<string, mixed>  $data
-     *
+     * @param array<string, mixed> $data
      * @deprecated This method will be removed in v4
      */
     public function assertSentJson(string $request, array $data): void
@@ -412,7 +411,7 @@ class MockClient
      * application's lifecycle. You should destroy the global mock client
      * after each test using MockClient::destroyGlobal().
      *
-     * @param  array<\Saloon\Http\Faking\MockResponse|\Saloon\Http\Faking\Fixture|callable>  $mockData
+     * @param array<\Saloon\Http\Faking\MockResponse|\Saloon\Http\Faking\Fixture|callable> $mockData
      */
     public static function global(array $mockData = []): MockClient
     {

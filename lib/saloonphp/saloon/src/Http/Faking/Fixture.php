@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Saloon\Http\Faking;
 
-use Saloon\Contracts\ArrayStore as ArrayStoreContract;
+use Saloon\MockConfig;
+use Saloon\Helpers\Storage;
+use Saloon\Helpers\ArrayHelpers;
 use Saloon\Data\RecordedResponse;
+use Saloon\Helpers\FixtureHelper;
+use Saloon\Repositories\ArrayStore;
 use Saloon\Exceptions\FixtureException;
 use Saloon\Exceptions\FixtureMissingException;
-use Saloon\Helpers\ArrayHelpers;
-use Saloon\Helpers\FixtureHelper;
-use Saloon\Helpers\Storage;
-use Saloon\MockConfig;
-use Saloon\Repositories\ArrayStore;
 use Saloon\Repositories\Body\StringBodyRepository;
+use Saloon\Contracts\ArrayStore as ArrayStoreContract;
 
 class Fixture
 {
@@ -56,13 +56,13 @@ class Fixture
     {
         $this->name = $name;
         $this->storage = $storage ?? new Storage(MockConfig::getFixturePath(), true);
-        $this->context = $context ?? new ArrayStore;
+        $this->context = $context ?? new ArrayStore();
     }
 
     /**
      * Specify data to merge with the mock response data.
      *
-     * @param  array<array-key, mixed>  $merge
+     * @param array<array-key, mixed> $merge
      */
     public function merge(array $merge = []): static
     {
@@ -304,8 +304,7 @@ class Fixture
 
     /**
      * Merge context values into the fixture
-     *
-     * @param  array<string, mixed>  $context
+     * @param array<string, mixed> $context
      */
     public function withContext(array $context): static
     {

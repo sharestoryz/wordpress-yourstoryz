@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Saloon\Helpers;
 
 use Closure;
+use Saloon\Http\Response;
+use Saloon\Http\PendingRequest;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
 use Symfony\Component\VarDumper\VarDumper;
 
 class Debugger
@@ -38,10 +38,10 @@ class Debugger
             'connector' => $pendingRequest->getConnector()::class,
             'request' => $pendingRequest->getRequest()::class,
             'method' => $psrRequest->getMethod(),
-            'uri' => (string) $psrRequest->getUri(),
+            'uri' => (string)$psrRequest->getUri(),
             'headers' => $headers,
-            'body' => (string) $psrRequest->getBody(),
-        ], 'Saloon Request ('.$label.') ->');
+            'body' => (string)$psrRequest->getBody(),
+        ], 'Saloon Request (' . $label . ') ->');
     }
 
     /**
@@ -62,7 +62,7 @@ class Debugger
             'status' => $response->status(),
             'headers' => $headers,
             'body' => $response->body(),
-        ], 'Saloon Response ('.$label.') ->');
+        ], 'Saloon Response (' . $label . ') ->');
     }
 
     /**

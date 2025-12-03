@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Saloon\Repositories;
 
-use Saloon\Contracts\ArrayStore as ArrayStoreContract;
 use Saloon\Helpers\Helpers;
 use Saloon\Traits\Conditionable;
+use Saloon\Contracts\ArrayStore as ArrayStoreContract;
 
 class ArrayStore implements ArrayStoreContract
 {
@@ -22,7 +22,7 @@ class ArrayStore implements ArrayStoreContract
     /**
      * Constructor
      *
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      */
     public function __construct(array $data = [])
     {
@@ -50,7 +50,7 @@ class ArrayStore implements ArrayStoreContract
     /**
      * Overwrite the entire repository.
      *
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      * @return $this
      */
     public function set(array $data): static
@@ -63,7 +63,7 @@ class ArrayStore implements ArrayStoreContract
     /**
      * Merge in other arrays.
      *
-     * @param  array<string, mixed>  ...$arrays
+     * @param array<string, mixed> ...$arrays
      * @return $this
      */
     public function merge(array ...$arrays): static

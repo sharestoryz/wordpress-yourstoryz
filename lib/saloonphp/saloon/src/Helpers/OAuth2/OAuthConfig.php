@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Saloon\Helpers\OAuth2;
 
 use Closure;
-use Saloon\Exceptions\OAuthConfigValidationException;
 use Saloon\Http\Request;
 use Saloon\Traits\Makeable;
+use Saloon\Exceptions\OAuthConfigValidationException;
 
 /**
  * @method static static make()
@@ -193,7 +193,7 @@ class OAuthConfig
     /**
      * Set the default scopes.
      *
-     * @param  array<string>  $defaultScopes
+     * @param array<string> $defaultScopes
      * @return $this
      */
     public function setDefaultScopes(array $defaultScopes): static
@@ -206,7 +206,7 @@ class OAuthConfig
     /**
      * Set the request modifier callable which can be used to modify the request being sent
      *
-     * @param  callable(\Saloon\Http\Request): (void)  $requestModifier
+     * @param callable(\Saloon\Http\Request): (void) $requestModifier
      * @return $this
      */
     public function setRequestModifier(callable $requestModifier): static
@@ -221,7 +221,7 @@ class OAuthConfig
      *
      * @template TRequest of \Saloon\Http\Request
      *
-     * @param  TRequest  $request
+     * @param TRequest $request
      * @return TRequest
      */
     public function invokeRequestModifier(Request $request): Request

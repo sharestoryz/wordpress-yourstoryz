@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Saloon\Traits;
 
-use Psr\Http\Message\RequestInterface;
 use Saloon\Http\PendingRequest;
+use Psr\Http\Message\RequestInterface;
 
 trait HandlesPsrRequest
 {

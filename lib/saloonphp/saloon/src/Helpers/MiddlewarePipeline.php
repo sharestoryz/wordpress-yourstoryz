@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Saloon\Helpers;
 
-use Saloon\Contracts\FakeResponse;
-use Saloon\Enums\PipeOrder;
-use Saloon\Exceptions\Request\FatalRequestException;
-use Saloon\Http\PendingRequest;
 use Saloon\Http\Response;
+use Saloon\Enums\PipeOrder;
+use Saloon\Http\PendingRequest;
+use Saloon\Contracts\FakeResponse;
+use Saloon\Exceptions\Request\FatalRequestException;
 
 class MiddlewarePipeline
 {
@@ -40,7 +40,7 @@ class MiddlewarePipeline
     /**
      * Add a middleware before the request is sent
      *
-     * @param  callable(\Saloon\Http\PendingRequest): (\Saloon\Http\PendingRequest|\Saloon\Contracts\FakeResponse|void)  $callable
+     * @param callable(\Saloon\Http\PendingRequest): (\Saloon\Http\PendingRequest|\Saloon\Contracts\FakeResponse|void) $callable
      * @return $this
      */
     public function onRequest(callable $callable, ?string $name = null, ?PipeOrder $order = null): static
@@ -75,7 +75,7 @@ class MiddlewarePipeline
     /**
      * Add a middleware after the request is sent
      *
-     * @param  callable(\Saloon\Http\Response): (\Saloon\Http\Response|void)  $callable
+     * @param callable(\Saloon\Http\Response): (\Saloon\Http\Response|void) $callable
      * @return $this
      */
     public function onResponse(callable $callable, ?string $name = null, ?PipeOrder $order = null): static
@@ -102,7 +102,7 @@ class MiddlewarePipeline
     /**
      * Add a middleware to run on fatal errors
      *
-     * @param  callable(FatalRequestException): (void)  $callable
+     * @param callable(FatalRequestException): (void) $callable
      * @return $this
      */
     public function onFatalException(callable $callable, ?string $name = null, ?PipeOrder $order = null): static
@@ -144,7 +144,6 @@ class MiddlewarePipeline
 
     /**
      * Process the fatal pipeline.
-     *
      * @throws \Saloon\Exceptions\Request\FatalRequestException
      */
     public function executeFatalPipeline(FatalRequestException $throwable): void

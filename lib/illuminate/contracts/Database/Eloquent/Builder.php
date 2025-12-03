@@ -9,4 +9,6 @@ use Illuminate\Contracts\Database\Query\Builder as BaseContract;
  *
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
-interface Builder extends BaseContract {}
+interface Builder extends BaseContract
+{
+}

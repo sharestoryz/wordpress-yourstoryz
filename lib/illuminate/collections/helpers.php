@@ -40,6 +40,7 @@ if (! function_exists('data_has')) {
      *
      * @param  mixed  $target
      * @param  string|array|int|null  $key
+     * @return bool
      */
     function data_has($target, $key): bool
     {

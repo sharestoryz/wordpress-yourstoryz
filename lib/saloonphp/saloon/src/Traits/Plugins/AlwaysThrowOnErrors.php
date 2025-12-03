@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Saloon\Traits\Plugins;
 
+use Saloon\Http\Response;
 use Saloon\Enums\PipeOrder;
 use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
 
 /**
  * @phpstan-ignore trait.unused

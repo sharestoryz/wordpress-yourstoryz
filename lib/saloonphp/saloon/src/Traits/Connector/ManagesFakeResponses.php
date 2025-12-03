@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Saloon\Traits\Connector;
 
+use Throwable;
+use Saloon\Http\Response;
+use Saloon\Http\PendingRequest;
+use Saloon\Contracts\FakeResponse;
+use Saloon\Http\Faking\MockResponse;
+use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Promise\RejectedPromise;
-use Saloon\Contracts\FakeResponse;
 use Saloon\Exceptions\PendingRequestException;
-use Saloon\Http\Faking\MockResponse;
-use Saloon\Http\PendingRequest;
-use Saloon\Http\Response;
-use Throwable;
 
 trait ManagesFakeResponses
 {

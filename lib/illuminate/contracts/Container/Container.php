@@ -122,6 +122,7 @@ interface Container extends ContainerInterface
      * "Extend" an abstract type in the container.
      *
      * @param  \Closure|string  $abstract
+     * @param  \Closure  $closure
      * @return void
      *
      * @throws \InvalidArgumentException
@@ -180,6 +181,7 @@ interface Container extends ContainerInterface
      * @template TClass of object
      *
      * @param  string|class-string<TClass>  $abstract
+     * @param  array  $parameters
      * @return ($abstract is class-string<TClass> ? TClass : mixed)
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
@@ -190,6 +192,7 @@ interface Container extends ContainerInterface
      * Call the given Closure / class@method and inject its dependencies.
      *
      * @param  callable|string  $callback
+     * @param  array  $parameters
      * @param  string|null  $defaultMethod
      * @return mixed
      */
@@ -207,6 +210,7 @@ interface Container extends ContainerInterface
      * Register a new before resolving callback.
      *
      * @param  \Closure|string  $abstract
+     * @param  \Closure|null  $callback
      * @return void
      */
     public function beforeResolving($abstract, ?Closure $callback = null);
@@ -215,6 +219,7 @@ interface Container extends ContainerInterface
      * Register a new resolving callback.
      *
      * @param  \Closure|string  $abstract
+     * @param  \Closure|null  $callback
      * @return void
      */
     public function resolving($abstract, ?Closure $callback = null);
@@ -223,6 +228,7 @@ interface Container extends ContainerInterface
      * Register a new after resolving callback.
      *
      * @param  \Closure|string  $abstract
+     * @param  \Closure|null  $callback
      * @return void
      */
     public function afterResolving($abstract, ?Closure $callback = null);

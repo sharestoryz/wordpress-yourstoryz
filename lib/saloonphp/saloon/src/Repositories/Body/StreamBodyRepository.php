@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Saloon\Repositories\Body;
 
 use InvalidArgumentException;
-use Psr\Http\Message\StreamFactoryInterface;
+use Saloon\Traits\Conditionable;
 use Psr\Http\Message\StreamInterface;
 use Saloon\Contracts\Body\BodyRepository;
-use Saloon\Traits\Conditionable;
+use Psr\Http\Message\StreamFactoryInterface;
 
 class StreamBodyRepository implements BodyRepository
 {
@@ -24,7 +24,7 @@ class StreamBodyRepository implements BodyRepository
     /**
      * Constructor
      *
-     * @param  StreamInterface|resource|null  $value
+     * @param StreamInterface|resource|null $value
      */
     public function __construct(mixed $value = null)
     {
@@ -34,13 +34,13 @@ class StreamBodyRepository implements BodyRepository
     /**
      * Set a value inside the repository
      *
-     * @param  StreamInterface|resource|null  $value
+     * @param StreamInterface|resource|null $value
      * @return $this
      */
     public function set(mixed $value): static
     {
         if (isset($value) && ! $value instanceof StreamInterface && ! is_resource($value)) {
-            throw new InvalidArgumentException('The value must a resource or be an instance of '.StreamInterface::class);
+            throw new InvalidArgumentException('The value must a resource or be an instance of ' . StreamInterface::class);
         }
 
         $this->stream = $value;

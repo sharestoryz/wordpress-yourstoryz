@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Saloon\Contracts\Body;
 
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 interface BodyRepository
 {

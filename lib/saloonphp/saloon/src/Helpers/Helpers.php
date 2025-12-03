@@ -6,9 +6,9 @@ namespace Saloon\Helpers;
 
 use Closure;
 use ReflectionClass;
+use Saloon\Http\Request;
 use Saloon\Http\Connector;
 use Saloon\Http\PendingRequest;
-use Saloon\Http\Request;
 
 /**
  * @internal
@@ -18,7 +18,7 @@ final class Helpers
     /**
      * Returns all traits used by a class, its parent classes and trait of their traits.
      *
-     * @param  object|class-string  $class
+     * @param object|class-string $class
      * @return array<class-string, class-string>
      */
     public static function classUsesRecursive(object|string $class): array
@@ -30,7 +30,7 @@ final class Helpers
         $results = [];
 
         foreach (array_reverse(class_parents($class)) + [$class => $class] as $class) {
-            $results += self::traitUsesRecursive($class);
+            $results += static::traitUsesRecursive($class);
         }
 
         return array_unique($results);
@@ -39,7 +39,7 @@ final class Helpers
     /**
      * Returns all traits used by a trait and its traits.
      *
-     * @param  class-string  $trait
+     * @param class-string $trait
      * @return array<class-string, class-string>
      */
     public static function traitUsesRecursive(string $trait): array
@@ -48,7 +48,7 @@ final class Helpers
         $traits = class_uses($trait) ?: [];
 
         foreach ($traits as $trait) {
-            $traits += self::traitUsesRecursive($trait);
+            $traits += static::traitUsesRecursive($trait);
         }
 
         return $traits;
@@ -65,7 +65,7 @@ final class Helpers
     /**
      * Check if a class is a subclass of another.
      *
-     * @param  class-string  $class
+     * @param class-string $class
      */
     public static function isSubclassOf(string $class, string $subclass): bool
     {
@@ -79,15 +79,14 @@ final class Helpers
     /**
      * Boot a plugin
      *
-     * @param  class-string  $trait
-     *
+     * @param class-string $trait
      * @throws \ReflectionException
      */
     public static function bootPlugin(PendingRequest $pendingRequest, Connector|Request $resource, string $trait): void
     {
         $traitReflection = new ReflectionClass($trait);
 
-        $bootMethodName = 'boot'.$traitReflection->getShortName();
+        $bootMethodName = 'boot' . $traitReflection->getShortName();
 
         if (! method_exists($resource, $bootMethodName)) {
             return;
