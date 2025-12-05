@@ -64,6 +64,19 @@ class YourStoryz_Admin
         ?>
         <input type="text" name="<?php echo YOURSTORYZ_API_TOKEN_OPTION; ?>" value="<?php echo esc_attr($token); ?>" class="regular-text" placeholder="Paste your YourStoryz API token here"/>
         <?php
+        if($token) {
+            $connector = new YourStoryzConnector(
+                $token,
+                YOURSTORYZ_API_URL
+            );
+            try {
+                $user = $connector->users()->me()->object();
+
+                echo '<p class="description">User: '.$user->name. ' &lt;' . $user->email.  '&gt;</p>';
+            } catch (\Throwable $th) {
+                echo '<p class="description">'.esc_html($th->getMessage()).'</p>';
+            }
+        }
     }
 
     public function storiable_type_field_cb()
@@ -124,6 +137,36 @@ class YourStoryz_Admin
         }
         ?>
         <div class="wrap">
+            <h1>Welcome to YourStoryz</h1>
+            <div class="notice notice-info alt">
+                <p><strong>Warning:</strong> This plugin will download videos to your site. We are not responsible for any data usage or storage impacts.</p>
+            </div>
+            <p>To use this plugin, you need an active subscription to <a href="https://yourstoryz.com/" target="_blank">YourStoryz</a>.</p>
+            <h2>How to Get Your API Token?</h2>
+            <ol>
+                <li>Create an Account:
+                    <p>First, create an account on the YourStoryz platform. You can sign up at <a href="https://yourstoryz.com/" target="_blank">yourstoryz.com</a> or via the YourStoryz app available on iOS and Android.</p>
+                    <p>
+                        <a href="https://play.google.com/store/apps/details?id=com.yourstoryz.storyz&pcampaignid=web_share" target="_blank">
+                            <img src="<?php echo esc_url(plugin_dir_url(__FILE__).'../assets/images/get-it-on-google.png'); ?>" alt="Get it on Google Play" style="width: auto; height: 50px;">
+                        </a>
+                        <a href="https://apps.apple.com/nl/app/yourstoryz/id1544965290" target="_blank">
+                            <img src="<?php echo esc_url(plugin_dir_url(__FILE__).'../assets/images/download-on-the-appstore.svg'); ?>" alt="Download on the App Store" style="width: auto; height: 50px;">
+                        </a>
+                    </p>
+                </li>
+                <li>Create Your API Token:
+                    <p>Once you have an account, you're ready to create your API token. Follow these steps:</p>
+                    <ol>
+                        <li>Go to the YourStoryz dashboard: <a href="https://dashboard.yourstoryz.com/en/login" target="_blank">dashboard.yourstoryz.com/dashboard</a></li>
+                        <li><strong>Navigate to Personal Access Tokens</strong></li>
+                        <li>Create your API token.</li>
+                        <li>After obtaining your API token, enter it in the provided field within the plugin settings to start using the plugin.</li>
+                    </ol>
+                </li>
+            </ol>
+        </div>
+        <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             <form action="options.php" method="post">
                 <?php
@@ -132,6 +175,11 @@ class YourStoryz_Admin
         submit_button('Save YourStoryz Settings');
         ?>
             </form>
+
+        </div>
+        <div class="wrap">
+            <h2>Need Help?</h2>
+            <p>For further assistance, please <a href="https://yourstoryz.com/contact/" target="_blank">contact our support team</a>.</p>
         </div>
         <?php
     }

@@ -3,7 +3,7 @@
 /*
 Plugin Name: YourStoryz
 Description: A plugin to create posts with data from YourStoryz API.
-Version: 1.3.2
+Version: 2.0.0
 Author: Concept7
 Author URI: https://concept7.nl/
 Developer: Nathan Kruit
@@ -19,7 +19,7 @@ if (! defined('ABSPATH')) {
 define('YOURSTORYZ_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 // Connector constants
-define('YOURSTORYZ_API_URL', 'https://yourstoryz.test');
+define('YOURSTORYZ_API_URL', 'https://dashboard.yourstoryz.com');
 
 // Option keys
 define('YOURSTORYZ_API_TOKEN_OPTION', 'yourstoryz_api_token');
