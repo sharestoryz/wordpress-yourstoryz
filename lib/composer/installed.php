@@ -3,7 +3,7 @@
         'name' => 'sharestoryz/wordpress-yourstoryz',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'eac78953be1780c802d9993ac2d854a934090ad5',
+        'reference' => '80e4c4deb39529dd81d0ea959f8a40cc6ab360e6',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -166,7 +166,7 @@
         'sharestoryz/wordpress-yourstoryz' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'eac78953be1780c802d9993ac2d854a934090ad5',
+            'reference' => '80e4c4deb39529dd81d0ea959f8a40cc6ab360e6',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

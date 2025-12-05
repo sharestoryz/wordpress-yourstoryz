@@ -4,6 +4,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+use Saloon\Exceptions\Request\Statuses\UnauthorizedException;
 use YourStoryz\PhpSdk\YourStoryz as YourStoryzConnector;
 
 class YourStoryz_Admin
@@ -64,7 +65,7 @@ class YourStoryz_Admin
         ?>
         <input type="text" name="<?php echo YOURSTORYZ_API_TOKEN_OPTION; ?>" value="<?php echo esc_attr($token); ?>" class="regular-text" placeholder="Paste your YourStoryz API token here"/>
         <?php
-        if($token) {
+        if ($token) {
             $connector = new YourStoryzConnector(
                 $token,
                 YOURSTORYZ_API_URL
@@ -72,9 +73,9 @@ class YourStoryz_Admin
             try {
                 $user = $connector->users()->me()->object();
 
-                echo '<p class="description">User: '.$user->name. ' &lt;' . $user->email.  '&gt;</p>';
-            } catch (\Throwable $th) {
-                echo '<p class="description">'.esc_html($th->getMessage()).'</p>';
+                echo '<p class="description">User: '.$user->name.' &lt;'.$user->email.'&gt;</p>';
+            } catch (UnauthorizedException $exception) {
+                echo '<p class="description">'.esc_html($exception->getMessage()).'</p>';
             }
         }
     }
@@ -104,10 +105,16 @@ class YourStoryz_Admin
             YOURSTORYZ_API_URL
         );
 
-        $response = match ($type) {
-            'Company' => $connector->companies()->all(),
-            'Department' => $connector->departments()->all(),
-        };
+        try {
+            $response = match ($type) {
+                'Company' => $connector->companies()->all(),
+                'Department' => $connector->departments()->all(),
+            };
+        } catch (UnauthorizedException $exception) {
+            echo '<p class="description">'.esc_html($exception->getMessage()).'</p>';
+
+            return;
+        }
 
         $options = array_map(fn ($storiable) => [
             'value' => $storiable['id'],
