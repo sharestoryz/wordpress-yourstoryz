@@ -1,51 +1,48 @@
-=== YourStoryz ===
-Tags: freemium, yourstoryz
-Contributors: yourstoryz
-Tested up to: 6.6
-Stable tag: 1.3.2
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://yourstoryz.com/donate
-Requires PHP: 8.3
-Requires at least: 5.5
+# YourStoryz WordPress plugin
 
-The YourStoryz Plugin connects your WordPress site to YourStoryz application, allowing you to create posts directly from the YourStoryz API.
+Connects a WordPress site to a YourStoryz account. Admin menu **YourStoryz**:
 
-== Installation ==
-1. Upload the `yourstoryz-plugin` folder to `/wp-content/plugins/`.
-2. Activate the plugin through the \'Plugins\' menu in WordPress.
-3. Configure your API key and settings from the YourStoryz menu.
+- **Instellingen**: API token, connection test, source (company and optional department).
+- **Voorbeeld**: read-only list of the video stories of the selected source.
 
-== Frequently Asked Questions ==
-= How do I get an API key? =
-Follow the instructions on the plugin settings page to obtain and enter your API key.
+Requires WordPress 6.4+ and PHP 8.3+. The entry file `YourStoryz.php` and `uninstall.php` stay parseable on PHP 7.4 so older installs get a notice instead of a fatal error.
 
-= Why is my API key validation failing? =
-Ensure the key is correct and has required permissions.
+## Development
 
-== Third party integrations ==
-This plugins relies on the Yourstoryz API to fetch your personal content. You need an API key to use this plugin.
-The API key can be obtained by creating an account on the YourStoryz platform. You can sign up at https://dashboard.yourstoryz.com/en/register or via the YourStoryz app available on iOS and Android.
-The terms and conditions for the API can be found at https://yourstoryz.com/wp-content/uploads/2023/12/yourstoryz-termsconditions-apple-eula-2022.pdf
-The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies/
+```bash
+composer install          # installs dependencies and runs Strauss (post-install hook)
+composer prefix-namespaces # re-run Strauss: prefixes the SDK into vendor-prefixed/ (YourStoryz\Vendor\)
+composer test             # Pest (use XDEBUG_MODE=off for speed)
+composer format           # Pint
+composer build            # bin/build-zip.sh -> build/yourstoryz-<version>.zip
+```
 
-== Screenshots ==
-1. The modern interface makes Yourstoryz API easy to work with.
+`vendor-prefixed/` is generated and must exist for the plugin to load. The release zip contains `YourStoryz.php`, `uninstall.php`, `readme.txt`, `src/`, `vendor-prefixed/` and `assets/`.
 
-== Upgrade Notice ==
-Not yet
+## Local site (lerd)
 
+The test site is `https://yourstoryz-wp.test` (PHP 8.4).
 
-== Changelog ==
-= 1.0 =
-Initial release.
-= 1.1 =
-Small bugfix and add support for markdown content.
-= 1.2 =
-Small bugfix
-= 1.3 =
-Small bugfix
-= 1.3.1 =
-Add horizontal/vertical styling for video embed
-= 1.3.2 =
-Typo fix
+1. Symlink this directory into the site: `ln -s <path-to>/wordpress-yourstoryz <site>/wp-content/plugins/yourstoryz`.
+2. Run `composer install` in the plugin directory so `vendor-prefixed/` exists.
+3. Activate **YourStoryz** under Plugins and open the YourStoryz menu.
+
+## Structure
+
+```
+YourStoryz.php      Plugin header, PHP version guard, bootstrap
+uninstall.php       Removes options and transients on deletion
+src/Plugin.php      Wires hooks and boots the admin
+src/Settings.php    API token option (yourstoryz_token)
+src/SourceSettings.php  Company/department option (yourstoryz_source) and cached lists
+src/Source.php      Value object for the selected source
+src/StoryCatalog.php    Fetches and caches stories
+src/Admin/          Menu, settings page, source section, preview page, notices
+src/Api/            Gateway around the SDK, story mapper, DTOs
+tests/Unit/         Pest + Brain Monkey tests
+bin/build-zip.sh    Release zip
+```
+
+## Uninstall
+
+`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source` and all `yourstoryz_*` transients (value and timeout rows). Multisite is not handled: on a network install only the current site is cleaned.
