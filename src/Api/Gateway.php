@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace YourStoryz\Api;
 
 use Closure;
+use YourStoryz\Source;
 use YourStoryz\Vendor\Saloon\Exceptions\Request\FatalRequestException;
 use YourStoryz\Vendor\Saloon\Exceptions\Request\RequestException;
 use YourStoryz\Vendor\Saloon\Exceptions\SaloonException;
@@ -54,6 +55,22 @@ final class Gateway
         return $this->normalizeList(
             $this->call(fn (YourStoryz $connector): array => $connector->companies()->departments($companyId)->json())
         );
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     *
+     * @throws ApiException
+     */
+    public function stories(Source $source): array
+    {
+        $response = $this->call(fn (YourStoryz $connector): array => $source->departmentId === null
+            ? $connector->companies()->stories($source->companyId)->json()
+            : $connector->departments()->stories($source->departmentId)->json());
+
+        $items = is_array($response['data'] ?? null) ? $response['data'] : $response;
+
+        return array_values(array_filter($items, 'is_array'));
     }
 
     /**

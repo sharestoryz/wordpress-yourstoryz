@@ -39,6 +39,13 @@ final class SourceSettings
         ];
     }
 
+    public function source(): ?Source
+    {
+        $saved = $this->get();
+
+        return $saved === null ? null : new Source($saved['company_id'], $saved['department_id']);
+    }
+
     /**
      * @return list<array{id: int, name: string}>
      *

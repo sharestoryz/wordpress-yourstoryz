@@ -20,14 +20,13 @@ final class SettingsPage
 
     public const ACTION_REFRESH = 'yourstoryz_refresh_lists';
 
-    private const NOTICE_TTL = 60;
-
     /**
      * @param  (Closure(string): Gateway)|null  $gatewayFactory
      */
     public function __construct(
         private readonly Settings $settings,
         private readonly SourceSettings $source,
+        private readonly Notices $notices = new Notices,
         private readonly ?Closure $gatewayFactory = null,
     ) {}
 
@@ -113,19 +112,12 @@ final class SettingsPage
             return;
         }
 
-        $notice = $this->pullNotice();
         $masked = $this->settings->maskedToken();
         $adminPost = admin_url('admin-post.php');
 
         echo '<div class="wrap"><h1>'.esc_html__('YourStoryz instellingen', 'yourstoryz').'</h1>';
 
-        if ($notice !== null) {
-            printf(
-                '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
-                esc_attr($notice['type']),
-                esc_html($notice['message']),
-            );
-        }
+        $this->notices->render();
 
         echo '<form method="post" action="'.esc_url($adminPost).'">';
         echo '<input type="hidden" name="action" value="'.esc_attr(self::ACTION_SAVE).'">';
@@ -171,31 +163,7 @@ final class SettingsPage
 
     private function flash(string $type, string $message): void
     {
-        set_transient($this->noticeKey(), ['type' => $type, 'message' => $message], self::NOTICE_TTL);
-    }
-
-    /**
-     * @return array{type: string, message: string}|null
-     */
-    private function pullNotice(): ?array
-    {
-        $notice = get_transient($this->noticeKey());
-
-        if (! is_array($notice) || ! isset($notice['type'], $notice['message'])) {
-            return null;
-        }
-
-        delete_transient($this->noticeKey());
-
-        return [
-            'type' => $notice['type'] === 'success' ? 'success' : 'error',
-            'message' => (string) $notice['message'],
-        ];
-    }
-
-    private function noticeKey(): string
-    {
-        return 'yourstoryz_notice_'.get_current_user_id();
+        $this->notices->flash($type, $message);
     }
 
     private function redirect(): never

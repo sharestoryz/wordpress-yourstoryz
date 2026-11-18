@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace YourStoryz;
 
 use YourStoryz\Admin\Menu;
+use YourStoryz\Admin\PreviewPage;
 use YourStoryz\Admin\SettingsPage;
 
 final class Plugin
@@ -17,9 +18,12 @@ final class Plugin
     public function register(): void
     {
         $settings = new Settings;
-        $settingsPage = new SettingsPage($settings, new SourceSettings($settings));
+        $source = new SourceSettings($settings);
+        $settingsPage = new SettingsPage($settings, $source);
+        $previewPage = new PreviewPage($source, new StoryCatalog($settings));
 
         $settingsPage->register();
-        (new Menu($settingsPage))->register();
+        $previewPage->register();
+        (new Menu($settingsPage, $previewPage))->register();
     }
 }

@@ -8,7 +8,10 @@ final class Menu
 {
     public const SLUG = 'yourstoryz';
 
-    public function __construct(private readonly SettingsPage $settingsPage) {}
+    public function __construct(
+        private readonly SettingsPage $settingsPage,
+        private readonly PreviewPage $previewPage,
+    ) {}
 
     public function register(): void
     {
@@ -33,6 +36,15 @@ final class Menu
             'manage_options',
             self::SLUG,
             [$this->settingsPage, 'render'],
+        );
+
+        add_submenu_page(
+            self::SLUG,
+            'Voorbeeld',
+            'Voorbeeld',
+            'manage_options',
+            PreviewPage::SLUG,
+            [$this->previewPage, 'render'],
         );
     }
 }
