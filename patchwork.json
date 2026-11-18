@@ -1,4 +1,7 @@
 {
+    "blacklist": [
+        "vendor-prefixed"
+    ],
     "redefinable-internals": [
         "version_compare"
     ]
