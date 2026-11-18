@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace YourStoryz;
 
-use Closure;
 use YourStoryz\Api\ApiException;
-use YourStoryz\Api\Gateway;
+use YourStoryz\Api\GatewayProvider;
 
 final class SourceSettings
 {
@@ -14,12 +13,8 @@ final class SourceSettings
 
     public const TTL = 600;
 
-    /**
-     * @param  (Closure(string): Gateway)|null  $gatewayFactory
-     */
     public function __construct(
-        private readonly Settings $settings,
-        private readonly ?Closure $gatewayFactory = null,
+        private readonly GatewayProvider $gateways,
     ) {}
 
     /**
@@ -60,7 +55,7 @@ final class SourceSettings
             return $cached;
         }
 
-        $companies = $this->gateway()->companies();
+        $companies = $this->gateways->gateway()->companies();
         set_transient($key, $companies, self::TTL);
 
         return $companies;
@@ -80,7 +75,7 @@ final class SourceSettings
             return $cached;
         }
 
-        $departments = $this->gateway()->departments($companyId);
+        $departments = $this->gateways->gateway()->departments($companyId);
         set_transient($key, $departments, self::TTL);
 
         return $departments;
@@ -129,25 +124,13 @@ final class SourceSettings
         delete_transient($this->companiesKey());
     }
 
-    private function gateway(): Gateway
-    {
-        $token = $this->settings->token();
-
-        return $this->gatewayFactory ? ($this->gatewayFactory)($token) : new Gateway($token);
-    }
-
     private function companiesKey(): string
     {
-        return 'yourstoryz_companies_'.$this->tokenHash();
+        return 'yourstoryz_companies_'.$this->gateways->tokenHash();
     }
 
     private function departmentsKey(int $companyId): string
     {
-        return 'yourstoryz_departments_'.$companyId.'_'.$this->tokenHash();
-    }
-
-    private function tokenHash(): string
-    {
-        return substr(md5($this->settings->token()), 0, 8);
+        return 'yourstoryz_departments_'.$companyId.'_'.$this->gateways->tokenHash();
     }
 }

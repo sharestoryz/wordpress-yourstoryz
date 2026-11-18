@@ -2,6 +2,7 @@
 
 use Brain\Monkey\Functions;
 use YourStoryz\Api\Gateway;
+use YourStoryz\Api\GatewayProvider;
 use YourStoryz\Api\StoryMapper;
 use YourStoryz\Settings;
 use YourStoryz\Source;
@@ -92,11 +93,11 @@ it('caches the mapped stories in a transient', function () {
         unset($transients[$key]);
     });
 
-    $catalog = new StoryCatalog(new Settings, fn (string $token) => new Gateway($token, function (string $token) use ($requests) {
+    $catalog = new StoryCatalog(new GatewayProvider(new Settings, fn (string $token) => new Gateway($token, function (string $token) use ($requests) {
         $requests['count']++;
 
         return (new YourStoryz($token))->withMockClient(new MockClient([CompanyStories::class => MockResponse::make(storyFixtures())]));
-    }));
+    })));
 
     $first = $catalog->load(new Source(116));
     $catalog->load(new Source(116));

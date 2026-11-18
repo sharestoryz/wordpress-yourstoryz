@@ -7,6 +7,7 @@ namespace YourStoryz;
 use YourStoryz\Admin\Menu;
 use YourStoryz\Admin\PreviewPage;
 use YourStoryz\Admin\SettingsPage;
+use YourStoryz\Api\GatewayProvider;
 
 final class Plugin
 {
@@ -18,9 +19,10 @@ final class Plugin
     public function register(): void
     {
         $settings = new Settings;
-        $source = new SourceSettings($settings);
-        $settingsPage = new SettingsPage($settings, $source);
-        $previewPage = new PreviewPage($source, new StoryCatalog($settings));
+        $gateways = new GatewayProvider($settings);
+        $source = new SourceSettings($gateways);
+        $settingsPage = new SettingsPage($settings, $source, $gateways);
+        $previewPage = new PreviewPage($source, new StoryCatalog($gateways));
 
         $settingsPage->register();
         $previewPage->register();

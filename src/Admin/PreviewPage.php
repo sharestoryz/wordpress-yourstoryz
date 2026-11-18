@@ -20,6 +20,7 @@ final class PreviewPage
         private readonly SourceSettings $source,
         private readonly StoryCatalog $catalog,
         private readonly Notices $notices = new Notices,
+        private readonly AdminAction $adminAction = new AdminAction,
     ) {}
 
     public function register(): void
@@ -29,21 +30,16 @@ final class PreviewPage
 
     public function handleRefresh(): void
     {
-        if (! current_user_can('manage_options')) {
-            wp_die(esc_html__('Je hebt geen toegang tot deze pagina.', 'yourstoryz'), '', ['response' => 403]);
-        }
-
-        check_admin_referer(self::ACTION_REFRESH);
+        $this->adminAction->authorize(self::ACTION_REFRESH);
 
         $source = $this->source->source();
 
         if ($source instanceof Source) {
             $this->catalog->refresh($source);
-            $this->notices->flash('success', 'Voorbeeld vernieuwd.');
+            $this->notices->flash('success', __('Voorbeeld vernieuwd.', 'yourstoryz'));
         }
 
-        wp_safe_redirect(add_query_arg('page', self::SLUG, admin_url('admin.php')));
-        exit;
+        $this->adminAction->redirect(self::SLUG);
     }
 
     public function render(): void
@@ -78,18 +74,29 @@ final class PreviewPage
 
         printf(
             '<p>%s</p>',
-            esc_html(sprintf('%d video-stories · %d media-stories overgeslagen', count($result['stories']), $result['skipped'])),
+            esc_html(sprintf(
+                __('%1$d video-stories · %2$d media-stories overgeslagen', 'yourstoryz'),
+                count($result['stories']),
+                $result['skipped'],
+            )),
         );
 
-        echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
-        echo '<input type="hidden" name="action" value="'.esc_attr(self::ACTION_REFRESH).'">';
-        wp_nonce_field(self::ACTION_REFRESH);
+        $this->adminAction->formOpen(self::ACTION_REFRESH);
         submit_button(__('Vernieuwen', 'yourstoryz'), 'secondary');
         echo '</form>';
 
         echo '<div style="overflow-x:auto"><table class="widefat striped"><thead><tr>';
 
-        foreach (['', 'Titel', 'Oriëntatie', 'Talen', 'Auteur', 'Bijgewerkt'] as $heading) {
+        $headings = [
+            '',
+            __('Titel', 'yourstoryz'),
+            __('Oriëntatie', 'yourstoryz'),
+            __('Talen', 'yourstoryz'),
+            __('Auteur', 'yourstoryz'),
+            __('Bijgewerkt', 'yourstoryz'),
+        ];
+
+        foreach ($headings as $heading) {
             echo '<th>'.esc_html($heading).'</th>';
         }
 
@@ -117,9 +124,9 @@ final class PreviewPage
         ));
 
         $orientation = match ($story->video->orientation) {
-            'horizontal' => 'horizontaal',
-            'vertical' => 'verticaal',
-            null => 'onbekend',
+            'horizontal' => __('horizontaal', 'yourstoryz'),
+            'vertical' => __('verticaal', 'yourstoryz'),
+            null => __('onbekend', 'yourstoryz'),
             default => $story->video->orientation,
         };
 
@@ -130,8 +137,8 @@ final class PreviewPage
             $thumbnail,
             esc_html($story->title),
             esc_html($orientation),
-            esc_html($languages === '' ? 'geen teksten' : $languages),
-            esc_html($story->author ?? 'onbekend'),
+            esc_html($languages === '' ? __('geen teksten', 'yourstoryz') : $languages),
+            esc_html($story->author ?? __('onbekend', 'yourstoryz')),
             esc_html($timestamp ? wp_date('d-m-Y H:i', $timestamp) : $story->updatedAt),
         );
     }

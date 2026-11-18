@@ -3,6 +3,7 @@
 use Brain\Monkey\Functions;
 use YourStoryz\Api\ApiException;
 use YourStoryz\Api\Gateway;
+use YourStoryz\Api\GatewayProvider;
 use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 use YourStoryz\Vendor\Saloon\Http\Faking\MockClient;
@@ -38,13 +39,13 @@ beforeEach(function () {
 
     $this->requests = 0;
     $this->source = function (array $mocks) {
-        return new SourceSettings(new Settings, function (string $token) use ($mocks) {
+        return new SourceSettings(new GatewayProvider(new Settings, function (string $token) use ($mocks) {
             return new Gateway($token, function (string $token) use ($mocks) {
                 $this->requests++;
 
                 return (new YourStoryz($token))->withMockClient(new MockClient($mocks));
             });
-        });
+        }));
     };
     $this->mocks = [
         GetCompanies::class => MockResponse::make(['data' => [['id' => 116, 'name' => 'Concept7']]]),

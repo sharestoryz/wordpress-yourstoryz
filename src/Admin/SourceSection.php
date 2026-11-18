@@ -13,6 +13,7 @@ final class SourceSection
     public function __construct(
         private readonly Settings $settings,
         private readonly SourceSettings $source,
+        private readonly AdminAction $adminAction,
     ) {}
 
     public function render(): void
@@ -35,7 +36,7 @@ final class SourceSection
         }
 
         if ($companies === []) {
-            $this->notice('warning', 'Dit account hoort bij geen company');
+            $this->notice('warning', __('Dit account hoort bij geen company', 'yourstoryz'));
             $this->refreshForm();
 
             return;
@@ -45,10 +46,10 @@ final class SourceSection
         $companyIds = array_column($companies, 'id');
 
         if ($saved !== null && ! in_array($saved['company_id'], $companyIds, true)) {
-            $this->notice('warning', 'De opgeslagen company is niet meer beschikbaar; kies een nieuwe.');
+            $this->notice('warning', __('De opgeslagen company is niet meer beschikbaar; kies een nieuwe.', 'yourstoryz'));
         }
 
-        $requested = isset($_GET['company']) ? (int) $_GET['company'] : 0;
+        $requested = absint(wp_unslash($_GET['company'] ?? 0));
         $selected = match (true) {
             in_array($requested, $companyIds, true) => $requested,
             $saved !== null && in_array($saved['company_id'], $companyIds, true) => $saved['company_id'],
@@ -68,9 +69,7 @@ final class SourceSection
 
         $selectedDepartment = $saved !== null && $saved['company_id'] === $selected ? $saved['department_id'] : null;
 
-        echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
-        echo '<input type="hidden" name="action" value="'.esc_attr(SettingsPage::ACTION_SAVE_SOURCE).'">';
-        wp_nonce_field(SettingsPage::ACTION_SAVE_SOURCE);
+        $this->adminAction->formOpen(SettingsPage::ACTION_SAVE_SOURCE);
         echo '<table class="form-table" role="presentation"><tr><th scope="row"><label for="yourstoryz_company_id">'
             .esc_html__('Company', 'yourstoryz').'</label></th><td>';
         echo '<select id="yourstoryz_company_id" name="yourstoryz_company_id">';
@@ -92,7 +91,7 @@ final class SourceSection
         $baseUrl = add_query_arg('page', Menu::SLUG, admin_url('admin.php'));
         printf(
             '<script>document.getElementById("yourstoryz_company_id").addEventListener("change",function(){if(this.value){window.location.href=%s+"&company="+encodeURIComponent(this.value);}});</script>',
-            wp_json_encode($baseUrl),
+            wp_json_encode($baseUrl, JSON_HEX_TAG | JSON_HEX_AMP),
         );
 
         $this->refreshForm();
@@ -120,9 +119,7 @@ final class SourceSection
 
     private function refreshForm(): void
     {
-        echo '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
-        echo '<input type="hidden" name="action" value="'.esc_attr(SettingsPage::ACTION_REFRESH).'">';
-        wp_nonce_field(SettingsPage::ACTION_REFRESH);
+        $this->adminAction->formOpen(SettingsPage::ACTION_REFRESH);
         submit_button(__('Lijsten vernieuwen', 'yourstoryz'), 'secondary');
         echo '</form>';
     }

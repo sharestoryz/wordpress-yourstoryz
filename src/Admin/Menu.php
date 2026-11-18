@@ -31,8 +31,8 @@ final class Menu
 
         add_submenu_page(
             self::SLUG,
-            'Instellingen',
-            'Instellingen',
+            __('Instellingen', 'yourstoryz'),
+            __('Instellingen', 'yourstoryz'),
             'manage_options',
             self::SLUG,
             [$this->settingsPage, 'render'],
@@ -40,8 +40,8 @@ final class Menu
 
         add_submenu_page(
             self::SLUG,
-            'Voorbeeld',
-            'Voorbeeld',
+            __('Voorbeeld', 'yourstoryz'),
+            __('Voorbeeld', 'yourstoryz'),
             'manage_options',
             PreviewPage::SLUG,
             [$this->previewPage, 'render'],

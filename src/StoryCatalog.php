@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace YourStoryz;
 
-use Closure;
 use YourStoryz\Api\ApiException;
-use YourStoryz\Api\Gateway;
+use YourStoryz\Api\GatewayProvider;
 use YourStoryz\Api\SourceStory;
 use YourStoryz\Api\StoryMapper;
 
@@ -14,12 +13,8 @@ final class StoryCatalog
 {
     public const TTL = 600;
 
-    /**
-     * @param  (Closure(string): Gateway)|null  $gatewayFactory
-     */
     public function __construct(
-        private readonly Settings $settings,
-        private readonly ?Closure $gatewayFactory = null,
+        private readonly GatewayProvider $gateways,
         private readonly StoryMapper $mapper = new StoryMapper,
     ) {}
 
@@ -37,9 +32,7 @@ final class StoryCatalog
             return $cached;
         }
 
-        $token = $this->settings->token();
-        $gateway = $this->gatewayFactory ? ($this->gatewayFactory)($token) : new Gateway($token);
-        $raw = $gateway->stories($source);
+        $raw = $this->gateways->gateway()->stories($source);
 
         $stories = array_values(array_filter(array_map($this->mapper->map(...), $raw)));
         $result = ['stories' => $stories, 'skipped' => count($raw) - count($stories)];
@@ -58,7 +51,7 @@ final class StoryCatalog
     {
         return sprintf(
             'yourstoryz_stories_%s_%d_%d',
-            substr(md5($this->settings->token()), 0, 8),
+            $this->gateways->tokenHash(),
             $source->companyId,
             $source->departmentId ?? 0,
         );
