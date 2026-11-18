@@ -1,70 +1,61 @@
 <?php
 
-/*
-Plugin Name: YourStoryz
-Description: A plugin to create posts with data from YourStoryz API.
-Version: 2.0.0
-Author: Concept7
-Author URI: https://concept7.nl/
-Developer: Nathan Kruit
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-*/
+use YourStoryz\Plugin;
+
+/**
+ * Plugin Name: YourStoryz
+ * Description: A plugin to create posts with data from the YourStoryz API.
+ * Version: 2.0.0-dev
+ * Requires at least: 6.4
+ * Requires PHP: 8.3
+ * Author: Concept7
+ * Author URI: https://concept7.nl/
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: yourstoryz
+ */
+
+// This file must stay parseable on PHP 7.4, so the guard below can run on old versions.
 
 if (! defined('ABSPATH')) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
-// File path constants
-define('YOURSTORYZ_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('YOURSTORYZ_VERSION', '2.0.0-dev');
+define('YOURSTORYZ_FILE', __FILE__);
+define('YOURSTORYZ_DIR', plugin_dir_path(__FILE__));
 
-// Connector constants
-define('YOURSTORYZ_API_URL', 'https://dashboard.yourstoryz.com');
-
-// Option keys
-define('YOURSTORYZ_API_TOKEN_OPTION', 'yourstoryz_api_token');
-define('YOURSTORYZ_STORIABLE_TYPE_OPTION', 'yourstoryz_storiable_type');
-define('YOURSTORYZ_STORIABLE_ID_OPTION', 'yourstoryz_storiable_id');
-
-// Menu and Cron keys
-define('YOURSTORYZ_MENU_SLUG', 'yourstoryz-settings-page');
-define('YOURSTORYZ_CRON_HOOK', 'yourstoryz_api_fetch');
-
-require_once YOURSTORYZ_PLUGIN_DIR.'/lib/autoload.php';
-
-require_once YOURSTORYZ_PLUGIN_DIR.'includes/yourstoryz-functions.php';
-require_once YOURSTORYZ_PLUGIN_DIR.'includes/class-yourstoryz-admin.php';
-require_once YOURSTORYZ_PLUGIN_DIR.'includes/class-yourstoryz-cron.php';
-
-/**
- * Initialize the plugin classes.
- */
-function yourstoryz_run()
+function yourstoryz_meets_requirements($phpVersion = PHP_VERSION)
 {
-    if (is_admin()) {
-        new YourStoryz_Admin;
+    return version_compare($phpVersion, '8.3', '>=');
+}
+
+function yourstoryz_php_notice()
+{
+    printf(
+        '<div class="notice notice-error"><p>%s</p></div>',
+        esc_html__('YourStoryz requires PHP 8.3 or higher and has not been loaded.', 'yourstoryz')
+    );
+}
+
+if (! yourstoryz_meets_requirements()) {
+    add_action('admin_notices', 'yourstoryz_php_notice');
+
+    return;
+}
+
+spl_autoload_register(function ($class) {
+    $prefix = 'YourStoryz\\';
+
+    if (strpos($class, $prefix) !== 0) {
+        return;
     }
-    // Cron class is needed globally for activation/deactivation hooks and action execution
-    new YourStoryz_Cron;
-}
-add_action('plugins_loaded', 'yourstoryz_run');
 
-/**
- * Schedule cron job on plugin activation.
- */
-function yourstoryz_activate()
-{
-    $cron = new YourStoryz_Cron;
-    $cron->schedule_event();
-}
-register_activation_hook(__FILE__, 'yourstoryz_activate');
+    $file = YOURSTORYZ_DIR.'src/'.str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
 
-/**
- * Clear cron job on plugin deactivation.
- */
-function yourstoryz_deactivate()
-{
-    $cron = new YourStoryz_Cron;
-    $cron->clear_event();
-}
-register_deactivation_hook(__FILE__, 'yourstoryz_deactivate');
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
+
+(new Plugin)->boot();
