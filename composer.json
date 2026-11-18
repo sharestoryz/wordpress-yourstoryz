@@ -13,6 +13,7 @@
     },
     "require-dev": {
         "brain/monkey": "^2.6",
+        "brianhenryie/strauss": "^0.31",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "pestphp/pest": "^3.0"
@@ -25,7 +26,15 @@
     },
     "scripts": {
         "test": "vendor/bin/pest",
-        "format": "vendor/bin/pint"
+        "format": "vendor/bin/pint",
+        "prefix-namespaces": "test -f ./vendor/bin/strauss && ./vendor/bin/strauss || echo 'Strauss not installed, skipping prefixing'",
+        "post-install-cmd": [
+            "@prefix-namespaces"
+        ],
+        "post-update-cmd": [
+            "@prefix-namespaces"
+        ],
+        "build": "bin/build-zip.sh"
     },
     "config": {
         "sort-packages": true,
@@ -36,5 +45,17 @@
             "php": "8.3.0"
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "extra": {
+        "strauss": {
+            "target_directory": "vendor-prefixed",
+            "namespace_prefix": "YourStoryz\\Vendor\\",
+            "classmap_prefix": "YourStoryz_Vendor_",
+            "packages": [
+                "sharestoryz/yourstoryz-php-sdk"
+            ],
+            "delete_vendor_packages": false,
+            "include_modified_date": false
+        }
+    }
 }

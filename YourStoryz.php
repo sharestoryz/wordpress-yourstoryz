@@ -38,6 +38,14 @@ function yourstoryz_php_notice()
     );
 }
 
+function yourstoryz_dependencies_notice()
+{
+    printf(
+        '<div class="notice notice-error"><p>%s</p></div>',
+        esc_html__('YourStoryz is missing its dependencies; run composer install.', 'yourstoryz')
+    );
+}
+
 if (! yourstoryz_meets_requirements()) {
     add_action('admin_notices', 'yourstoryz_php_notice');
 
@@ -57,5 +65,13 @@ spl_autoload_register(function ($class) {
         require_once $file;
     }
 });
+
+if (! file_exists(YOURSTORYZ_DIR.'vendor-prefixed/autoload.php')) {
+    add_action('admin_notices', 'yourstoryz_dependencies_notice');
+
+    return;
+}
+
+require_once YOURSTORYZ_DIR.'vendor-prefixed/autoload.php';
 
 (new Plugin)->boot();

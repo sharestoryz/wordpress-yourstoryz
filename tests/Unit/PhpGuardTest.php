@@ -18,6 +18,18 @@ it('accepts PHP 8.3 and newer', function (string $version) {
     expect(yourstoryz_meets_requirements($version))->toBeTrue();
 })->with(['8.3.0', '8.4.1']);
 
+it('prints an escaped missing dependencies notice', function () {
+    Functions\expect('esc_html__')
+        ->once()
+        ->with(Mockery::type('string'), 'yourstoryz')
+        ->andReturnFirstArg();
+
+    ob_start();
+    yourstoryz_dependencies_notice();
+
+    expect(ob_get_clean())->toContain('composer install');
+});
+
 it('prints an escaped admin notice', function () {
     Functions\expect('esc_html__')
         ->once()
