@@ -83,19 +83,11 @@ jobs:
           php-version: '7.4'
           coverage: none
 
-      # The plugin entry files must stay parseable on PHP 7.4 so WordPress can show
-      # the "requires PHP 8.3" notice instead of a fatal error. uninstall.php is
-      # optional until it exists; any file that does exist must parse.
+      # Entry files must parse on PHP 7.4 so WordPress shows the "requires PHP 8.3" notice, not a fatal.
       - name: php -l
         run: |
-          test -f YourStoryz.php
-          for file in YourStoryz.php uninstall.php; do
-            if [ -f "$file" ]; then
-              php -l "$file"
-            else
-              echo "Skipping $file (not present)"
-            fi
-          done
+          php -l YourStoryz.php
+          php -l uninstall.php
 
   build:
     name: Build zip
