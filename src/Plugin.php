@@ -24,6 +24,7 @@ final class Plugin
         $settingsPage = new SettingsPage($settings, $source, $gateways);
         $previewPage = new PreviewPage($source, new StoryCatalog($gateways));
 
+        (new PostType)->register();
         $settingsPage->register();
         $previewPage->register();
         (new Menu($settingsPage, $previewPage))->register();

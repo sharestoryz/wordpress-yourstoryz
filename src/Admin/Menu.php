@@ -15,7 +15,8 @@ final class Menu
 
     public function register(): void
     {
-        add_action('admin_menu', [$this, 'addMenu']);
+        // Priority 9: WordPress adds post type submenus at 10 and the first submenu becomes the top-level link.
+        add_action('admin_menu', [$this, 'addMenu'], 9);
     }
 
     public function addMenu(): void

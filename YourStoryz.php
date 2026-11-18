@@ -74,4 +74,7 @@ if (! file_exists(YOURSTORYZ_DIR.'vendor-prefixed/autoload.php')) {
 
 require_once YOURSTORYZ_DIR.'vendor-prefixed/autoload.php';
 
+register_activation_hook(__FILE__, ['YourStoryz\\PostType', 'activate']);
+register_deactivation_hook(__FILE__, ['YourStoryz\\PostType', 'deactivate']);
+
 (new Plugin)->boot();

@@ -5,6 +5,8 @@ use Brain\Monkey\Functions;
 beforeEach(function () {
     Functions\stubs([
         'plugin_dir_path' => fn (string $file) => dirname($file).'/',
+        'register_activation_hook' => null,
+        'register_deactivation_hook' => null,
     ]);
 
     require_once dirname(__DIR__, 2).'/YourStoryz.php';
