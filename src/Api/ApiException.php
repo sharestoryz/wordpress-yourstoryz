@@ -23,4 +23,13 @@ final class ApiException extends RuntimeException
     ) {
         parent::__construct($message, $status, $previous);
     }
+
+    public function userMessage(): string
+    {
+        return match ($this->kind) {
+            self::KIND_UNAUTHORIZED => 'Token ongeldig',
+            self::KIND_UNREACHABLE => 'YourStoryz niet bereikbaar',
+            default => 'Fout '.$this->status,
+        };
+    }
 }

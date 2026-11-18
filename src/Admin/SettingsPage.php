@@ -8,12 +8,17 @@ use Closure;
 use YourStoryz\Api\ApiException;
 use YourStoryz\Api\Gateway;
 use YourStoryz\Settings;
+use YourStoryz\SourceSettings;
 
 final class SettingsPage
 {
     public const ACTION_SAVE = 'yourstoryz_save_settings';
 
     public const ACTION_TEST = 'yourstoryz_test_connection';
+
+    public const ACTION_SAVE_SOURCE = 'yourstoryz_save_source';
+
+    public const ACTION_REFRESH = 'yourstoryz_refresh_lists';
 
     private const NOTICE_TTL = 60;
 
@@ -22,6 +27,7 @@ final class SettingsPage
      */
     public function __construct(
         private readonly Settings $settings,
+        private readonly SourceSettings $source,
         private readonly ?Closure $gatewayFactory = null,
     ) {}
 
@@ -29,6 +35,8 @@ final class SettingsPage
     {
         add_action('admin_post_'.self::ACTION_SAVE, [$this, 'handleSave']);
         add_action('admin_post_'.self::ACTION_TEST, [$this, 'handleTest']);
+        add_action('admin_post_'.self::ACTION_SAVE_SOURCE, [$this, 'handleSaveSource']);
+        add_action('admin_post_'.self::ACTION_REFRESH, [$this, 'handleRefresh']);
     }
 
     public function handleSave(): void
@@ -62,13 +70,40 @@ final class SettingsPage
 
             $this->flash('success', $name !== '' ? 'Verbonden als '.$name : 'Verbonden.');
         } catch (ApiException $exception) {
-            $this->flash('error', match ($exception->kind) {
-                ApiException::KIND_UNAUTHORIZED => 'Token ongeldig',
-                ApiException::KIND_UNREACHABLE => 'YourStoryz niet bereikbaar',
-                default => 'Fout '.$exception->status,
-            });
+            $this->flash('error', $exception->userMessage());
         }
 
+        $this->redirect();
+    }
+
+    public function handleSaveSource(): void
+    {
+        $this->authorize(self::ACTION_SAVE_SOURCE);
+
+        $companyId = (int) ($_POST['yourstoryz_company_id'] ?? 0);
+        $departmentInput = (string) ($_POST['yourstoryz_department_id'] ?? '');
+        $departmentId = $departmentInput === '' ? null : (int) $departmentInput;
+
+        try {
+            $saved = $this->source->save($companyId, $departmentId);
+
+            $this->flash(
+                $saved ? 'success' : 'error',
+                $saved ? 'Bron opgeslagen.' : 'Ongeldige selectie; de opgeslagen bron is niet gewijzigd.',
+            );
+        } catch (ApiException $exception) {
+            $this->flash('error', $exception->userMessage());
+        }
+
+        $this->redirect();
+    }
+
+    public function handleRefresh(): void
+    {
+        $this->authorize(self::ACTION_REFRESH);
+
+        $this->source->refresh();
+        $this->flash('success', 'Lijsten vernieuwd.');
         $this->redirect();
     }
 
@@ -119,6 +154,8 @@ final class SettingsPage
             submit_button(__('Verbinding testen', 'yourstoryz'), 'secondary');
             echo '</form>';
         }
+
+        (new SourceSection($this->settings, $this->source))->render();
 
         echo '</div>';
     }

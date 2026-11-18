@@ -29,11 +29,43 @@ final class Gateway
      */
     public function me(): array
     {
+        return $this->call(fn (YourStoryz $connector): array => $connector->users()->me()->json());
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     *
+     * @throws ApiException
+     */
+    public function companies(): array
+    {
+        return $this->normalizeList(
+            $this->call(fn (YourStoryz $connector): array => $connector->companies()->all()->json())
+        );
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     *
+     * @throws ApiException
+     */
+    public function departments(int $companyId): array
+    {
+        return $this->normalizeList(
+            $this->call(fn (YourStoryz $connector): array => $connector->companies()->departments($companyId)->json())
+        );
+    }
+
+    /**
+     * @param  Closure(YourStoryz): array<mixed>  $request
+     * @return array<mixed>
+     *
+     * @throws ApiException
+     */
+    private function call(Closure $request): array
+    {
         try {
-            return $this->connector()
-                ->users()
-                ->me()
-                ->json();
+            return $request($this->connector());
         } catch (FatalRequestException $exception) {
             throw new ApiException(ApiException::KIND_UNREACHABLE, 0, $exception->getMessage(), $exception);
         } catch (RequestException $exception) {
@@ -48,6 +80,24 @@ final class Gateway
         } catch (SaloonException $exception) {
             throw new ApiException(ApiException::KIND_UNREACHABLE, 0, $exception->getMessage(), $exception);
         }
+    }
+
+    /**
+     * @param  array<mixed>  $response
+     * @return list<array{id: int, name: string}>
+     */
+    private function normalizeList(array $response): array
+    {
+        $items = is_array($response['data'] ?? null) ? $response['data'] : $response;
+        $list = [];
+
+        foreach ($items as $item) {
+            if (is_array($item) && isset($item['id'])) {
+                $list[] = ['id' => (int) $item['id'], 'name' => (string) ($item['name'] ?? $item['id'])];
+            }
+        }
+
+        return $list;
     }
 
     private function connector(): YourStoryz

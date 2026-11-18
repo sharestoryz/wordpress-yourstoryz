@@ -16,7 +16,8 @@ final class Plugin
 
     public function register(): void
     {
-        $settingsPage = new SettingsPage(new Settings);
+        $settings = new Settings;
+        $settingsPage = new SettingsPage($settings, new SourceSettings($settings));
 
         $settingsPage->register();
         (new Menu($settingsPage))->register();
