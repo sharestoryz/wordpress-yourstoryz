@@ -18,5 +18,6 @@ final readonly class SourceContent
         public string $content,
         public array $hashtags = [],
         public array $selectedHashtags = [],
+        public string $createdAt = '',
     ) {}
 }

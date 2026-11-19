@@ -9,6 +9,8 @@
     ],
     "require": {
         "php": "^8.3",
+        "ext-dom": "*",
+        "erusev/parsedown": "^1.7",
         "sharestoryz/yourstoryz-php-sdk": "0.x-dev"
     },
     "require-dev": {
@@ -52,6 +54,7 @@
             "namespace_prefix": "YourStoryz\\Vendor\\",
             "classmap_prefix": "YourStoryz_Vendor_",
             "packages": [
+                "erusev/parsedown",
                 "sharestoryz/yourstoryz-php-sdk"
             ],
             "delete_vendor_packages": false,

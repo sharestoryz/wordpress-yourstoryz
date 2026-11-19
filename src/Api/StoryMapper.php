@@ -57,6 +57,7 @@ final class StoryMapper
                 content: $this->string($content['content'] ?? null),
                 hashtags: $this->strings($content['hashtags'] ?? null),
                 selectedHashtags: $this->strings($content['selected_hashtags'] ?? null),
+                createdAt: $this->string($content['created_at'] ?? null),
             );
         }
 
