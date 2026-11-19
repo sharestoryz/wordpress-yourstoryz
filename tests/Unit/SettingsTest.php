@@ -66,3 +66,15 @@ it('deletes the token when asked to', function () {
 
     expect($this->store)->not->toHaveKey('yourstoryz_token');
 });
+
+it('defaults the import status to draft and whitelists the values', function () {
+    expect((new Settings)->importStatus())->toBe('draft');
+
+    foreach (['draft', 'pending', 'publish'] as $status) {
+        $this->store['yourstoryz_import_status'] = $status;
+        expect((new Settings)->importStatus())->toBe($status);
+    }
+
+    $this->store['yourstoryz_import_status'] = 'private';
+    expect((new Settings)->importStatus())->toBe('draft');
+});

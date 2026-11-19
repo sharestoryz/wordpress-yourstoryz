@@ -8,11 +8,22 @@ final class Settings
 {
     public const OPTION_TOKEN = 'yourstoryz_token';
 
+    public const OPTION_IMPORT_STATUS = 'yourstoryz_import_status';
+
+    public const IMPORT_STATUSES = ['draft', 'pending', 'publish'];
+
     public const MASK = '••••';
 
     public function token(): string
     {
         return (string) get_option(self::OPTION_TOKEN, '');
+    }
+
+    public function importStatus(): string
+    {
+        $status = (string) get_option(self::OPTION_IMPORT_STATUS, 'draft');
+
+        return in_array($status, self::IMPORT_STATUSES, true) ? $status : 'draft';
     }
 
     public function hasToken(): bool
