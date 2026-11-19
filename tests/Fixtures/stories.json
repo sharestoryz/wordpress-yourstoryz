@@ -1,0 +1,256 @@
+[
+    {
+        "id": 1313,
+        "title": "Voorbeeldverhaal 1313",
+        "description": "Lorem ipsum dolor sit amet.",
+        "video": {
+            "id": 1802,
+            "orientation": "horizontal",
+            "video_url": "https://example.com/video_url/1313.jpg",
+            "thumbnail_url": "https://example.com/thumbnail_url/1313.jpg",
+            "contents": [
+                {
+                    "id": 1208,
+                    "lang": "en",
+                    "type": "social",
+                    "title": "Voorbeeldverhaal 1313",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld5",
+                        "#voorbeeld6",
+                        "#voorbeeld7",
+                        "#voorbeeld8"
+                    ],
+                    "selected_hashtags": [
+                        "#voorbeeld9",
+                        "#voorbeeld10",
+                        "#voorbeeld11"
+                    ],
+                    "created_at": "2025-10-14T05:20:08.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                },
+                {
+                    "id": 1209,
+                    "lang": "nl",
+                    "type": "social",
+                    "title": "Voorbeeldverhaal 1313",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld15",
+                        "#voorbeeld16",
+                        "#voorbeeld17"
+                    ],
+                    "selected_hashtags": [
+                        "#voorbeeld18",
+                        "#voorbeeld19"
+                    ],
+                    "created_at": "2025-10-14T05:20:08.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                },
+                {
+                    "id": 1210,
+                    "lang": "en",
+                    "type": "news",
+                    "title": "Voorbeeldverhaal 1313",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld23",
+                        "#voorbeeld24",
+                        "#voorbeeld25",
+                        "#voorbeeld26",
+                        "#voorbeeld27"
+                    ],
+                    "selected_hashtags": [
+                        "#voorbeeld28",
+                        "#voorbeeld29",
+                        "#voorbeeld30"
+                    ],
+                    "created_at": "2025-10-14T05:20:08.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                },
+                {
+                    "id": 1211,
+                    "lang": "nl",
+                    "type": "news",
+                    "title": "Voorbeeldverhaal 1313",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld34",
+                        "#voorbeeld35",
+                        "#voorbeeld36",
+                        "#voorbeeld37",
+                        "#voorbeeld38"
+                    ],
+                    "selected_hashtags": [
+                        "#voorbeeld39",
+                        "#voorbeeld40"
+                    ],
+                    "created_at": "2025-10-14T05:20:08.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                }
+            ],
+            "created_at": "2025-10-14T05:20:08.000000Z"
+        },
+        "media": [],
+        "author": {
+            "name": "Voorbeeldauteur"
+        },
+        "location": null,
+        "location_description": null,
+        "created_at": "2025-10-14T05:20:08.000000Z",
+        "updated_at": "2025-10-14T05:20:08.000000Z"
+    },
+    {
+        "id": 1023,
+        "title": "Voorbeeldverhaal 1023",
+        "description": "Lorem ipsum dolor sit amet.",
+        "video": {
+            "id": 1498,
+            "orientation": "horizontal",
+            "video_url": "https://example.com/video_url/1023.jpg",
+            "thumbnail_url": "https://example.com/thumbnail_url/1023.jpg",
+            "contents": [],
+            "created_at": "2025-02-04T14:26:35.000000Z"
+        },
+        "media": [],
+        "author": {
+            "name": "Voorbeeldauteur"
+        },
+        "location": null,
+        "location_description": null,
+        "created_at": "2025-02-04T14:26:35.000000Z",
+        "updated_at": "2025-08-21T07:15:22.000000Z"
+    },
+    {
+        "id": 1697,
+        "title": "Voorbeeldverhaal 1697",
+        "description": "Lorem ipsum dolor sit amet.",
+        "video": {
+            "id": 2088,
+            "orientation": null,
+            "video_url": "https://example.com/video_url/1697.jpg",
+            "thumbnail_url": "https://example.com/thumbnail_url/1697.jpg",
+            "contents": [
+                {
+                    "id": 1760,
+                    "lang": "en",
+                    "type": "social",
+                    "title": "Voorbeeldverhaal 1697",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld5",
+                        "#voorbeeld6",
+                        "#voorbeeld7"
+                    ],
+                    "selected_hashtags": [],
+                    "created_at": "2026-08-11T12:55:46.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                },
+                {
+                    "id": 1761,
+                    "lang": "nl",
+                    "type": "social",
+                    "title": "Voorbeeldverhaal 1697",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld11",
+                        "#voorbeeld12",
+                        "#voorbeeld13"
+                    ],
+                    "selected_hashtags": [],
+                    "created_at": "2026-08-11T12:55:47.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                },
+                {
+                    "id": 1762,
+                    "lang": "en",
+                    "type": "news",
+                    "title": "Voorbeeldverhaal 1697",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [
+                        "#voorbeeld17",
+                        "#voorbeeld18",
+                        "#voorbeeld19",
+                        "#voorbeeld20"
+                    ],
+                    "selected_hashtags": [],
+                    "created_at": "2026-08-11T12:55:47.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                },
+                {
+                    "id": 1763,
+                    "lang": "nl",
+                    "type": "news",
+                    "title": "Voorbeeldverhaal 1697",
+                    "content": "Lorem **ipsum** dolor sit amet.\n\nConsectetur adipiscing elit.",
+                    "hashtags": [],
+                    "selected_hashtags": [],
+                    "created_at": "2026-08-11T12:55:47.000000Z",
+                    "transcription": "Lorem ipsum transcriptie."
+                }
+            ],
+            "created_at": "2026-08-11T12:55:46.000000Z"
+        },
+        "media": [],
+        "author": {
+            "name": "Voorbeeldauteur"
+        },
+        "location": null,
+        "location_description": null,
+        "created_at": "2026-08-11T12:55:47.000000Z",
+        "updated_at": "2026-08-11T12:55:47.000000Z"
+    },
+    {
+        "id": 1203,
+        "title": "Voorbeeldverhaal 1203",
+        "description": "Lorem ipsum dolor sit amet.",
+        "video": null,
+        "media": [
+            {
+                "id": 7,
+                "file": "voorbeeld-1203.jpg",
+                "url": "https://example.com/url/1203.jpg",
+                "type": "video",
+                "mime_type": "video/quicktime",
+                "created_at": "2025-08-27T17:06:43.000000Z",
+                "updated_at": "2025-08-27T17:06:43.000000Z"
+            },
+            {
+                "id": 8,
+                "file": "voorbeeld-1203.jpg",
+                "url": "https://example.com/url/1203.jpg",
+                "type": "video",
+                "mime_type": "video/quicktime",
+                "created_at": "2025-08-27T17:06:43.000000Z",
+                "updated_at": "2025-08-27T17:06:43.000000Z"
+            }
+        ],
+        "author": null,
+        "location": null,
+        "location_description": null,
+        "created_at": "2025-08-27T17:06:43.000000Z",
+        "updated_at": "2025-08-27T17:06:43.000000Z"
+    },
+    {
+        "id": 1633,
+        "title": "Voorbeeldverhaal 1633",
+        "description": "Lorem ipsum dolor sit amet.",
+        "video": null,
+        "media": [
+            {
+                "id": 256,
+                "file": "voorbeeld-1633.jpg",
+                "url": "https://example.com/url/1633.jpg",
+                "type": "video",
+                "mime_type": "video/mp4",
+                "created_at": "2026-06-12T10:19:15.000000Z",
+                "updated_at": "2026-06-12T10:19:15.000000Z"
+            }
+        ],
+        "author": null,
+        "location": null,
+        "location_description": null,
+        "created_at": "2026-06-12T10:19:13.000000Z",
+        "updated_at": "2026-06-12T10:19:13.000000Z"
+    }
+]

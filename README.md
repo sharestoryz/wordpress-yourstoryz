@@ -1,51 +1,79 @@
-=== YourStoryz ===
-Tags: freemium, yourstoryz
-Contributors: yourstoryz
-Tested up to: 6.6
-Stable tag: 1.3.2
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://yourstoryz.com/donate
-Requires PHP: 8.3
-Requires at least: 5.5
+# YourStoryz WordPress plugin
 
-The YourStoryz Plugin connects your WordPress site to YourStoryz application, allowing you to create posts directly from the YourStoryz API.
+Connects a WordPress site to a YourStoryz account. Admin menu **YourStoryz**:
 
-== Installation ==
-1. Upload the `yourstoryz-plugin` folder to `/wp-content/plugins/`.
-2. Activate the plugin through the \'Plugins\' menu in WordPress.
-3. Configure your API key and settings from the YourStoryz menu.
+- **Instellingen**: API token, connection test, source (company and optional department).
+- **Voorbeeld**: read-only list of the video stories of the selected source, plus the **Nu importeren** button.
+- **Alle stories**: the imported stories (post type `yourstoryz_story`, public at `/stories/`).
 
-== Frequently Asked Questions ==
-= How do I get an API key? =
-Follow the instructions on the plugin settings page to obtain and enter your API key.
+Stories are imported daily by WP-Cron (`yourstoryz_import`) or on demand. Existing posts are never overwritten and permanently deleted stories are not re-imported.
 
-= Why is my API key validation failing? =
-Ensure the key is correct and has required permissions.
+Requires WordPress 6.4+ and PHP 8.3+. The entry file `YourStoryz.php` and `uninstall.php` stay parseable on PHP 7.4 so older installs get a notice instead of a fatal error.
 
-== Third party integrations ==
-This plugins relies on the Yourstoryz API to fetch your personal content. You need an API key to use this plugin.
-The API key can be obtained by creating an account on the YourStoryz platform. You can sign up at https://dashboard.yourstoryz.com/en/register or via the YourStoryz app available on iOS and Android.
-The terms and conditions for the API can be found at https://yourstoryz.com/wp-content/uploads/2023/12/yourstoryz-termsconditions-apple-eula-2022.pdf
-The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies/
+## Development
 
-== Screenshots ==
-1. The modern interface makes Yourstoryz API easy to work with.
+```bash
+composer install          # installs dependencies and runs Strauss (post-install hook)
+composer prefix-namespaces # re-run Strauss: prefixes the SDK into vendor-prefixed/ (YourStoryz\Vendor\)
+composer test             # Pest (use XDEBUG_MODE=off for speed)
+composer format           # Pint
+composer build            # bin/build-zip.sh -> build/yourstoryz-<version>.zip
+npm ci && npm run build   # Tailwind v4 -> assets/build/frontend.css
+```
 
-== Upgrade Notice ==
-Not yet
+`assets/build/frontend.css` is gitignored and loaded only on story pages. Run the npm build before testing the front end; `bin/build-zip.sh` builds it for the release zip.
 
+## Front end
 
-== Changelog ==
-= 1.0 =
-Initial release.
-= 1.1 =
-Small bugfix and add support for markdown content.
-= 1.2 =
-Small bugfix
-= 1.3 =
-Small bugfix
-= 1.3.1 =
-Add horizontal/vertical styling for video embed
-= 1.3.2 =
-Typo fix
+### Tailwind
+
+Tailwind v4 with `prefix(ys)`: all classes carry the `ys:` prefix (`ys:flex`, `ys:text-lg`), no preflight, so the theme is not affected. The stylesheet scans only `templates/` and `src/Frontend/` (`source(none)` plus `@source`). Add new classes there and rebuild.
+
+### Theme override (classic themes)
+
+Copy a template to your theme and edit it:
+
+```
+{theme}/yourstoryz/single-story.php
+{theme}/yourstoryz/archive-story.php
+{theme}/yourstoryz/parts/<name>.php   (author-line, pagination, story-card, tag-list)
+```
+
+### Block themes
+
+On WordPress 6.7+ the plugin registers the block templates `single-yourstoryz_story` and `archive-yourstoryz_story`, editable in the site editor, and the block `yourstoryz/video`. On WordPress 6.4-6.6 block themes get the video prepended to the story content.
+
+`vendor-prefixed/` is generated and must exist for the plugin to load. The release zip contains `YourStoryz.php`, `uninstall.php`, `readme.txt`, `src/`, `templates/`, `blocks/`, `vendor-prefixed/` and `assets/` (including `assets/build`).
+
+## Local site (lerd)
+
+The test site is `https://yourstoryz-wp.test` (PHP 8.4).
+
+1. Symlink this directory into the site: `ln -s <path-to>/wordpress-yourstoryz <site>/wp-content/plugins/yourstoryz`.
+2. Run `composer install` in the plugin directory so `vendor-prefixed/` exists.
+3. Activate **YourStoryz** under Plugins and open the YourStoryz menu.
+
+## Structure
+
+```
+YourStoryz.php      Plugin header, PHP version guard, bootstrap
+uninstall.php       Removes options, transients and the import cron on deletion
+src/Plugin.php      Wires hooks and boots the admin
+src/Settings.php    API token option (yourstoryz_token)
+src/SourceSettings.php  Company/department option (yourstoryz_source) and cached lists
+src/Source.php      Value object for the selected source
+src/StoryCatalog.php    Fetches and caches stories
+src/PostType.php    Post type yourstoryz_story and /stories/ rewrite
+src/Import/         Importer, runner (cron + lock), post planner, deleted-story registry
+src/Frontend/       Template loader, block templates, video block/renderer, assets
+templates/          Classic theme templates and parts (theme-overridable)
+blocks/             Block definitions (yourstoryz/video)
+src/Admin/          Menu, settings page, source section, preview page, notices
+src/Api/            Gateway around the SDK, story mapper, DTOs
+tests/Unit/         Pest + Brain Monkey tests
+bin/build-zip.sh    Release zip
+```
+
+## Uninstall
+
+`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` transient and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import` cron event. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.

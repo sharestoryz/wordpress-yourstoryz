@@ -1,1 +1,0 @@
-# YourStoryz PHP SDK

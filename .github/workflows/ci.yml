@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Pint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@2.40.0
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php-8.3-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php-8.3-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Pint
+        run: vendor/bin/pint --test
+
+  test:
+    name: Pest (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@2.40.0
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php-${{ matrix.php }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Pest
+        run: vendor/bin/pest
+
+  php74-parse:
+    name: Parse check (PHP 7.4)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@2.40.0
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      # Entry files must parse on PHP 7.4 so WordPress shows the "requires PHP 8.3" notice, not a fatal.
+      - name: php -l
+        run: |
+          php -l YourStoryz.php
+          php -l uninstall.php
+
+  css:
+    name: Build CSS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build CSS
+        run: |
+          npm ci
+          npm run build
+
+  build:
+    name: Build zip
+    runs-on: ubuntu-latest
+    needs: [lint, test, php74-parse, css]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@2.40.0
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php-8.3-build-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php-8.3-build-
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # bin/build-zip.sh does its own composer install, Strauss run and npm build in a temp copy.
+      - name: Build zip
+        run: bash bin/build-zip.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yourstoryz-plugin
+          path: build/*.zip
+          if-no-files-found: error

@@ -1,6 +1,7 @@
 {
     "preset": "laravel",
     "exclude": [
-        "lib"
+        "vendor-prefixed",
+        "build"
     ]
 }

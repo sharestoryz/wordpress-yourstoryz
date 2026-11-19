@@ -1,1 +1,7 @@
-/vendor/
+/vendor
+/vendor-prefixed
+/build
+.phpunit.result.cache
+.DS_Store
+/node_modules
+/assets/build
