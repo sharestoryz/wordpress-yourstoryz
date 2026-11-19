@@ -144,7 +144,7 @@ it('uses the configured status and falls back to draft for unknown values', func
     expect($this->inserted[0]['post_status'])->toBe($expected);
 })->with([
     ['publish', 'publish'],
-    ['pending', 'pending'],
+    ['pending', 'draft'],
     ['private', 'draft'],
     ['', 'draft'],
 ]);

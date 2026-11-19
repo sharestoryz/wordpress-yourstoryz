@@ -35,6 +35,19 @@ it('removes the options and the yourstoryz transients', function () {
         return true;
     });
 
+    $transients = [];
+    $cleared = [];
+    Functions\when('delete_transient')->alias(function ($key) use (&$transients) {
+        $transients[] = $key;
+
+        return true;
+    });
+    Functions\when('wp_clear_scheduled_hook')->alias(function ($hook) use (&$cleared) {
+        $cleared[] = $hook;
+
+        return 1;
+    });
+
     $wpdb = Mockery::mock();
     $wpdb->options = 'wp_options';
     $wpdb->shouldReceive('esc_like')->twice()->andReturnArg(0);
@@ -49,5 +62,7 @@ it('removes the options and the yourstoryz transients', function () {
 
     yourstoryz_run_uninstall();
 
-    expect($deleted)->toBe(['yourstoryz_token', 'yourstoryz_source']);
+    expect($deleted)->toBe(['yourstoryz_token', 'yourstoryz_source', 'yourstoryz_import_status'])
+        ->and($transients)->toBe(['yourstoryz_import_lock'])
+        ->and($cleared)->toBe(['yourstoryz_import']);
 });

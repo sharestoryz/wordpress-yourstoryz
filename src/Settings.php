@@ -10,7 +10,7 @@ final class Settings
 
     public const OPTION_IMPORT_STATUS = 'yourstoryz_import_status';
 
-    public const IMPORT_STATUSES = ['draft', 'pending', 'publish'];
+    public const IMPORT_STATUSES = ['draft', 'publish'];
 
     public const MASK = '••••';
 
@@ -24,6 +24,17 @@ final class Settings
         $status = (string) get_option(self::OPTION_IMPORT_STATUS, 'draft');
 
         return in_array($status, self::IMPORT_STATUSES, true) ? $status : 'draft';
+    }
+
+    public function saveImportStatus(string $status): bool
+    {
+        if (! in_array($status, self::IMPORT_STATUSES, true)) {
+            return false;
+        }
+
+        update_option(self::OPTION_IMPORT_STATUS, $status, false);
+
+        return true;
     }
 
     public function hasToken(): bool

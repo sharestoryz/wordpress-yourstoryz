@@ -6,6 +6,8 @@ namespace YourStoryz\Admin;
 
 use YourStoryz\Api\ApiException;
 use YourStoryz\Api\SourceStory;
+use YourStoryz\Import\ImportResult;
+use YourStoryz\Import\ImportRunner;
 use YourStoryz\Source;
 use YourStoryz\SourceSettings;
 use YourStoryz\StoryCatalog;
@@ -16,9 +18,14 @@ final class PreviewPage
 
     public const ACTION_REFRESH = 'yourstoryz_refresh_preview';
 
+    public const ACTION_IMPORT = 'yourstoryz_import_now';
+
+    private const MAX_MESSAGES = 5;
+
     public function __construct(
         private readonly SourceSettings $source,
         private readonly StoryCatalog $catalog,
+        private readonly ImportRunner $runner,
         private readonly Notices $notices = new Notices,
         private readonly AdminAction $adminAction = new AdminAction,
     ) {}
@@ -26,6 +33,7 @@ final class PreviewPage
     public function register(): void
     {
         add_action('admin_post_'.self::ACTION_REFRESH, [$this, 'handleRefresh']);
+        add_action('admin_post_'.self::ACTION_IMPORT, [$this, 'handleImport']);
     }
 
     public function handleRefresh(): void
@@ -37,6 +45,38 @@ final class PreviewPage
         if ($source instanceof Source) {
             $this->catalog->refresh($source);
             $this->notices->flash('success', __('Voorbeeld vernieuwd.', 'yourstoryz'));
+        }
+
+        $this->adminAction->redirect(self::SLUG);
+    }
+
+    public function handleImport(): void
+    {
+        $this->adminAction->authorize(self::ACTION_IMPORT);
+
+        $outcome = $this->runner->run();
+        $result = $outcome['result'];
+
+        if ($result instanceof ImportResult) {
+            $summary = sprintf(
+                __('%1$d aangemaakt, %2$d overgeslagen, %3$d mislukt', 'yourstoryz'),
+                $result->created,
+                $result->skipped,
+                $result->failed,
+            );
+            $messages = array_slice($result->messages, 0, self::MAX_MESSAGES);
+
+            $this->notices->flash(
+                $result->failed > 0 ? 'error' : 'success',
+                implode(' · ', array_merge([$summary], $messages)),
+            );
+        } else {
+            $this->notices->flash('error', match ($outcome['status']) {
+                ImportRunner::STATUS_LOCKED => __('Import loopt al', 'yourstoryz'),
+                ImportRunner::STATUS_NO_TOKEN => __('Er is geen token ingesteld; er is niets geïmporteerd.', 'yourstoryz'),
+                ImportRunner::STATUS_NO_SOURCE => __('Er is nog geen bron gekozen; er is niets geïmporteerd.', 'yourstoryz'),
+                default => sprintf(__('Import mislukt: %s', 'yourstoryz'), $outcome['message']),
+            });
         }
 
         $this->adminAction->redirect(self::SLUG);
@@ -83,6 +123,10 @@ final class PreviewPage
 
         $this->adminAction->formOpen(self::ACTION_REFRESH);
         submit_button(__('Vernieuwen', 'yourstoryz'), 'secondary');
+        echo '</form>';
+
+        $this->adminAction->formOpen(self::ACTION_IMPORT);
+        submit_button(__('Nu importeren', 'yourstoryz'));
         echo '</form>';
 
         echo '<div style="overflow-x:auto"><table class="widefat striped"><thead><tr>';

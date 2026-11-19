@@ -43,6 +43,11 @@ final class SettingsPage
         $delete = ! empty($_POST['yourstoryz_delete_token']);
 
         $this->settings->save($input, $delete);
+
+        if (isset($_POST['yourstoryz_import_status'])) {
+            $this->settings->saveImportStatus(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_status'])));
+        }
+
         $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
         $this->adminAction->redirect(Menu::SLUG);
     }
@@ -126,7 +131,14 @@ final class SettingsPage
                 .esc_html__('Token verwijderen', 'yourstoryz').'</label></p>';
         }
 
-        echo '</td></tr></table>';
+        echo '</td></tr>';
+
+        $importStatus = $this->settings->importStatus();
+        echo '<tr><th scope="row"><label for="yourstoryz_import_status">'.esc_html__('Status bij import', 'yourstoryz').'</label></th><td>';
+        echo '<select id="yourstoryz_import_status" name="yourstoryz_import_status">';
+        printf('<option value="draft"%s>%s</option>', selected($importStatus, 'draft', false), esc_html__('Concept', 'yourstoryz'));
+        printf('<option value="publish"%s>%s</option>', selected($importStatus, 'publish', false), esc_html__('Gepubliceerd', 'yourstoryz'));
+        echo '</select></td></tr></table>';
         submit_button(__('Opslaan', 'yourstoryz'));
         echo '</form>';
 

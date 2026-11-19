@@ -70,11 +70,27 @@ it('deletes the token when asked to', function () {
 it('defaults the import status to draft and whitelists the values', function () {
     expect((new Settings)->importStatus())->toBe('draft');
 
-    foreach (['draft', 'pending', 'publish'] as $status) {
+    foreach (['draft', 'publish'] as $status) {
         $this->store['yourstoryz_import_status'] = $status;
         expect((new Settings)->importStatus())->toBe($status);
     }
 
+    $this->store['yourstoryz_import_status'] = 'pending';
+    expect((new Settings)->importStatus())->toBe('draft');
+
     $this->store['yourstoryz_import_status'] = 'private';
     expect((new Settings)->importStatus())->toBe('draft');
+});
+
+it('saves a valid import status without autoload', function () {
+    expect((new Settings)->saveImportStatus('publish'))->toBeTrue()
+        ->and($this->store['yourstoryz_import_status'])->toBe('publish')
+        ->and($this->autoload)->toBeFalse();
+});
+
+it('rejects an invalid import status', function () {
+    $this->store['yourstoryz_import_status'] = 'draft';
+
+    expect((new Settings)->saveImportStatus('pending'))->toBeFalse()
+        ->and($this->store['yourstoryz_import_status'])->toBe('draft');
 });

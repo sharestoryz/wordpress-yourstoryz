@@ -75,6 +75,8 @@ if (! file_exists(YOURSTORYZ_DIR.'vendor-prefixed/autoload.php')) {
 require_once YOURSTORYZ_DIR.'vendor-prefixed/autoload.php';
 
 register_activation_hook(__FILE__, ['YourStoryz\\PostType', 'activate']);
+register_activation_hook(__FILE__, ['YourStoryz\\Import\\ImportRunner', 'schedule']);
 register_deactivation_hook(__FILE__, ['YourStoryz\\PostType', 'deactivate']);
+register_deactivation_hook(__FILE__, ['YourStoryz\\Import\\ImportRunner', 'unschedule']);
 
 (new Plugin)->boot();
