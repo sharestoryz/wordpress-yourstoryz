@@ -1,0 +1,5 @@
+@import "tailwindcss/theme" layer(theme) prefix(ys);
+@import "tailwindcss/utilities" layer(utilities) prefix(ys) source(none);
+
+@source "../../templates";
+@source "../../src/Frontend";

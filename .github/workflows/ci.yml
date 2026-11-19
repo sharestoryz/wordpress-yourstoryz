@@ -89,10 +89,26 @@ jobs:
           php -l YourStoryz.php
           php -l uninstall.php
 
+  css:
+    name: Build CSS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build CSS
+        run: |
+          npm ci
+          npm run build
+
   build:
     name: Build zip
     runs-on: ubuntu-latest
-    needs: [lint, test, php74-parse]
+    needs: [lint, test, php74-parse, css]
     steps:
       - uses: actions/checkout@v4
 
@@ -112,7 +128,12 @@ jobs:
           key: composer-${{ runner.os }}-php-8.3-build-${{ hashFiles('composer.lock') }}
           restore-keys: composer-${{ runner.os }}-php-8.3-build-
 
-      # bin/build-zip.sh does its own composer install and Strauss run in a temp copy.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # bin/build-zip.sh does its own composer install, Strauss run and npm build in a temp copy.
       - name: Build zip
         run: bash bin/build-zip.sh
 
