@@ -36,6 +36,7 @@ final class Importer
     public function __construct(
         private readonly PostPlanner $planner = new PostPlanner,
         private readonly Settings $settings = new Settings,
+        private readonly DeletedStories $deletedStories = new DeletedStories,
     ) {}
 
     /**
@@ -47,7 +48,7 @@ final class Importer
         $this->skipped = 0;
         $this->failed = 0;
         $this->messages = [];
-        $this->existing = $this->existingPosts();
+        $this->existing = $this->existingPosts() + array_fill_keys($this->deletedStories->keys(), true);
         $this->attachments = $this->existingAttachments();
 
         foreach ($stories as $story) {

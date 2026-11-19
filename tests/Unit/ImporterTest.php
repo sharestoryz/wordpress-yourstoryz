@@ -45,6 +45,7 @@ beforeEach(function () {
     $this->attachmentMeta = [];
     $this->sideloads = [];
     $this->status = 'draft';
+    $this->deleted = [];
     $this->terms = [];
 
     $test = $this;
@@ -74,7 +75,7 @@ beforeEach(function () {
     Functions\when('wp_strip_all_tags')->alias(fn ($text) => strip_tags($text));
     Functions\when('wp_kses_post')->returnArg(1);
     Functions\when('wp_timezone')->alias(fn () => new DateTimeZone('Europe/Amsterdam'));
-    Functions\when('get_option')->alias(fn ($key, $default = false) => $this->status);
+    Functions\when('get_option')->alias(fn ($key, $default = false) => $key === 'yourstoryz_deleted_stories' ? $this->deleted : $this->status);
     Functions\when('wp_set_post_terms')->alias(function (int $postId, array $tags, string $taxonomy) {
         $this->terms[$postId] = [$tags, $taxonomy];
 
@@ -268,4 +269,15 @@ it('counts an exception as failed and continues', function () {
     expect($result->created)->toBe(1)
         ->and($result->failed)->toBe(1)
         ->and($result->messages[0])->toContain('Boom');
+});
+
+it('skips a story whose key is in the deleted list', function () {
+    $this->deleted = ['7|nl'];
+
+    $result = (new Importer)->import([importerStory(7, 3, ['nl', 'en']), importerStory(8, 4)]);
+
+    expect($result->created)->toBe(2)
+        ->and($result->skipped)->toBe(1)
+        ->and($this->queries)->toBe(2)
+        ->and(array_map(fn (array $arguments) => $arguments['meta_input']['_ysz_source_id'].'|'.$arguments['meta_input']['_ysz_lang'], $this->inserted))->toBe(['7|en', '8|nl']);
 });
