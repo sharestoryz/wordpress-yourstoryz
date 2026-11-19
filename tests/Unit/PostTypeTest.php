@@ -12,6 +12,8 @@ it('registers the post type on init', function () {
     Actions\expectAdded('init')->once();
 
     (new PostType)->register();
+
+    $this->addToAssertionCount(1);
 });
 
 it('registers the story type with the expected arguments', function () {

@@ -20,7 +20,7 @@ package="$root/build/yourstoryz"
 rm -rf "$root/build"
 mkdir -p "$package"
 
-for item in YourStoryz.php uninstall.php readme.txt src templates vendor-prefixed; do
+for item in YourStoryz.php uninstall.php readme.txt src templates blocks vendor-prefixed; do
     if [ -e "$item" ]; then
         cp -R "$item" "$package/"
     fi

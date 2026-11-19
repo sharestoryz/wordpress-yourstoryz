@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "yourstoryz/video",
+  "title": "Story video",
+  "category": "media",
+  "icon": "video-alt3",
+  "description": "Toont de video van de huidige story.",
+  "textdomain": "yourstoryz",
+  "usesContext": ["postId"],
+  "supports": {
+    "html": false,
+    "autoRegister": true
+  }
+}

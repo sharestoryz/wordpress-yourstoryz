@@ -11,11 +11,11 @@ function yourstoryzLoader(): TemplateLoader
 
 function yourstoryzContext(bool $blockTheme, bool $single, bool $archive): void
 {
-    $GLOBALS['yourstoryz_context'] = [$blockTheme, $single, $archive];
-
-    Functions\expect('wp_is_block_theme')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_context'][0]);
-    Functions\expect('is_singular')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_context'][1]);
-    Functions\expect('is_post_type_archive')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_context'][2]);
+    yourstoryzWpState([
+        'block_theme' => $blockTheme,
+        'singular' => $single,
+        'archive' => $archive,
+    ]);
 }
 
 it('hooks into template_include', function () {

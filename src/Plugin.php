@@ -9,7 +9,9 @@ use YourStoryz\Admin\PreviewPage;
 use YourStoryz\Admin\SettingsPage;
 use YourStoryz\Api\GatewayProvider;
 use YourStoryz\Frontend\Assets;
+use YourStoryz\Frontend\BlockTemplates;
 use YourStoryz\Frontend\TemplateLoader;
+use YourStoryz\Frontend\VideoBlock;
 use YourStoryz\Import\DeletedStories;
 use YourStoryz\Import\ImportRunner;
 
@@ -34,6 +36,8 @@ final class Plugin
         (new DeletedStories)->register();
         (new Assets)->register();
         (new TemplateLoader)->register();
+        (new VideoBlock)->register();
+        (new BlockTemplates)->register();
         $settingsPage->register();
         $previewPage->register();
         add_action(ImportRunner::HOOK, [$runner, 'run']);
