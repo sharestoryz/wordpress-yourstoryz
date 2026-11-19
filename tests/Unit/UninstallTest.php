@@ -66,3 +66,38 @@ it('removes the options and the yourstoryz transients', function () {
         ->and($transients)->toBe(['yourstoryz_import_lock'])
         ->and($cleared)->toBe(['yourstoryz_import']);
 });
+
+it('keeps imported story posts and attachments', function () {
+    if (! defined('WP_UNINSTALL_PLUGIN')) {
+        define('WP_UNINSTALL_PLUGIN', 'yourstoryz/YourStoryz.php');
+    }
+
+    Functions\when('delete_option')->justReturn(true);
+    Functions\when('delete_transient')->justReturn(true);
+    Functions\when('wp_clear_scheduled_hook')->justReturn(1);
+    Functions\expect('wp_delete_post')->never();
+    Functions\expect('wp_delete_attachment')->never();
+
+    $queries = [];
+    $wpdb = Mockery::mock();
+    $wpdb->options = 'wp_options';
+    $wpdb->posts = 'wp_posts';
+    $wpdb->postmeta = 'wp_postmeta';
+    $wpdb->shouldReceive('esc_like')->andReturnArg(0);
+    $wpdb->shouldReceive('prepare')->andReturnUsing(fn (string $sql, string $pattern) => $sql);
+    $wpdb->shouldReceive('query')->andReturnUsing(function (string $sql) use (&$queries) {
+        $queries[] = $sql;
+
+        return 1;
+    });
+    $GLOBALS['wpdb'] = $wpdb;
+
+    yourstoryz_run_uninstall();
+
+    expect($queries)->not->toBeEmpty();
+    foreach ($queries as $sql) {
+        expect($sql)->toContain('wp_options')
+            ->not->toContain('wp_posts')
+            ->not->toContain('wp_postmeta');
+    }
+});
