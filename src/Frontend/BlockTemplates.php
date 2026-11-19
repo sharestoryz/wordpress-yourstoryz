@@ -49,13 +49,7 @@ final class BlockTemplates
             return $content;
         }
 
-        $postId = (int) get_the_ID();
-
-        return $this->renderer->render(
-            (string) get_post_meta($postId, '_ysz_video_url', true),
-            (string) get_post_meta($postId, '_ysz_orientation', true),
-            (string) get_the_post_thumbnail_url($postId, 'large'),
-        ).$content;
+        return $this->renderer->renderPost((int) get_the_ID()).$content;
     }
 
     private function supportsTemplates(): bool

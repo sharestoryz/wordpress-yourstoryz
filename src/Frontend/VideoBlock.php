@@ -33,11 +33,7 @@ final class VideoBlock
     {
         $postId = (int) ($block->context['postId'] ?? get_the_ID());
 
-        $video = $postId === 0 ? '' : $this->renderer->render(
-            (string) get_post_meta($postId, '_ysz_video_url', true),
-            (string) get_post_meta($postId, '_ysz_orientation', true),
-            (string) get_the_post_thumbnail_url($postId, 'large'),
-        );
+        $video = $postId === 0 ? '' : $this->renderer->renderPost($postId);
 
         if ($video !== '' || ! $this->isEditing()) {
             return $video;

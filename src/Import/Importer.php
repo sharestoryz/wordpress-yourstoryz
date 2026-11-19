@@ -11,6 +11,7 @@ use WP_Error;
 use YourStoryz\Api\SourceStory;
 use YourStoryz\PostType;
 use YourStoryz\Settings;
+use YourStoryz\StoryMeta;
 
 /**
  * Writes the posts planned from source stories. Takes stories (not the catalog) so the caller
@@ -70,7 +71,7 @@ final class Importer
 
     private function importDraft(SourceStory $story, PostDraft $draft): void
     {
-        $key = $draft->meta['_ysz_source_id'].'|'.$draft->meta['_ysz_lang'];
+        $key = StoryMeta::identity($draft->meta[StoryMeta::SOURCE_ID], $draft->meta[StoryMeta::LANG]);
 
         if (isset($this->existing[$key])) {
             $this->skipped++;
@@ -164,7 +165,7 @@ final class Importer
             return null;
         }
 
-        update_post_meta($attachmentId, '_ysz_video_id', (string) $story->video->id);
+        update_post_meta($attachmentId, StoryMeta::VIDEO_ID, (string) $story->video->id);
 
         return (int) $attachmentId;
     }
@@ -188,16 +189,18 @@ final class Importer
         $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT source.meta_value AS source_id, lang.meta_value AS lang
             FROM {$wpdb->posts} AS posts
-            INNER JOIN {$wpdb->postmeta} AS source ON source.post_id = posts.ID AND source.meta_key = '_ysz_source_id'
-            INNER JOIN {$wpdb->postmeta} AS lang ON lang.post_id = posts.ID AND lang.meta_key = '_ysz_lang'
+            INNER JOIN {$wpdb->postmeta} AS source ON source.post_id = posts.ID AND source.meta_key = %s
+            INNER JOIN {$wpdb->postmeta} AS lang ON lang.post_id = posts.ID AND lang.meta_key = %s
             WHERE posts.post_type = %s AND posts.post_status != 'auto-draft'",
+            StoryMeta::SOURCE_ID,
+            StoryMeta::LANG,
             PostType::NAME,
         ));
 
         $existing = [];
 
         foreach ((array) $rows as $row) {
-            $existing[$row->source_id.'|'.$row->lang] = true;
+            $existing[StoryMeta::identity((string) $row->source_id, (string) $row->lang)] = true;
         }
 
         return $existing;
@@ -210,13 +213,14 @@ final class Importer
     {
         global $wpdb;
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT video.meta_value AS video_id, MIN(posts.ID) AS attachment_id
             FROM {$wpdb->posts} AS posts
-            INNER JOIN {$wpdb->postmeta} AS video ON video.post_id = posts.ID AND video.meta_key = '_ysz_video_id'
+            INNER JOIN {$wpdb->postmeta} AS video ON video.post_id = posts.ID AND video.meta_key = %s
             WHERE posts.post_type = 'attachment'
             GROUP BY video.meta_value",
-        );
+            StoryMeta::VIDEO_ID,
+        ));
 
         $attachments = [];
 

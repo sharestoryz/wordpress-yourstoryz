@@ -6,6 +6,7 @@ namespace YourStoryz\Import;
 
 use WP_Post;
 use YourStoryz\PostType;
+use YourStoryz\StoryMeta;
 
 /**
  * Remembers the source|lang key of permanently deleted story posts, so the importer does not recreate them
@@ -26,15 +27,15 @@ final class DeletedStories
             return;
         }
 
-        $sourceId = (string) get_post_meta($postId, '_ysz_source_id', true);
-        $lang = (string) get_post_meta($postId, '_ysz_lang', true);
+        $sourceId = (string) get_post_meta($postId, StoryMeta::SOURCE_ID, true);
+        $lang = (string) get_post_meta($postId, StoryMeta::LANG, true);
 
         if ($sourceId === '' || $lang === '') {
             return;
         }
 
         $keys = $this->keys();
-        $key = $sourceId.'|'.$lang;
+        $key = StoryMeta::identity($sourceId, $lang);
 
         if (in_array($key, $keys, true)) {
             return;

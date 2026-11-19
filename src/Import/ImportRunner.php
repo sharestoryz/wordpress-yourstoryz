@@ -67,12 +67,9 @@ final class ImportRunner
             return $this->outcome(self::STATUS_NO_SOURCE);
         }
 
-        // Plain get/set, not atomic: two requests in the same instant could both pass. Acceptable for a daily job plus a manual button.
-        if (get_transient(self::LOCK) !== false) {
+        if (! $this->acquireLock()) {
             return $this->outcome(self::STATUS_LOCKED);
         }
-
-        set_transient(self::LOCK, time(), self::LOCK_TTL);
 
         try {
             if (function_exists('wp_raise_memory_limit')) {
@@ -93,8 +90,27 @@ final class ImportRunner
         } catch (Throwable $throwable) {
             return $this->outcome(self::STATUS_ERROR, null, $throwable->getMessage());
         } finally {
-            delete_transient(self::LOCK);
+            delete_option(self::LOCK);
         }
+    }
+
+    /**
+     * add_option() inserts atomically and fails when the row exists, so only one request wins the lock.
+     * A lock older than LOCK_TTL belongs to a run that died without releasing it and is taken over.
+     */
+    private function acquireLock(): bool
+    {
+        if (add_option(self::LOCK, time(), '', false)) {
+            return true;
+        }
+
+        $lockedAt = (int) get_option(self::LOCK, 0);
+
+        if (time() - $lockedAt < self::LOCK_TTL) {
+            return false;
+        }
+
+        return update_option(self::LOCK, time(), false);
     }
 
     /**

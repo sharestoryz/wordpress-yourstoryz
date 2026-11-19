@@ -14,6 +14,7 @@ afterEach(function () {
 /**
  * Brain Monkey keeps the first closure given to Functions\expect() for the rest of the run,
  * so the stubs read their answers from this shared state instead of capturing test values.
+ * A test must therefore never call Functions\expect()/when() for a function this helper stubs: call this helper instead.
  *
  * @param  array<string, mixed>  $state
  */
@@ -32,8 +33,8 @@ function yourstoryzWpState(array $state = []): void
     ];
 
     Functions\expect('wp_is_block_theme')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_wp']['block_theme']);
-    Functions\expect('is_singular')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_wp']['singular']);
-    Functions\expect('is_post_type_archive')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_wp']['archive']);
+    Functions\expect('is_singular')->andReturnUsing(fn (string $postType = ''): bool => $GLOBALS['yourstoryz_wp']['singular'] && in_array($postType, ['', 'yourstoryz_story'], true));
+    Functions\expect('is_post_type_archive')->andReturnUsing(fn (string $postType = ''): bool => $GLOBALS['yourstoryz_wp']['archive'] && in_array($postType, ['', 'yourstoryz_story'], true));
     Functions\expect('in_the_loop')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_wp']['in_loop']);
     Functions\expect('is_main_query')->andReturnUsing(fn (): bool => $GLOBALS['yourstoryz_wp']['main_query']);
     Functions\expect('get_the_ID')->andReturnUsing(fn (): int|false => $GLOBALS['yourstoryz_wp']['post_id']);

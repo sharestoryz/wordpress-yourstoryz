@@ -2,6 +2,7 @@
 
 use Brain\Monkey\Functions;
 use YourStoryz\Frontend\VideoRenderer;
+use YourStoryz\StoryMeta;
 
 beforeEach(function () {
     Functions\when('esc_url')->alias(fn (string $url): string => str_replace(' ', '%20', $url));
@@ -51,4 +52,27 @@ it('escapes the url and the poster', function () {
         ->toContain('src="https://cdn.test/a%20b.mp4?x=&quot;&gt;&lt;script&gt;"')
         ->toContain('poster="https://cdn.test/p%20q.jpg?y=&quot;onerror=&quot;x"')
         ->not->toContain('<script>');
+});
+
+it('renders the video of a post from its meta and featured image', function () {
+    yourstoryzWpState([
+        'meta' => [StoryMeta::VIDEO_URL => 'https://cdn.test/a.mp4', StoryMeta::ORIENTATION => 'vertical'],
+        'thumbnail' => 'https://cdn.test/p.jpg',
+    ]);
+
+    expect((new VideoRenderer)->renderPost(12))
+        ->toContain('src="https://cdn.test/a.mp4"')
+        ->toContain('ys:aspect-9/16')
+        ->toContain('poster="https://cdn.test/p.jpg"');
+});
+
+it('renders nothing for a post without a video url', function () {
+    yourstoryzWpState(['meta' => []]);
+
+    expect((new VideoRenderer)->renderPost(12))->toBe('');
+});
+
+it('builds one identity key per source story and language', function () {
+    expect(StoryMeta::identity('42', 'nl'))->toBe('42|nl')
+        ->and(StoryMeta::identity('42', 'en'))->not->toBe(StoryMeta::identity('42', 'nl'));
 });

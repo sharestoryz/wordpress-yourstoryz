@@ -45,27 +45,29 @@ it('hooks into wp_enqueue_scripts', function () {
 
 it('enqueues the stylesheet on a single story', function () {
     yourstoryzSetBuild(true);
-    Functions\expect('is_singular')->once()->with('yourstoryz_story')->andReturn(true);
+    yourstoryzWpState(['singular' => true]);
     Functions\expect('plugins_url')->once()->with('assets/build/frontend.css', sys_get_temp_dir().'/yourstoryz-assets-test/YourStoryz.php')->andReturn('https://example.test/frontend.css');
     Functions\expect('wp_enqueue_style')->once()->with('yourstoryz-frontend', 'https://example.test/frontend.css', [], '9.9.9');
 
     yourstoryzAssets()->enqueue();
+
+    $this->addToAssertionCount(1);
 });
 
 it('enqueues the stylesheet on the story archive', function () {
     yourstoryzSetBuild(true);
-    Functions\expect('is_singular')->once()->with('yourstoryz_story')->andReturn(false);
-    Functions\expect('is_post_type_archive')->once()->with('yourstoryz_story')->andReturn(true);
+    yourstoryzWpState(['archive' => true]);
     Functions\expect('plugins_url')->once()->andReturn('https://example.test/frontend.css');
     Functions\expect('wp_enqueue_style')->once();
 
     yourstoryzAssets()->enqueue();
+
+    $this->addToAssertionCount(1);
 });
 
 it('does not enqueue on other pages', function () {
     yourstoryzSetBuild(true);
-    Functions\expect('is_singular')->once()->with('yourstoryz_story')->andReturn(false);
-    Functions\expect('is_post_type_archive')->once()->with('yourstoryz_story')->andReturn(false);
+    yourstoryzWpState();
     Functions\expect('wp_enqueue_style')->never();
 
     yourstoryzAssets()->enqueue();
@@ -75,7 +77,7 @@ it('does not enqueue on other pages', function () {
 
 it('does not enqueue when the build file is missing', function () {
     yourstoryzSetBuild(false);
-    Functions\expect('is_singular')->once()->andReturn(true);
+    yourstoryzWpState(['singular' => true]);
     Functions\expect('wp_enqueue_style')->never();
 
     yourstoryzAssets()->enqueue();

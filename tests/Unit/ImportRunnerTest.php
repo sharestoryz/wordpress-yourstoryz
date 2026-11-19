@@ -10,8 +10,28 @@ use YourStoryz\StoryCatalog;
 beforeEach(function () {
     $this->store = ['yourstoryz_token' => 'secret', 'yourstoryz_source' => ['company_id' => 116, 'department_id' => null]];
     $this->transients = [];
+    $this->deletedTransients = [];
 
     Functions\when('get_option')->alias(fn ($key, $default = false) => $this->store[$key] ?? $default);
+    Functions\when('add_option')->alias(function ($key, $value) {
+        if (array_key_exists($key, $this->store)) {
+            return false;
+        }
+
+        $this->store[$key] = $value;
+
+        return true;
+    });
+    Functions\when('update_option')->alias(function ($key, $value) {
+        $this->store[$key] = $value;
+
+        return true;
+    });
+    Functions\when('delete_option')->alias(function ($key) {
+        unset($this->store[$key]);
+
+        return true;
+    });
     Functions\when('get_transient')->alias(fn ($key) => $this->transients[$key] ?? false);
     Functions\when('set_transient')->alias(function ($key, $value) {
         $this->transients[$key] = $value;
@@ -19,9 +39,7 @@ beforeEach(function () {
         return true;
     });
     Functions\when('delete_transient')->alias(function ($key) {
-        if ($key === ImportRunner::LOCK) {
-            unset($this->transients[$key]);
-        }
+        $this->deletedTransients[] = $key;
 
         return true;
     });
@@ -65,24 +83,28 @@ it('imports nothing without a source', function () {
     expect($this->runner->run()['status'])->toBe(ImportRunner::STATUS_NO_SOURCE);
 });
 
-it('refuses to start while the lock is held and leaves it alone', function () {
-    $this->transients[ImportRunner::LOCK] = 123;
+it('refuses to start while a fresh lock is held and leaves it alone', function () {
+    $this->store[ImportRunner::LOCK] = time() - 60;
+    $lockedAt = $this->store[ImportRunner::LOCK];
 
     expect($this->runner->run()['status'])->toBe(ImportRunner::STATUS_LOCKED)
-        ->and($this->transients)->toHaveKey(ImportRunner::LOCK);
+        ->and($this->store[ImportRunner::LOCK])->toBe($lockedAt);
 });
 
-it('sets the lock for fifteen minutes during the run and releases it afterwards', function () {
-    $ttl = null;
-    $lockedDuringRun = false;
-    $this->transients['yourstoryz_stories_'.substr(md5('secret'), 0, 8).'_116_0'] = ['stories' => [], 'skipped' => 0];
+it('takes over a stale lock left behind by a dead run', function () {
+    $this->store[ImportRunner::LOCK] = time() - ImportRunner::LOCK_TTL - 1;
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = [];
 
-    Functions\when('set_transient')->alias(function ($key, $value, $expiration = 0) use (&$ttl) {
-        if ($key === ImportRunner::LOCK) {
-            $ttl = $expiration;
-            $this->transients[$key] = $value;
-            $this->lockedDuringRun = true;
-        }
+    expect($this->runner->run()['status'])->toBe(ImportRunner::STATUS_DONE)
+        ->and($this->store)->not->toHaveKey(ImportRunner::LOCK);
+});
+
+it('takes the lock without autoload for the run and releases it afterwards', function () {
+    $added = [];
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = [];
+    Functions\when('add_option')->alias(function ($key, $value, $deprecated, $autoload) use (&$added) {
+        $added[$key] = $autoload;
+        $this->store[$key] = $value;
 
         return true;
     });
@@ -91,22 +113,25 @@ it('sets the lock for fifteen minutes during the run and releases it afterwards'
 
     expect($outcome['status'])->toBe(ImportRunner::STATUS_DONE)
         ->and($outcome['result']->created)->toBe(0)
-        ->and($ttl)->toBe(900)
-        ->and($this->transients)->not->toHaveKey(ImportRunner::LOCK);
+        ->and($added)->toBe([ImportRunner::LOCK => false])
+        ->and($this->store)->not->toHaveKey(ImportRunner::LOCK);
+});
+
+it('releases the lock when the import fails', function () {
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = ['not a story'];
+
+    $outcome = $this->runner->run();
+
+    expect($outcome['status'])->toBe(ImportRunner::STATUS_ERROR)
+        ->and($this->store)->not->toHaveKey(ImportRunner::LOCK);
 });
 
 it('drops the catalog cache before loading so the import sees fresh data', function () {
-    $deleted = [];
-    $this->transients['yourstoryz_stories_'.substr(md5('secret'), 0, 8).'_116_0'] = ['stories' => [], 'skipped' => 0];
-    Functions\when('delete_transient')->alias(function ($key) use (&$deleted) {
-        $deleted[] = $key;
-
-        return true;
-    });
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = [];
 
     $this->runner->run();
 
-    expect($deleted)->toContain('yourstoryz_stories_'.substr(md5('secret'), 0, 8).'_116_0');
+    expect($this->deletedTransients)->toContain('yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0');
 });
 
 it('schedules the daily event only once', function () {

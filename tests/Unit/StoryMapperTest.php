@@ -111,3 +111,21 @@ it('caches the mapped stories in a transient', function () {
 
     expect($requests['count'])->toBe(2);
 });
+
+it('caches plain arrays and ignores rows written by an older cache version', function () {
+    $transients = ['yourstoryz_stories_'.substr(md5('secret'), 0, 8).'_116_0' => ['stories' => ['broken'], 'skipped' => 0]];
+    Functions\when('get_option')->alias(fn ($key, $default = false) => $key === 'yourstoryz_token' ? 'secret' : $default);
+    Functions\when('get_transient')->alias(fn ($key) => $transients[$key] ?? false);
+    Functions\when('set_transient')->alias(function ($key, $value) use (&$transients) {
+        $transients[$key] = $value;
+    });
+
+    $catalog = new StoryCatalog(new GatewayProvider(new Settings, fn (string $token) => new Gateway($token, fn (string $token) => (new YourStoryz($token))->withMockClient(new MockClient([CompanyStories::class => MockResponse::make(storyFixtures())])))));
+
+    $result = $catalog->load(new Source(116));
+    $cached = $transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'];
+
+    expect($result['stories'])->toHaveCount(3)
+        ->and($cached)->toBe(storyFixtures())
+        ->and(serialize($cached))->not->toContain('O:');
+});

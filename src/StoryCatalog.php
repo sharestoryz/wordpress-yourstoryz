@@ -13,12 +13,19 @@ final class StoryCatalog
 {
     public const TTL = 600;
 
+    /**
+     * Part of the transient key. Raise it when the cached payload changes shape, so older rows are ignored.
+     */
+    private const CACHE_VERSION = 2;
+
     public function __construct(
         private readonly GatewayProvider $gateways,
         private readonly StoryMapper $mapper = new StoryMapper,
     ) {}
 
     /**
+     * Caches the raw API payload (plain arrays), not mapped objects: serialized objects break when their class changes.
+     *
      * @return array{stories: list<SourceStory>, skipped: int}
      *
      * @throws ApiException
@@ -26,20 +33,17 @@ final class StoryCatalog
     public function load(Source $source): array
     {
         $key = $this->key($source);
-        $cached = get_transient($key);
+        $raw = get_transient($key);
 
-        if (is_array($cached) && isset($cached['stories'], $cached['skipped'])) {
-            return $cached;
+        if (! is_array($raw)) {
+            $raw = $this->gateways->gateway()->stories($source);
+
+            set_transient($key, $raw, self::TTL);
         }
 
-        $raw = $this->gateways->gateway()->stories($source);
-
         $stories = array_values(array_filter(array_map($this->mapper->map(...), $raw)));
-        $result = ['stories' => $stories, 'skipped' => count($raw) - count($stories)];
 
-        set_transient($key, $result, self::TTL);
-
-        return $result;
+        return ['stories' => $stories, 'skipped' => count($raw) - count($stories)];
     }
 
     public function refresh(Source $source): void
@@ -50,7 +54,8 @@ final class StoryCatalog
     private function key(Source $source): string
     {
         return sprintf(
-            'yourstoryz_stories_%s_%d_%d',
+            'yourstoryz_stories_v%d_%s_%d_%d',
+            self::CACHE_VERSION,
             $this->gateways->tokenHash(),
             $source->companyId,
             $source->departmentId ?? 0,

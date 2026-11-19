@@ -6,6 +6,7 @@ namespace YourStoryz\Import;
 
 use YourStoryz\Api\SourceContent;
 use YourStoryz\Api\SourceStory;
+use YourStoryz\StoryMeta;
 
 final class PostPlanner
 {
@@ -85,14 +86,14 @@ final class PostPlanner
     private function meta(SourceStory $story, string $lang, string $contentId): array
     {
         return [
-            '_ysz_source_id' => (string) $story->id,
-            '_ysz_lang' => $lang,
-            '_ysz_content_id' => $contentId,
-            '_ysz_video_id' => (string) $story->video->id,
-            '_ysz_video_url' => $story->video->videoUrl,
-            '_ysz_orientation' => $story->video->orientation ?? '',
-            '_ysz_author' => $story->author ?? '',
-            '_ysz_updated_at' => $story->updatedAt,
+            StoryMeta::SOURCE_ID => (string) $story->id,
+            StoryMeta::LANG => $lang,
+            StoryMeta::CONTENT_ID => $contentId,
+            StoryMeta::VIDEO_ID => (string) $story->video->id,
+            StoryMeta::VIDEO_URL => $story->video->videoUrl,
+            StoryMeta::ORIENTATION => $story->video->orientation ?? '',
+            StoryMeta::AUTHOR => $story->author ?? '',
+            StoryMeta::UPDATED_AT => $story->updatedAt,
         ];
     }
 }

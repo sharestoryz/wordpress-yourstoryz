@@ -5,6 +5,7 @@
 
 use YourStoryz\Frontend\TemplateLoader;
 use YourStoryz\Frontend\VideoRenderer;
+use YourStoryz\StoryMeta;
 
 defined('ABSPATH') || exit;
 
@@ -22,12 +23,8 @@ $loader = new TemplateLoader;
         ?>
         <article class="ys:flex ys:flex-col ys:gap-6">
             <h1 class="ys:m-0"><?php the_title(); ?></h1>
-            <?php echo (new VideoRenderer)->render(
-                (string) get_post_meta($postId, '_ysz_video_url', true),
-                (string) get_post_meta($postId, '_ysz_orientation', true),
-                (string) get_the_post_thumbnail_url($postId, 'large'),
-            ); ?>
-            <?php $loader->part('author-line', ['author' => (string) get_post_meta($postId, '_ysz_author', true)]); ?>
+            <?php echo (new VideoRenderer)->renderPost($postId); ?>
+            <?php $loader->part('author-line', ['author' => (string) get_post_meta($postId, StoryMeta::AUTHOR, true)]); ?>
             <div class="ys:w-full"><?php the_content(); ?></div>
             <?php $loader->part('tag-list', ['tags' => $tags]); ?>
         </article>
