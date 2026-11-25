@@ -19,7 +19,7 @@ delete_option('yourstoryz_upgrade_notice');
 delete_option('yourstoryz_upgrade_lock');
 delete_option('yourstoryz_legacy_imports');
 
-// Options of 1.3.2 and 2.0.x, left in place by the upgrader. UninstallTest keeps this list equal to Upgrader::LEGACY_OPTIONS.
+// Options of 1.3.2 and 2.0.x.
 foreach ([
     'yourstoryz_plugin_change_token',
     'yourstoryz_api_token',

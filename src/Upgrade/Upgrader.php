@@ -13,8 +13,7 @@ use YourStoryz\SourceSettings;
 
 /**
  * One-shot import of the settings of 1.3.2 and 2.0.x. Activation hooks do not fire on a plugin update, so it runs
- * on admin requests while the stored db version is behind, and only imports when that version is absent. Legacy
- * options are left in place; uninstall.php removes them. A failing step never blocks the others or the db version.
+ * on admin requests while the stored db version is behind.
  */
 final class Upgrader
 {
@@ -57,7 +56,6 @@ final class Upgrader
         self::LEGACY_INTERVAL_132,
     ];
 
-    /** Options read by the upgrader that uninstall.php must remove. */
     public const LEGACY_OPTIONS = [
         self::LEGACY_TOKEN_132,
         self::LEGACY_TOKEN_200,

@@ -16,8 +16,6 @@ final class LegacyImports
     private ?array $snapshot = null;
 
     /**
-     * Read once per instance, so checking many drafts in one import run does not re-read the option.
-     *
      * @return array{story_ids: list<int>, video_ids: list<int>, content_ids: list<int>}
      */
     public function all(): array
@@ -46,8 +44,6 @@ final class LegacyImports
     }
 
     /**
-     * Adds ids to the registry, keeping each list unique.
-     *
      * @param  array<mixed>  $storyIds
      * @param  array<mixed>  $videoIds
      * @param  array<mixed>  $contentIds

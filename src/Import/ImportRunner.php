@@ -49,9 +49,6 @@ final class ImportRunner
         }
     }
 
-    /**
-     * Applies the saved auto-import settings: drops the current event and schedules a new one only when enabled.
-     */
     public static function reschedule(): void
     {
         self::unschedule();
