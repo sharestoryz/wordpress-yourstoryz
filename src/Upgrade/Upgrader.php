@@ -12,15 +12,19 @@ use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 
 /**
- * Carries the settings of 1.3.2 and 2.0.x over to this version. Activation hooks do not fire on a plugin update,
- * so this runs on every request until the stored db version has caught up. Legacy options are left in place;
- * uninstall.php removes them. Every step is small and idempotent so a later step can be added to steps().
+ * One-shot import of the settings of 1.3.2 and 2.0.x. Activation hooks do not fire on a plugin update, so it runs
+ * on admin requests while the stored db version is behind, and only imports when that version is absent. Legacy
+ * options are left in place; uninstall.php removes them. A failing step never blocks the others or the db version.
  */
 final class Upgrader
 {
     public const OPTION_DB_VERSION = 'yourstoryz_db_version';
 
     public const OPTION_NOTICE = 'yourstoryz_upgrade_notice';
+
+    public const OPTION_LOCK = 'yourstoryz_upgrade_lock';
+
+    private const LOCK_TTL = 300;
 
     public const LEGACY_TOKEN_132 = 'yourstoryz_plugin_change_token';
 
@@ -45,6 +49,14 @@ final class Upgrader
 
     public const LEGACY_CRON_HOOKS = ['yourstoryz_cron_event', 'yourstoryz_api_fetch'];
 
+    private const LEGACY_OPTIONS_132 = [
+        self::LEGACY_TOKEN_132,
+        self::LEGACY_DEPARTMENT_132,
+        self::LEGACY_AUTOPLAY_132,
+        self::LEGACY_CRON_132,
+        self::LEGACY_INTERVAL_132,
+    ];
+
     /** Options read by the upgrader that uninstall.php must remove. */
     public const LEGACY_OPTIONS = [
         self::LEGACY_TOKEN_132,
@@ -67,7 +79,7 @@ final class Upgrader
 
     public function register(): void
     {
-        add_action('init', [$this, 'maybeRun'], 1);
+        add_action('admin_init', [$this, 'maybeRun']);
         add_action('admin_notices', [$this, 'renderNotice']);
     }
 
@@ -77,13 +89,34 @@ final class Upgrader
             return;
         }
 
-        if (get_option(self::OPTION_DB_VERSION, false) === false && $this->hasLegacyData()) {
-            foreach ($this->steps() as $step) {
-                $step();
+        if (! add_option(self::OPTION_LOCK, time(), '', false)) {
+            if (time() - (int) get_option(self::OPTION_LOCK, 0) < self::LOCK_TTL) {
+                return;
+            }
+
+            delete_option(self::OPTION_LOCK);
+
+            if (! add_option(self::OPTION_LOCK, time(), '', false)) {
+                return;
             }
         }
 
-        update_option(self::OPTION_DB_VERSION, $this->version);
+        try {
+            if (get_option(self::OPTION_DB_VERSION, false) === false && $this->anyLegacy(self::LEGACY_OPTIONS)) {
+                foreach ($this->legacySteps() as $step) {
+                    try {
+                        $step();
+                    } catch (\Throwable $exception) {
+                        add_option(self::OPTION_NOTICE, 'failed', '', false);
+                        error_log('YourStoryz upgrade step failed: '.$exception::class.': '.$exception->getMessage());
+                    }
+                }
+            }
+
+            update_option(self::OPTION_DB_VERSION, $this->version);
+        } finally {
+            delete_option(self::OPTION_LOCK);
+        }
     }
 
     public function renderNotice(): void
@@ -92,14 +125,17 @@ final class Upgrader
             return;
         }
 
+        $notice = get_option(self::OPTION_NOTICE);
+
         delete_option(self::OPTION_NOTICE);
+
+        $settingsLink = '<a href="'.esc_url(admin_url('admin.php?page='.Menu::SLUG)).'">'.esc_html__('YourStoryz-instellingenpagina', 'yourstoryz').'</a>';
 
         printf(
             '<div class="notice notice-warning is-dismissible"><p>%s</p></div>',
-            sprintf(
-                esc_html__('YourStoryz kon je eerdere keuze voor bedrijf of afdeling niet overnemen. Kies een bron op de %s om verder te importeren.', 'yourstoryz'),
-                '<a href="'.esc_url(admin_url('admin.php?page='.Menu::SLUG)).'">'.esc_html__('YourStoryz-instellingenpagina', 'yourstoryz').'</a>',
-            ),
+            $notice === 'failed'
+                ? sprintf(esc_html__('YourStoryz kon niet alle instellingen van de vorige versie overnemen. Controleer de %s.', 'yourstoryz'), $settingsLink)
+                : sprintf(esc_html__('YourStoryz kon je eerdere keuze voor bedrijf of afdeling niet overnemen. Kies een bron op de %s om verder te importeren.', 'yourstoryz'), $settingsLink),
         );
     }
 
@@ -111,7 +147,7 @@ final class Upgrader
     /**
      * @return list<callable(): void>
      */
-    private function steps(): array
+    private function legacySteps(): array
     {
         return [
             $this->migrateToken(...),
@@ -143,25 +179,16 @@ final class Upgrader
         }
 
         try {
-            $resolved = $selection['department'] === null
-                ? $selection['company']
-                : $this->companyOfDepartment($selection['department']);
+            $companyId = $selection['department'] !== null
+                ? $this->companyOfDepartment($selection['department'])
+                : ($selection['company'] ?? $this->onlyCompany());
+            $saved = $companyId !== null && $this->source->save($companyId, $selection['department']);
         } catch (ApiException) {
-            $resolved = null;
+            $saved = false;
         }
 
-        if ($selection['department'] !== null && $resolved === null) {
+        if (! $saved) {
             update_option(self::OPTION_NOTICE, 'source', false);
-
-            return;
-        }
-
-        if ($resolved === null) {
-            $resolved = $this->onlyCompany();
-        }
-
-        if ($resolved !== null) {
-            update_option(SourceSettings::OPTION, ['company_id' => $resolved, 'department_id' => $selection['department']], false);
         }
     }
 
@@ -169,12 +196,14 @@ final class Upgrader
     {
         if ($this->hasLegacyOption(self::LEGACY_CRON_132)) {
             $this->settings->saveAutoImport($this->legacy(self::LEGACY_CRON_132) === '1');
+        } elseif ($this->anyLegacy(self::LEGACY_OPTIONS_132) && $this->legacy(self::LEGACY_TOKEN_200) === '') {
+            $this->settings->saveAutoImport(false);
         }
 
         if ($this->hasLegacyOption(self::LEGACY_INTERVAL_132)) {
             $interval = $this->legacy(self::LEGACY_INTERVAL_132);
 
-            $this->settings->saveImportInterval(in_array($interval, Settings::IMPORT_INTERVALS, true) ? $interval : Settings::DEFAULT_INTERVAL);
+            $this->settings->saveImportInterval(array_key_exists($interval, Settings::importIntervals()) ? $interval : Settings::DEFAULT_INTERVAL);
         }
 
         if ($this->hasLegacyOption(self::LEGACY_AUTOPLAY_132)) {
@@ -194,9 +223,9 @@ final class Upgrader
         $processed = is_array($processed) ? $processed : [];
 
         $this->legacyImports->merge(
-            $this->referenceIds200(),
-            array_keys(is_array($processed['videos'] ?? null) ? $processed['videos'] : []),
-            array_keys(is_array($processed['contents'] ?? null) ? $processed['contents'] : []),
+            storyIds: $this->referenceIds200(),
+            videoIds: array_keys(is_array($processed['videos'] ?? null) ? $processed['videos'] : []),
+            contentIds: array_keys(is_array($processed['contents'] ?? null) ? $processed['contents'] : []),
         );
     }
 
@@ -240,7 +269,7 @@ final class Upgrader
      */
     private function selection132(): ?array
     {
-        if (! $this->has132Data()) {
+        if (! $this->anyLegacy(self::LEGACY_OPTIONS_132)) {
             return null;
         }
 
@@ -274,21 +303,15 @@ final class Upgrader
         return count($companies) === 1 ? $companies[0]['id'] : null;
     }
 
-    private function has132Data(): bool
+    /**
+     * @param  list<string>  $keys
+     */
+    private function anyLegacy(array $keys): bool
     {
-        foreach ([self::LEGACY_TOKEN_132, self::LEGACY_DEPARTMENT_132, self::LEGACY_AUTOPLAY_132, self::LEGACY_CRON_132, self::LEGACY_INTERVAL_132] as $key) {
-            if ($this->legacy($key) !== '') {
-                return true;
-            }
-        }
+        foreach ($keys as $key) {
+            $value = get_option($key, '');
 
-        return false;
-    }
-
-    private function hasLegacyData(): bool
-    {
-        foreach (self::LEGACY_OPTIONS as $key) {
-            if ($this->legacy($key) !== '') {
+            if (is_array($value) ? $value !== [] : trim((string) $value) !== '') {
                 return true;
             }
         }

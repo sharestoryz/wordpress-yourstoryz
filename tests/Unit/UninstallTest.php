@@ -71,6 +71,7 @@ it('removes the options and the yourstoryz transients', function () {
         ImportRunner::LOCK,
         Upgrader::OPTION_DB_VERSION,
         Upgrader::OPTION_NOTICE,
+        Upgrader::OPTION_LOCK,
         LegacyImports::OPTION,
         ...$legacyUpgraderOptions,
     )

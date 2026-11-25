@@ -18,8 +18,6 @@ final class Settings
 
     public const IMPORT_STATUSES = ['draft', 'publish'];
 
-    public const IMPORT_INTERVALS = ['hourly', 'twicedaily', 'daily', 'weekly'];
-
     public const DEFAULT_INTERVAL = 'daily';
 
     public const MASK = '••••';
@@ -67,16 +65,29 @@ final class Settings
         $this->saveFlag(self::OPTION_AUTOPLAY, $enabled);
     }
 
+    /**
+     * @return array<string, string> WP-Cron schedule => label
+     */
+    public static function importIntervals(): array
+    {
+        return [
+            'hourly' => __('Elk uur', 'yourstoryz'),
+            'twicedaily' => __('Twee keer per dag', 'yourstoryz'),
+            'daily' => __('Dagelijks', 'yourstoryz'),
+            'weekly' => __('Wekelijks', 'yourstoryz'),
+        ];
+    }
+
     public function importInterval(): string
     {
         $interval = (string) get_option(self::OPTION_IMPORT_INTERVAL, self::DEFAULT_INTERVAL);
 
-        return in_array($interval, self::IMPORT_INTERVALS, true) ? $interval : self::DEFAULT_INTERVAL;
+        return array_key_exists($interval, self::importIntervals()) ? $interval : self::DEFAULT_INTERVAL;
     }
 
     public function saveImportInterval(string $interval): bool
     {
-        if (! in_array($interval, self::IMPORT_INTERVALS, true)) {
+        if (! array_key_exists($interval, self::importIntervals())) {
             return false;
         }
 

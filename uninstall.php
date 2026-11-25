@@ -16,6 +16,7 @@ delete_option('yourstoryz_deleted_stories');
 delete_option('yourstoryz_import_lock');
 delete_option('yourstoryz_db_version');
 delete_option('yourstoryz_upgrade_notice');
+delete_option('yourstoryz_upgrade_lock');
 delete_option('yourstoryz_legacy_imports');
 
 // Options of 1.3.2 and 2.0.x, left in place by the upgrader. UninstallTest keeps this list equal to Upgrader::LEGACY_OPTIONS.

@@ -36,11 +36,3 @@ it('renders the onboarding box with support and store links', function () {
         ->and($html)->toContain('https://site.test/plugin/assets/images/download-on-the-appstore.svg')
         ->and($html)->toContain('https://site.test/plugin/assets/images/get-it-on-google.png');
 });
-
-it('has a label for every whitelisted import interval', function () {
-    $source = file_get_contents(dirname(__DIR__, 2).'/src/Admin/SettingsPage.php');
-
-    foreach (Settings::IMPORT_INTERVALS as $interval) {
-        expect($source)->toContain("'{$interval}' =>");
-    }
-});

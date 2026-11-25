@@ -30,6 +30,16 @@ beforeEach(function () {
 
         return true;
     });
+    Functions\when('add_option')->alias(function ($key, $value) {
+        if (array_key_exists($key, $this->store)) {
+            return false;
+        }
+
+        $this->store[$key] = $value;
+
+        return true;
+    });
+    Functions\when('__')->returnArg();
     Functions\when('get_transient')->justReturn(false);
     Functions\when('set_transient')->justReturn(true);
     Functions\when('wp_clear_scheduled_hook')->alias(function ($hook) {
@@ -91,8 +101,8 @@ afterEach(function () {
     unset($GLOBALS['wpdb']);
 });
 
-it('registers on init and admin_notices', function () {
-    Actions\expectAdded('init')->once();
+it('registers on admin_init and admin_notices', function () {
+    Actions\expectAdded('admin_init')->once();
     Actions\expectAdded('admin_notices')->once();
 
     ($this->upgrader)()->register();
@@ -176,13 +186,13 @@ it('leaves an existing token alone and keeps the legacy options', function () {
         ->and($this->store['yourstoryz_plugin_change_token'])->toBe('old');
 });
 
-it('keeps a company as the source without calling the API', function () {
+it('keeps a company as the source after validating it against the token', function () {
     $this->store = ['yourstoryz_api_token' => 'abc', 'yourstoryz_storiable_type' => 'Company', 'yourstoryz_storiable_id' => '116'];
 
     ($this->upgrader)()->maybeRun();
 
     expect($this->store['yourstoryz_source'])->toBe(['company_id' => 116, 'department_id' => null])
-        ->and($this->requests)->toBe(0);
+        ->and($this->store)->not->toHaveKey('yourstoryz_upgrade_notice');
 });
 
 it('resolves the company of a 2.0.x department through the API', function () {
@@ -265,13 +275,88 @@ it('migrates the 1.3.2 autoplay, cron and interval and reschedules', function ()
         ->and($this->scheduled)->toBe([['weekly', 'yourstoryz_import']]);
 });
 
-it('keeps the new defaults when 1.3.2 never saved the cron settings', function () {
+it('keeps auto-import off when 1.3.2 never saved the cron setting', function () {
     $this->store = ['yourstoryz_plugin_change_token' => 'abc'];
 
     ($this->upgrader)()->maybeRun();
 
-    expect($this->store)->not->toHaveKeys(['yourstoryz_auto_import', 'yourstoryz_import_interval', 'yourstoryz_autoplay'])
+    expect($this->store['yourstoryz_auto_import'])->toBe('0')
+        ->and($this->store)->not->toHaveKeys(['yourstoryz_import_interval', 'yourstoryz_autoplay'])
+        ->and($this->scheduled)->toBe([]);
+});
+
+it('keeps the default auto-import for 2.0.x', function () {
+    $this->store = ['yourstoryz_api_token' => 'abc'];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store)->not->toHaveKey('yourstoryz_auto_import')
         ->and($this->scheduled)->toBe([['daily', 'yourstoryz_import']]);
+});
+
+it('sets a notice when no single company can be chosen', function () {
+    $this->store = ['yourstoryz_plugin_change_token' => 'abc'];
+    $mocks = [GetCompanies::class => MockResponse::make(['data' => [['id' => 1, 'name' => 'A'], ['id' => 2, 'name' => 'B']]])];
+
+    ($this->upgrader)($mocks)->maybeRun();
+
+    expect($this->store['yourstoryz_upgrade_notice'])->toBe('source');
+});
+
+it('sets a notice when the saved company is not one of the token companies', function () {
+    $this->store = ['yourstoryz_api_token' => 'abc', 'yourstoryz_storiable_type' => 'Company', 'yourstoryz_storiable_id' => '999'];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store)->not->toHaveKey('yourstoryz_source')
+        ->and($this->store['yourstoryz_upgrade_notice'])->toBe('source');
+});
+
+it('still writes the db version and a notice when a step throws', function () {
+    ini_set('error_log', '/dev/null');
+    $this->store = ['yourstoryz_api_token' => 'abc'];
+    $GLOBALS['wpdb'] = new class
+    {
+        public string $postmeta = 'wp_postmeta';
+
+        public string $posts = 'wp_posts';
+
+        public function prepare(string $query, ...$args): string
+        {
+            return $query;
+        }
+
+        public function get_col(string $query): array
+        {
+            throw new JsonException('Syntax error');
+        }
+    };
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store['yourstoryz_db_version'])->toBe('3.0.0')
+        ->and($this->store['yourstoryz_upgrade_notice'])->toBe('failed')
+        ->and($this->store['yourstoryz_token'])->toBe('abc')
+        ->and($this->store)->not->toHaveKey('yourstoryz_upgrade_lock');
+});
+
+it('lets a held lock block a second run', function () {
+    $this->store = ['yourstoryz_api_token' => 'abc', 'yourstoryz_upgrade_lock' => time() - 10];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store)->not->toHaveKeys(['yourstoryz_db_version', 'yourstoryz_token'])
+        ->and($this->store)->toHaveKey('yourstoryz_upgrade_lock');
+});
+
+it('takes over a stale lock and releases it afterwards', function () {
+    $this->store = ['yourstoryz_api_token' => 'abc', 'yourstoryz_upgrade_lock' => time() - 600];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store['yourstoryz_db_version'])->toBe('3.0.0')
+        ->and($this->store['yourstoryz_token'])->toBe('abc')
+        ->and($this->store)->not->toHaveKey('yourstoryz_upgrade_lock');
 });
 
 it('does not carry legacy options over again on a later version bump', function () {
@@ -336,6 +421,45 @@ it('shows the notice once to administrators', function () {
     expect($first)->toContain('notice-warning')
         ->toContain('<a href="https://site.test/wp-admin/admin.php?page=yourstoryz">YourStoryz-instellingenpagina</a>')
         ->and($second)->toBe('');
+});
+
+it('shows a separate text for a failed step', function () {
+    Functions\when('esc_html__')->returnArg();
+    Functions\when('esc_url')->returnArg();
+    $this->store = ['yourstoryz_upgrade_notice' => 'failed'];
+
+    ob_start();
+    ($this->upgrader)()->renderNotice();
+    $html = ob_get_clean();
+
+    expect($html)->toContain('kon niet alle instellingen')
+        ->not->toContain('bedrijf of afdeling')
+        ->toContain('page=yourstoryz');
+});
+
+it('does not let a failed step overwrite the source notice', function () {
+    ini_set('error_log', '/dev/null');
+    $this->store = ['yourstoryz_api_token' => 'abc', 'yourstoryz_upgrade_notice' => 'source'];
+    $GLOBALS['wpdb'] = new class
+    {
+        public string $postmeta = 'wp_postmeta';
+
+        public string $posts = 'wp_posts';
+
+        public function prepare(string $query, ...$args): string
+        {
+            return $query;
+        }
+
+        public function get_col(string $query): array
+        {
+            throw new JsonException('Syntax error');
+        }
+    };
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store['yourstoryz_upgrade_notice'])->toBe('source');
 });
 
 it('keeps the notice for a user who cannot manage options', function () {

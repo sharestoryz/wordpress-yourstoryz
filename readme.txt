@@ -60,6 +60,7 @@ Full rebuild of the plugin on top of the YourStoryz PHP SDK. Requires PHP 8.3 an
 * New settings page with token and connection test, company and department selection, a preview page with a "Nu importeren" button and a Dutch setup guide.
 * Import schedule: switch it on or off and choose hourly, twice daily, daily or weekly.
 * Optional muted autoplay for the story video.
+* Sites upgrading from 2.0.x move from hourly to daily import by default (changeable on the settings page).
 * Automatic upgrade from 1.3.x and 2.0.x: the token, source, autoplay and import schedule are kept, and stories the old version already imported are not imported again. Posts created by older versions stay as normal posts.
 * Uninstall removes the settings, import lock and schedule; imported posts and images are kept.
 
