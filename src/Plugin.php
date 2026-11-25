@@ -11,6 +11,7 @@ use YourStoryz\Api\GatewayProvider;
 use YourStoryz\Frontend\Assets;
 use YourStoryz\Frontend\BlockTemplates;
 use YourStoryz\Frontend\StoriesBlock;
+use YourStoryz\Frontend\StoryBlock;
 use YourStoryz\Frontend\TemplateLoader;
 use YourStoryz\Frontend\VideoBlock;
 use YourStoryz\Import\DeletedStories;
@@ -41,6 +42,7 @@ final class Plugin
         (new TemplateLoader)->register();
         (new VideoBlock)->register();
         (new StoriesBlock)->register();
+        (new StoryBlock)->register();
         (new BlockTemplates)->register();
         $settingsPage->register();
         $previewPage->register();

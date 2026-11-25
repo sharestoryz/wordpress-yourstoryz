@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "yourstoryz/story",
+  "title": "Story",
+  "category": "media",
+  "icon": "format-video",
+  "description": "Toont één gekozen story met video, titel en inhoud.",
+  "textdomain": "yourstoryz",
+  "attributes": {
+    "storyId": {
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./editor.js",
+  "style": "yourstoryz-frontend"
+}

@@ -4,13 +4,6 @@ use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 use YourStoryz\Import\DeletedStories;
 
-if (! class_exists('WP_Post')) {
-    class WP_Post
-    {
-        public string $post_type = 'post';
-    }
-}
-
 function deletedPost(string $type): WP_Post
 {
     $post = new WP_Post;
