@@ -3,6 +3,7 @@
  * Organism: story archive page. Override by copying to {theme}/yourstoryz/archive-story.php.
  */
 
+use YourStoryz\Frontend\StoryCard;
 use YourStoryz\Frontend\TemplateLoader;
 
 defined('ABSPATH') || exit;
@@ -17,13 +18,9 @@ $loader = new TemplateLoader;
         $stories = [];
         while (have_posts()) {
             the_post();
-            $stories[] = [
-                'url' => (string) get_permalink(),
-                'title' => get_the_title(),
-                'thumbnail_url' => (string) get_the_post_thumbnail_url(get_the_ID(), 'medium_large'),
-            ];
+            $stories[] = StoryCard::fromPost(get_post());
         }
-        $loader->part('story-grid', ['stories' => $stories, 'column_class' => 'ys:md:grid-cols-3', 'loader' => $loader]);
+        $loader->part('story-grid', ['stories' => $stories, 'column_class' => 'ys:sm:grid-cols-2 ys:md:grid-cols-3']);
         ?>
         <?php $loader->part('pagination', ['links' => (array) paginate_links(['type' => 'array'])]); ?>
     <?php } else { ?>

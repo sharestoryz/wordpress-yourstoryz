@@ -44,6 +44,12 @@ final class StoryBlock
                 : '';
         }
 
+        if (post_password_required($story)) {
+            return $this->isEditing()
+                ? $this->wrap('<p>'.esc_html__('Deze story is met een wachtwoord beveiligd.', 'yourstoryz').'</p>')
+                : '';
+        }
+
         if (in_array($story->ID, self::$rendering, true)) {
             return '';
         }
@@ -51,6 +57,8 @@ final class StoryBlock
         self::$rendering[] = $story->ID;
 
         try {
+            wp_enqueue_style(Assets::HANDLE);
+
             return $this->wrap($this->article($story));
         } finally {
             array_pop(self::$rendering);
@@ -79,7 +87,6 @@ final class StoryBlock
             'title' => get_the_title($story),
             'content' => $content,
             'heading_level' => 2,
-            'loader' => $this->loader,
         ]);
 
         return (string) ob_get_clean();

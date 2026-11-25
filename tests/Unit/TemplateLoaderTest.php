@@ -75,5 +75,20 @@ it('loads parts with args, theme override first', function () {
 
     yourstoryzLoader()->part('story-card', ['title' => 'A']);
 
-    expect($loaded)->toBe(['/plugin/templates/parts/story-card.php', false, ['title' => 'A']]);
+    expect($loaded)->toMatchArray([0 => '/plugin/templates/parts/story-card.php', 1 => false])
+        ->and($loaded[2])->toHaveKey('title', 'A')
+        ->and($loaded[2]['loader'])->toBeInstanceOf(TemplateLoader::class);
+});
+
+it('keeps a loader that is already passed to a part', function () {
+    Functions\when('locate_template')->justReturn('');
+    $loaded = [];
+    Functions\when('load_template')->alias(function (string $file, bool $once, array $args) use (&$loaded): void {
+        $loaded = $args;
+    });
+    $custom = new TemplateLoader('/other/');
+
+    yourstoryzLoader()->part('story-card', ['loader' => $custom]);
+
+    expect($loaded['loader'])->toBe($custom);
 });

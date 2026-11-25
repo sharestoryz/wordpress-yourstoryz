@@ -81,8 +81,9 @@ beforeEach(function () {
     Functions\when('current_user_can')->justReturn(true);
     Functions\when('check_admin_referer')->justReturn(1);
     Functions\when('get_current_user_id')->justReturn(1);
-    Functions\when('set_transient')->alias(function (string $key, array $notice): bool {
-        $this->flashed[] = $notice;
+    Functions\when('get_transient')->alias(fn (): array|false => $this->flashed ?: false);
+    Functions\when('set_transient')->alias(function (string $key, array $notices): bool {
+        $this->flashed = $notices;
 
         return true;
     });
@@ -104,7 +105,6 @@ it('renders the slug row with the escaped current value and an example url', fun
     Functions\when('submit_button')->justReturn('');
     Functions\when('selected')->justReturn('');
     Functions\when('checked')->justReturn('');
-    Functions\when('get_transient')->justReturn(false);
 
     ob_start();
     yourstoryzSettingsPage()->render();
@@ -126,7 +126,10 @@ it('flashes a success notice for a valid slug and still saves the other fields',
 it('flashes an error and keeps the previous slug for an empty slug', function () {
     yourstoryzSaveSettings(['yourstoryz_slug' => '', 'yourstoryz_autoplay' => '1']);
 
-    expect($this->flashed)->toBe([['type' => 'error', 'message' => 'Url-slug is leeg of ongeldig; de vorige url-slug is behouden.']])
+    expect($this->flashed)->toBe([
+        ['type' => 'success', 'message' => 'Instellingen opgeslagen.'],
+        ['type' => 'error', 'message' => 'Url-slug is leeg of ongeldig; de vorige url-slug is behouden.'],
+    ])
         ->and($this->store['yourstoryz_slug'])->toBe('verhalen')
         ->and($this->store['yourstoryz_autoplay'])->toBe('1');
 });
@@ -134,7 +137,10 @@ it('flashes an error and keeps the previous slug for an empty slug', function ()
 it('flashes an error and keeps the previous slug for a reserved slug', function () {
     yourstoryzSaveSettings(['yourstoryz_slug' => 'sample-page', 'yourstoryz_autoplay' => '1']);
 
-    expect($this->flashed)->toBe([['type' => 'error', 'message' => 'Deze url-slug is al in gebruik of gereserveerd; de vorige url-slug is behouden.']])
+    expect($this->flashed)->toBe([
+        ['type' => 'success', 'message' => 'Instellingen opgeslagen.'],
+        ['type' => 'error', 'message' => 'Deze url-slug is al in gebruik of gereserveerd; de vorige url-slug is behouden.'],
+    ])
         ->and($this->store['yourstoryz_slug'])->toBe('verhalen')
         ->and($this->store['yourstoryz_autoplay'])->toBe('1');
 });

@@ -44,15 +44,6 @@ final class Assets
             return;
         }
 
-        if (! file_exists($this->directory.self::STYLESHEET)) {
-            return;
-        }
-
-        wp_enqueue_style(
-            self::HANDLE,
-            plugins_url(self::STYLESHEET, $this->file),
-            [],
-            $this->version,
-        );
+        wp_enqueue_style(self::HANDLE);
     }
 }

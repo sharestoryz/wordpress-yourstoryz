@@ -29,5 +29,5 @@
     "html": false
   },
   "editorScript": "file:./editor.js",
-  "style": "yourstoryz-frontend"
+  "editorStyle": "yourstoryz-frontend"
 }

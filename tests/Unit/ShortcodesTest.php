@@ -8,7 +8,6 @@ beforeEach(function () {
     $GLOBALS['yourstoryz_rendered'] = [];
     Functions\when('shortcode_atts')->alias(fn (array $defaults, array $atts): array => array_merge($defaults, array_intersect_key($atts, $defaults)));
     Functions\when('absint')->alias(fn (mixed $value): int => abs((int) $value));
-    Functions\when('sanitize_title')->alias(fn (string $title): string => strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title), '-')));
     Functions\when('render_block')->alias(function (array $block): string {
         $GLOBALS['yourstoryz_rendered'][] = $block;
 
@@ -37,22 +36,28 @@ it('adds both shortcodes', function () {
     $this->addToAssertionCount(1);
 });
 
-it('renders the stories block with the block defaults', function () {
+it('renders the stories block without attributes so the block defaults apply', function () {
     expect((new Shortcodes)->stories([]))->toBe('<rendered/>');
 
     expect(yourstoryzRenderedBlock())->toBe([
         'blockName' => 'yourstoryz/stories',
-        'attrs' => ['count' => 6, 'columns' => 3, 'tag' => '', 'showArchiveLink' => true],
+        'attrs' => [],
         'innerBlocks' => [],
         'innerHTML' => '',
         'innerContent' => [],
     ]);
 });
 
-it('maps and sanitizes the stories attributes', function () {
+it('maps and casts the given stories attributes', function () {
     (new Shortcodes)->stories(['count' => '4', 'columns' => '2', 'tag' => 'NL Nieuws', 'archive_link' => '0']);
 
-    expect(yourstoryzRenderedBlock()['attrs'])->toBe(['count' => 4, 'columns' => 2, 'tag' => 'nl-nieuws', 'showArchiveLink' => false]);
+    expect(yourstoryzRenderedBlock()['attrs'])->toBe(['count' => 4, 'columns' => 2, 'tag' => 'NL Nieuws', 'showArchiveLink' => false]);
+});
+
+it('passes only the attributes that were set', function () {
+    (new Shortcodes)->stories(['columns' => '2']);
+
+    expect(yourstoryzRenderedBlock()['attrs'])->toBe(['columns' => 2]);
 });
 
 it('passes out of range numbers to the block for clamping', function () {
@@ -67,10 +72,10 @@ it('parses the archive_link boolean', function (string $value, bool $expected) {
     expect(yourstoryzRenderedBlock()['attrs']['showArchiveLink'])->toBe($expected);
 })->with([['1', true], ['0', false], ['true', true], ['false', false], ['yes', true], ['no', false], ['nonsense', true]]);
 
-it('treats an attribute-less shortcode string as defaults', function () {
+it('treats an attribute-less shortcode string as no attributes', function () {
     (new Shortcodes)->stories('');
 
-    expect(yourstoryzRenderedBlock()['attrs']['count'])->toBe(6);
+    expect(yourstoryzRenderedBlock()['attrs'])->toBe([]);
 });
 
 it('renders the story block with the story id', function () {

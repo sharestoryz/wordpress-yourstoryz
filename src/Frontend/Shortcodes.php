@@ -23,18 +23,31 @@ final class Shortcodes
     public function stories(array|string $attributes = []): string
     {
         $atts = shortcode_atts([
-            'count' => 6,
-            'columns' => 3,
-            'tag' => '',
-            'archive_link' => '1',
+            'count' => null,
+            'columns' => null,
+            'tag' => null,
+            'archive_link' => null,
         ], (array) $attributes, 'yourstoryz_stories');
 
-        return $this->renderBlock('yourstoryz/stories', [
-            'count' => (int) $atts['count'],
-            'columns' => (int) $atts['columns'],
-            'tag' => sanitize_title((string) $atts['tag']),
-            'showArchiveLink' => filter_var($atts['archive_link'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true,
-        ]);
+        $blockAttributes = [];
+
+        if (isset($atts['count'])) {
+            $blockAttributes['count'] = (int) $atts['count'];
+        }
+
+        if (isset($atts['columns'])) {
+            $blockAttributes['columns'] = (int) $atts['columns'];
+        }
+
+        if (isset($atts['tag'])) {
+            $blockAttributes['tag'] = (string) $atts['tag'];
+        }
+
+        if (isset($atts['archive_link'])) {
+            $blockAttributes['showArchiveLink'] = filter_var($atts['archive_link'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+        }
+
+        return $this->renderBlock('yourstoryz/stories', $blockAttributes);
     }
 
     /**

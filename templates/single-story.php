@@ -21,7 +21,6 @@ $loader = new TemplateLoader;
             'title' => get_the_title(),
             'content' => $content,
             'heading_level' => 1,
-            'loader' => $loader,
         ]);
     } ?>
 </main>

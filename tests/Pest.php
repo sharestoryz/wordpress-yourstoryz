@@ -15,6 +15,29 @@ if (! class_exists('WP_Post')) {
         public string $post_title = '';
 
         public string $post_content = '';
+
+        public string $post_password = '';
+    }
+}
+
+if (! class_exists('WP_Query')) {
+    class WP_Query
+    {
+        /** @var array<string, mixed> */
+        public static array $lastArgs = [];
+
+        /** @var list<object> */
+        public static array $stories = [];
+
+        /** @var list<object> */
+        public array $posts;
+
+        /** @param array<string, mixed> $args */
+        public function __construct(array $args)
+        {
+            self::$lastArgs = $args;
+            $this->posts = self::$stories;
+        }
     }
 }
 

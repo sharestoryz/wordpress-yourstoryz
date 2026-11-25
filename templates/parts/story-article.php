@@ -2,7 +2,7 @@
 /**
  * Organism: one story with title, video, author, content and tags.
  *
- * @var array{post_id: int, title: string, content: string, heading_level: int, loader: TemplateLoader} $args  loader renders the author line and tags; content is trusted HTML; heading_level is 1 or 2.
+ * @var array{post_id: int, title: string, content: string, heading_level: int, loader: TemplateLoader} $args  loader (added by TemplateLoader::part) renders the author line and tags; content is trusted HTML; heading_level is 1 or 2.
  */
 
 use YourStoryz\Frontend\TemplateLoader;

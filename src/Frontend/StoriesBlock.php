@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace YourStoryz\Frontend;
 
-use WP_Post;
 use WP_Query;
 use YourStoryz\PostType;
 
@@ -20,9 +19,9 @@ final class StoriesBlock
 
     private const COLUMN_CLASSES = [
         1 => 'ys:md:grid-cols-1',
-        2 => 'ys:md:grid-cols-2',
-        3 => 'ys:md:grid-cols-3',
-        4 => 'ys:md:grid-cols-4',
+        2 => 'ys:sm:grid-cols-2 ys:md:grid-cols-2',
+        3 => 'ys:sm:grid-cols-2 ys:md:grid-cols-3',
+        4 => 'ys:sm:grid-cols-2 ys:md:grid-cols-4',
     ];
 
     public function __construct(
@@ -49,7 +48,7 @@ final class StoriesBlock
     {
         $count = max(1, min(self::MAX_COUNT, (int) ($attributes['count'] ?? self::DEFAULT_COUNT)));
         $columns = max(1, min(self::MAX_COLUMNS, (int) ($attributes['columns'] ?? self::DEFAULT_COLUMNS)));
-        $tag = trim((string) ($attributes['tag'] ?? ''));
+        $tag = sanitize_title((string) ($attributes['tag'] ?? ''));
         $showArchiveLink = (bool) ($attributes['showArchiveLink'] ?? true);
 
         $queryArgs = [
@@ -73,17 +72,11 @@ final class StoriesBlock
             echo '<p>'.esc_html__('Er zijn nog geen stories.', 'yourstoryz').'</p>';
         } else {
             $this->loader->part('story-grid', [
-                'stories' => array_map(
-                    fn (WP_Post $story): array => [
-                        'url' => (string) get_permalink($story),
-                        'title' => get_the_title($story),
-                        'thumbnail_url' => (string) get_the_post_thumbnail_url($story, 'medium_large'),
-                    ],
-                    $stories,
-                ),
+                'stories' => array_map(StoryCard::fromPost(...), $stories),
                 'column_class' => self::COLUMN_CLASSES[$columns],
-                'loader' => $this->loader,
             ]);
+
+            wp_enqueue_style(Assets::HANDLE);
         }
 
         $archiveLink = $showArchiveLink ? get_post_type_archive_link(PostType::NAME) : false;

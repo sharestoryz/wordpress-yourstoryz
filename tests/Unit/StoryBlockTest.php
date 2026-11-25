@@ -35,6 +35,11 @@ beforeEach(function () {
     yourstoryzWpState();
     Functions\when('esc_html')->alias(fn (string $text): string => htmlspecialchars($text));
     Functions\when('esc_html__')->returnArg();
+    $GLOBALS['yourstoryz_styles'] = [];
+    Functions\when('wp_enqueue_style')->alias(function (string $handle): void {
+        $GLOBALS['yourstoryz_styles'][] = $handle;
+    });
+    Functions\when('post_password_required')->alias(fn (WP_Post $post): bool => $post->post_password !== '');
     Functions\when('get_option')->justReturn('0');
     Functions\when('locate_template')->justReturn('');
     Functions\when('get_post')->alias(fn (int $id): ?WP_Post => $GLOBALS['yourstoryz_posts'][$id] ?? null);
@@ -74,6 +79,32 @@ it('renders the video, title and content of a published story', function () {
         ->toContain('<h2 class="ys:m-0">Story 12</h2>')
         ->toContain('<video ')
         ->toContain('<p>Inhoud 12</p>');
+});
+
+it('enqueues the stylesheet only when a story is output', function () {
+    yourstoryzStoryBlock()->render(['storyId' => 12]);
+
+    expect($GLOBALS['yourstoryz_styles'])->toBe(['yourstoryz-frontend']);
+
+    $GLOBALS['yourstoryz_styles'] = [];
+    yourstoryzStoryBlock()->render(['storyId' => 999]);
+
+    expect($GLOBALS['yourstoryz_styles'])->toBe([]);
+});
+
+it('renders nothing for a password protected story', function () {
+    $GLOBALS['yourstoryz_posts'][12] = yourstoryzStoryPost(12, ['post_password' => 'geheim']);
+
+    expect(yourstoryzStoryBlock()->render(['storyId' => 12]))->toBe('')
+        ->and($GLOBALS['yourstoryz_styles'])->toBe([]);
+});
+
+it('shows a notice in the editor for a password protected story', function () {
+    $GLOBALS['yourstoryz_posts'][12] = yourstoryzStoryPost(12, ['post_password' => 'geheim']);
+
+    expect(yourstoryzStoryBlock(true)->render(['storyId' => 12]))
+        ->toBe('<div class="wp-block-yourstoryz-story"><p>Deze story is met een wachtwoord beveiligd.</p></div>')
+        ->not->toContain('Inhoud 12');
 });
 
 it('renders nothing for a draft story', function () {

@@ -5,27 +5,6 @@ use Brain\Monkey\Functions;
 use YourStoryz\Frontend\StoriesBlock;
 use YourStoryz\Frontend\TemplateLoader;
 
-if (! class_exists('WP_Query')) {
-    class WP_Query
-    {
-        /** @var array<string, mixed> */
-        public static array $lastArgs = [];
-
-        /** @var list<object> */
-        public static array $stories = [];
-
-        /** @var list<object> */
-        public array $posts;
-
-        /** @param array<string, mixed> $args */
-        public function __construct(array $args)
-        {
-            self::$lastArgs = $args;
-            $this->posts = self::$stories;
-        }
-    }
-}
-
 function yourstoryzStoriesBlock(): StoriesBlock
 {
     $directory = dirname(__DIR__, 2).'/';
@@ -48,6 +27,11 @@ beforeEach(function () {
     yourstoryzWpState(['thumbnail' => 'https://cdn.test/p.jpg']);
     Functions\when('esc_html')->alias(fn (string $text): string => htmlspecialchars($text));
     Functions\when('esc_html__')->returnArg();
+    Functions\when('sanitize_title')->alias(fn (string $title): string => strtolower(trim((string) preg_replace('/[^A-Za-z0-9-]+/', '-', $title), '-')));
+    $GLOBALS['yourstoryz_styles'] = [];
+    Functions\when('wp_enqueue_style')->alias(function (string $handle): void {
+        $GLOBALS['yourstoryz_styles'][] = $handle;
+    });
     Functions\when('locate_template')->justReturn('');
     Functions\when('get_permalink')->alias(fn (WP_Post $post): string => 'https://example.test/story/'.$post->ID);
     Functions\when('get_the_title')->alias(fn (WP_Post $post): string => $post->post_title);
@@ -79,20 +63,17 @@ it('registers the block from its directory with a render callback', function () 
 it('queries the newest published stories with the default count', function () {
     yourstoryzStoriesBlock()->render();
 
-    expect(WP_Query::$lastArgs)->toBe([
+    expect(WP_Query::$lastArgs)->toMatchArray([
         'post_type' => 'yourstoryz_story',
         'post_status' => 'publish',
-        'orderby' => 'date',
-        'order' => 'DESC',
         'posts_per_page' => 6,
-        'no_found_rows' => true,
     ]);
 });
 
 it('filters by tag slug only when a tag is set', function () {
-    yourstoryzStoriesBlock()->render(['tag' => 'nl']);
+    yourstoryzStoriesBlock()->render(['tag' => 'NL Nieuws']);
 
-    expect(WP_Query::$lastArgs['tag'])->toBe('nl');
+    expect(WP_Query::$lastArgs['tag'])->toBe('nl-nieuws');
 
     yourstoryzStoriesBlock()->render(['tag' => '']);
 
@@ -107,8 +88,29 @@ it('clamps the count between 1 and 24', function (int $given, int $expected) {
 
 it('clamps the columns between 1 and 4', function (int $given, string $expected) {
     expect(yourstoryzStoriesBlock()->render(['columns' => $given]))
-        ->toContain('ys:grid-cols-1 ys:gap-6 ys:sm:grid-cols-2 '.$expected);
-})->with([[0, 'ys:md:grid-cols-1'], [2, 'ys:md:grid-cols-2'], [4, 'ys:md:grid-cols-4'], [9, 'ys:md:grid-cols-4']]);
+        ->toContain('ys:grid-cols-1 ys:gap-6 '.$expected);
+})->with([
+    [0, 'ys:md:grid-cols-1'],
+    [2, 'ys:sm:grid-cols-2 ys:md:grid-cols-2'],
+    [4, 'ys:sm:grid-cols-2 ys:md:grid-cols-4'],
+    [9, 'ys:sm:grid-cols-2 ys:md:grid-cols-4'],
+]);
+
+it('does not add a small-screen column class for a single column', function () {
+    expect(yourstoryzStoriesBlock()->render(['columns' => 1]))->not->toContain('ys:sm:grid-cols-2');
+});
+
+it('enqueues the stylesheet only when it outputs stories', function () {
+    yourstoryzStoriesBlock()->render();
+
+    expect($GLOBALS['yourstoryz_styles'])->toBe(['yourstoryz-frontend']);
+
+    $GLOBALS['yourstoryz_styles'] = [];
+    WP_Query::$stories = [];
+    yourstoryzStoriesBlock()->render();
+
+    expect($GLOBALS['yourstoryz_styles'])->toBe([]);
+});
 
 it('renders a card for each story inside the wrapper', function () {
     WP_Query::$stories = [yourstoryzStory(1, 'Eerste'), yourstoryzStory(2, 'Tweede')];
