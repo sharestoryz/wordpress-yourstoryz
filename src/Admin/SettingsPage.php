@@ -55,6 +55,8 @@ final class SettingsPage
             $this->settings->saveImportInterval(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_interval'])));
         }
 
+        $this->settings->saveAutoplay(! empty($_POST['yourstoryz_autoplay']));
+
         ImportRunner::reschedule();
 
         $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
@@ -169,7 +171,15 @@ final class SettingsPage
         foreach ($intervals as $value => $label) {
             printf('<option value="%s"%s>%s</option>', esc_attr($value), selected($interval, $value, false), esc_html($label));
         }
-        echo '</select></td></tr></table>';
+        echo '</select></td></tr>';
+
+        echo '<tr><th scope="row">'.esc_html__('Autoplay', 'yourstoryz').'</th><td>';
+        printf(
+            '<label for="yourstoryz_autoplay"><input type="checkbox" id="yourstoryz_autoplay" name="yourstoryz_autoplay" value="1"%s> %s</label>',
+            checked($this->settings->autoplay(), true, false),
+            esc_html__('Video automatisch afspelen (zonder geluid)', 'yourstoryz'),
+        );
+        echo '</td></tr></table>';
         submit_button(__('Opslaan', 'yourstoryz'));
         echo '</form>';
 

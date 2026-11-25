@@ -2,6 +2,7 @@
 
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use YourStoryz\Frontend\BlockTemplates;
 use YourStoryz\Frontend\VideoRenderer;
 
@@ -58,6 +59,7 @@ it('does not register templates without register_block_template', function () {
 });
 
 it('prepends the video on a singular story in a block theme without template support', function () {
+    Functions\when('get_option')->justReturn('0');
     yourstoryzBlockContext(true, true, true, true);
 
     expect(yourstoryzBlockTemplates(false)->prependVideo('<p>Body</p>'))

@@ -12,6 +12,8 @@ final class Settings
 
     public const OPTION_AUTO_IMPORT = 'yourstoryz_auto_import';
 
+    public const OPTION_AUTOPLAY = 'yourstoryz_autoplay';
+
     public const OPTION_IMPORT_INTERVAL = 'yourstoryz_import_interval';
 
     public const IMPORT_STATUSES = ['draft', 'publish'];
@@ -53,6 +55,16 @@ final class Settings
     public function saveAutoImport(bool $enabled): void
     {
         update_option(self::OPTION_AUTO_IMPORT, $enabled ? '1' : '0', false);
+    }
+
+    public function autoplay(): bool
+    {
+        return (string) get_option(self::OPTION_AUTOPLAY, '0') === '1';
+    }
+
+    public function saveAutoplay(bool $enabled): void
+    {
+        update_option(self::OPTION_AUTOPLAY, $enabled ? '1' : '0', false);
     }
 
     public function importInterval(): string

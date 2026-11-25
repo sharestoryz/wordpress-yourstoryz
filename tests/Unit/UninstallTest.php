@@ -52,7 +52,7 @@ it('removes the options and the yourstoryz transients', function () {
 
     yourstoryz_run_uninstall();
 
-    expect($deleted)->toBe(['yourstoryz_token', 'yourstoryz_source', 'yourstoryz_import_status', 'yourstoryz_auto_import', 'yourstoryz_import_interval', 'yourstoryz_deleted_stories', 'yourstoryz_import_lock'])
+    expect($deleted)->toBe(['yourstoryz_token', 'yourstoryz_source', 'yourstoryz_import_status', 'yourstoryz_auto_import', 'yourstoryz_import_interval', 'yourstoryz_autoplay', 'yourstoryz_deleted_stories', 'yourstoryz_import_lock'])
         ->and($cleared)->toBe(['yourstoryz_import']);
 });
 

@@ -76,3 +76,18 @@ it('builds one identity key per source story and language', function () {
     expect(StoryMeta::identity('42', 'nl'))->toBe('42|nl')
         ->and(StoryMeta::identity('42', 'en'))->not->toBe(StoryMeta::identity('42', 'nl'));
 });
+
+it('renders no autoplay or muted attributes by default', function () {
+    Functions\when('get_option')->justReturn('0');
+
+    expect((new VideoRenderer)->render('https://cdn.test/a.mp4', null))
+        ->not->toContain('autoplay')
+        ->not->toContain('muted');
+});
+
+it('renders autoplay muted playsinline when the setting is on', function () {
+    Functions\when('get_option')->justReturn('1');
+
+    expect((new VideoRenderer)->render('https://cdn.test/a.mp4', null))
+        ->toContain(' controls preload="none" playsinline autoplay muted');
+});

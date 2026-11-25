@@ -6,6 +6,8 @@ Connects a WordPress site to a YourStoryz account. Admin menu **YourStoryz**:
 - **Voorbeeld**: read-only list of the video stories of the selected source, plus the **Nu importeren** button.
 - **Alle stories**: the imported stories (post type `yourstoryz_story`, public at `/stories/`).
 
+The **Autoplay** setting (off by default) makes the story video start by itself, muted and inline, in the classic template and the `yourstoryz/video` block.
+
 Stories are imported daily by WP-Cron (`yourstoryz_import`) or on demand. Existing posts are never overwritten and permanently deleted stories are not re-imported.
 
 Requires WordPress 6.4+ and PHP 8.3+. The entry file `YourStoryz.php` and `uninstall.php` stay parseable on PHP 7.4 so older installs get a notice instead of a fatal error.
@@ -76,4 +78,4 @@ bin/build-zip.sh    Release zip
 
 ## Uninstall
 
-`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` transient and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import` cron event. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.
+`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_auto_import`, `yourstoryz_import_interval`, `yourstoryz_autoplay`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` transient and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import` cron event. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.

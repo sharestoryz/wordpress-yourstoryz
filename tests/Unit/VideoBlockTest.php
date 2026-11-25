@@ -91,3 +91,18 @@ it('renders the real video in the editor when there is one', function () {
         ->toContain('<video ')
         ->not->toContain('Story-video');
 });
+
+it('follows the autoplay setting', function () {
+    Functions\when('get_option')->justReturn('0');
+
+    expect(yourstoryzVideoBlock()->render([], '', yourstoryzBlockWithContext(['postId' => 12])))
+        ->not->toContain('autoplay')
+        ->not->toContain('muted');
+
+    Functions\when('get_option')->justReturn('1');
+
+    expect(yourstoryzVideoBlock()->render([], '', yourstoryzBlockWithContext(['postId' => 12])))
+        ->toContain('autoplay')
+        ->toContain('muted')
+        ->toContain('playsinline');
+});

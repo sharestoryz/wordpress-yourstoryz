@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace YourStoryz\Frontend;
 
+use YourStoryz\Settings;
 use YourStoryz\StoryMeta;
 
 final class VideoRenderer
 {
+    public function __construct(
+        private readonly Settings $settings = new Settings,
+    ) {}
+
     public function renderPost(int $postId): string
     {
         return $this->render(
@@ -32,6 +37,8 @@ final class VideoRenderer
         $poster = esc_url($posterUrl);
         $posterAttribute = $poster === '' ? '' : ' poster="'.esc_attr($poster).'"';
 
-        return '<video class="'.esc_attr($classes).'" controls preload="none" playsinline'.$posterAttribute.' src="'.esc_attr($source).'"></video>';
+        $autoplayAttributes = $this->settings->autoplay() ? ' autoplay muted' : '';
+
+        return '<video class="'.esc_attr($classes).'" controls preload="none" playsinline'.$autoplayAttributes.$posterAttribute.' src="'.esc_attr($source).'"></video>';
     }
 }

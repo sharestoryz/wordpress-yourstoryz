@@ -114,6 +114,22 @@ it('stores the auto import toggle', function () {
     expect($settings->autoImport())->toBeTrue();
 });
 
+it('defaults autoplay to off and stores the toggle', function () {
+    $settings = new Settings;
+
+    expect($settings->autoplay())->toBeFalse();
+
+    $settings->saveAutoplay(true);
+
+    expect($this->store['yourstoryz_autoplay'])->toBe('1')
+        ->and($settings->autoplay())->toBeTrue();
+
+    $settings->saveAutoplay(false);
+
+    expect($this->store['yourstoryz_autoplay'])->toBe('0')
+        ->and($settings->autoplay())->toBeFalse();
+});
+
 it('accepts every whitelisted interval', function (string $interval) {
     $settings = new Settings;
 
