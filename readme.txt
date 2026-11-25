@@ -4,7 +4,7 @@ Tags: api, freemium
 Requires at least: 6.4
 Requires PHP: 8.3
 Tested up to: 7.1
-Stable tag: 1.3.3
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ The YourStoryz plugin connects your WordPress site to your YourStoryz account.
 * Settings page to store your API token and test the connection.
 * Choose the source: a company and, optionally, a department.
 * Preview page that lists the video stories of the selected source (read-only).
-* Import: stories are imported as posts of the `yourstoryz_story` post type, daily via WP-Cron or on demand with the "Nu importeren" button. Choose whether imported stories become drafts or are published immediately.
+* Import: stories are imported as posts of the `yourstoryz_story` post type, on a schedule via WP-Cron (switch it on or off and pick hourly, twice daily, daily or weekly) or on demand with the "Nu importeren" button. Choose whether imported stories become drafts or are published immediately.
 * Stories are shown at `/stories/` (archive) and `/stories/your-story/` (single), with tags and the video embedded.
 * Works with classic and block themes. Classic themes can override the templates by copying them to `{theme}/yourstoryz/single-story.php`, `{theme}/yourstoryz/archive-story.php` and `{theme}/yourstoryz/parts/<name>.php`. Block themes (WordPress 6.7+) can edit the story templates in the site editor and use the YourStoryz video block.
 
@@ -23,7 +23,7 @@ Existing posts are never overwritten by the import, and stories you permanently 
 On uninstall the plugin removes its settings, the import schedule and cached data. Imported story posts and their images stay in your site.
 
 == Installation ==
-1. Upload the `yourstoryz-plugin` folder to `/wp-content/plugins/`.
+1. Upload the `yourstoryz` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the \'Plugins\' menu in WordPress.
 3. Configure your API key and settings from the YourStoryz menu.
 
@@ -53,6 +53,16 @@ The terms and conditions for the API can be found at https://yourstoryz.com/wp-c
 The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies/
 
 == Changelog ==
+= 3.0.0 =
+Full rebuild of the plugin on top of the YourStoryz PHP SDK. Requires PHP 8.3 and WordPress 6.4.
+* Stories are imported as their own post type, `yourstoryz_story`: one post per news text per language, with a Dutch fallback. Existing posts are never overwritten.
+* Classic theme templates (overridable in your theme), block theme templates and a story video block.
+* New settings page with token and connection test, company and department selection, a preview page with a "Nu importeren" button and a Dutch setup guide.
+* Import schedule: switch it on or off and choose hourly, twice daily, daily or weekly.
+* Optional muted autoplay for the story video.
+* Automatic upgrade from 1.3.x and 2.0.x: the token, source, autoplay and import schedule are kept, and stories the old version already imported are not imported again. Posts created by older versions stay as normal posts.
+* Uninstall removes the settings, import lock and schedule; imported posts and images are kept.
+
 = 1.0 =
 Initial release.
 = 1.1 =
@@ -65,6 +75,7 @@ Small bugfix
 Add horizontal/vertical styling for video embed
 = 1.3.2 =
 Typo fix
-= 2.0.0 (in development) =
-Rewrite on top of the YourStoryz PHP SDK. New settings page with token and connection test, company and department selection, and a read-only preview of video stories. Requires PHP 8.3 and WordPress 6.4. Adds uninstall cleanup.
-Imports stories as posts of the `yourstoryz_story` post type (daily cron and manual import, existing posts are never overwritten, one post per story per language), with an archive at `/stories/`, theme-overridable templates for classic themes, block templates and a video block for block themes, and a prefixed Tailwind stylesheet that only loads on story pages. Uninstall removes the settings, import lock and schedule; imported posts and images are kept.
+
+== Upgrade Notice ==
+= 3.0.0 =
+Major rebuild, requires PHP 8.3+ and WordPress 6.4+. Your settings are carried over automatically. Previously imported posts are kept and not imported again.
