@@ -10,7 +10,15 @@ final class Settings
 
     public const OPTION_IMPORT_STATUS = 'yourstoryz_import_status';
 
+    public const OPTION_AUTO_IMPORT = 'yourstoryz_auto_import';
+
+    public const OPTION_AUTOPLAY = 'yourstoryz_autoplay';
+
+    public const OPTION_IMPORT_INTERVAL = 'yourstoryz_import_interval';
+
     public const IMPORT_STATUSES = ['draft', 'publish'];
+
+    public const DEFAULT_INTERVAL = 'daily';
 
     public const MASK = '••••';
 
@@ -33,6 +41,57 @@ final class Settings
         }
 
         update_option(self::OPTION_IMPORT_STATUS, $status, false);
+
+        return true;
+    }
+
+    public function autoImport(): bool
+    {
+        return $this->flag(self::OPTION_AUTO_IMPORT, true);
+    }
+
+    public function saveAutoImport(bool $enabled): void
+    {
+        $this->saveFlag(self::OPTION_AUTO_IMPORT, $enabled);
+    }
+
+    public function autoplay(): bool
+    {
+        return $this->flag(self::OPTION_AUTOPLAY, false);
+    }
+
+    public function saveAutoplay(bool $enabled): void
+    {
+        $this->saveFlag(self::OPTION_AUTOPLAY, $enabled);
+    }
+
+    /**
+     * @return array<string, string> WP-Cron schedule => label
+     */
+    public static function importIntervals(): array
+    {
+        return [
+            'hourly' => __('Elk uur', 'yourstoryz'),
+            'twicedaily' => __('Twee keer per dag', 'yourstoryz'),
+            'daily' => __('Dagelijks', 'yourstoryz'),
+            'weekly' => __('Wekelijks', 'yourstoryz'),
+        ];
+    }
+
+    public function importInterval(): string
+    {
+        $interval = (string) get_option(self::OPTION_IMPORT_INTERVAL, self::DEFAULT_INTERVAL);
+
+        return array_key_exists($interval, self::importIntervals()) ? $interval : self::DEFAULT_INTERVAL;
+    }
+
+    public function saveImportInterval(string $interval): bool
+    {
+        if (! array_key_exists($interval, self::importIntervals())) {
+            return false;
+        }
+
+        update_option(self::OPTION_IMPORT_INTERVAL, $interval, false);
 
         return true;
     }
@@ -73,5 +132,15 @@ final class Settings
         }
 
         update_option(self::OPTION_TOKEN, $token, false);
+    }
+
+    private function flag(string $option, bool $default): bool
+    {
+        return (string) get_option($option, $default ? '1' : '0') === '1';
+    }
+
+    private function saveFlag(string $option, bool $enabled): void
+    {
+        update_option($option, $enabled ? '1' : '0', false);
     }
 }

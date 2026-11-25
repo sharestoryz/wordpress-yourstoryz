@@ -14,6 +14,7 @@ use YourStoryz\Frontend\TemplateLoader;
 use YourStoryz\Frontend\VideoBlock;
 use YourStoryz\Import\DeletedStories;
 use YourStoryz\Import\ImportRunner;
+use YourStoryz\Upgrade\Upgrader;
 
 final class Plugin
 {
@@ -32,6 +33,7 @@ final class Plugin
         $runner = new ImportRunner($settings, $source, $catalog);
         $previewPage = new PreviewPage($source, $catalog, $runner);
 
+        (new Upgrader($settings, $source))->register();
         (new PostType)->register();
         (new DeletedStories)->register();
         (new Assets)->register();

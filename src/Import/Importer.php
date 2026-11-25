@@ -38,6 +38,7 @@ final class Importer
         private readonly PostPlanner $planner = new PostPlanner,
         private readonly Settings $settings = new Settings,
         private readonly DeletedStories $deletedStories = new DeletedStories,
+        private readonly LegacyImports $legacyImports = new LegacyImports,
     ) {}
 
     /**
@@ -73,7 +74,7 @@ final class Importer
     {
         $key = StoryMeta::identity($draft->meta[StoryMeta::SOURCE_ID], $draft->meta[StoryMeta::LANG]);
 
-        if (isset($this->existing[$key])) {
+        if (isset($this->existing[$key]) || $this->legacyImports->contains($story->id, $story->video->id, $draft->contentId)) {
             $this->skipped++;
 
             return;

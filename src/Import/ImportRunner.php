@@ -12,7 +12,7 @@ use YourStoryz\SourceSettings;
 use YourStoryz\StoryCatalog;
 
 /**
- * Single entry point for imports: the daily cron event and the "Nu importeren" button both run through here,
+ * Single entry point for imports: the cron event and the "Nu importeren" button both run through here,
  * so the lock and the token/source checks apply to both.
  */
 final class ImportRunner
@@ -42,9 +42,17 @@ final class ImportRunner
 
     public static function schedule(): void
     {
-        if (! wp_next_scheduled(self::HOOK)) {
-            wp_schedule_event(time(), 'daily', self::HOOK);
+        $settings = new Settings;
+
+        if ($settings->autoImport() && ! wp_next_scheduled(self::HOOK)) {
+            wp_schedule_event(time(), $settings->importInterval(), self::HOOK);
         }
+    }
+
+    public static function reschedule(): void
+    {
+        self::unschedule();
+        self::schedule();
     }
 
     public static function unschedule(): void

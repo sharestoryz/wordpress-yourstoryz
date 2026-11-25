@@ -7,6 +7,7 @@ use YourStoryz\StoryMeta;
 beforeEach(function () {
     Functions\when('esc_url')->alias(fn (string $url): string => str_replace(' ', '%20', $url));
     Functions\when('esc_attr')->alias(fn (string $value): string => htmlspecialchars($value, ENT_QUOTES));
+    Functions\when('get_option')->justReturn('0');
 });
 
 it('renders a video with the expected attributes', function () {
@@ -75,4 +76,19 @@ it('renders nothing for a post without a video url', function () {
 it('builds one identity key per source story and language', function () {
     expect(StoryMeta::identity('42', 'nl'))->toBe('42|nl')
         ->and(StoryMeta::identity('42', 'en'))->not->toBe(StoryMeta::identity('42', 'nl'));
+});
+
+it('renders no autoplay or muted attributes by default', function () {
+    Functions\when('get_option')->justReturn('0');
+
+    expect((new VideoRenderer)->render('https://cdn.test/a.mp4', null))
+        ->not->toContain('autoplay')
+        ->not->toContain('muted');
+});
+
+it('renders autoplay muted playsinline when the setting is on', function () {
+    Functions\when('get_option')->justReturn('1');
+
+    expect((new VideoRenderer)->render('https://cdn.test/a.mp4', null))
+        ->toContain(' controls preload="none" playsinline autoplay muted');
 });

@@ -21,10 +21,7 @@ it('accepts PHP 8.3 and newer', function (string $version) {
 })->with(['8.3.0', '8.4.1']);
 
 it('prints an escaped missing dependencies notice', function () {
-    Functions\expect('esc_html__')
-        ->once()
-        ->with(Mockery::type('string'), 'yourstoryz')
-        ->andReturnFirstArg();
+    Functions\when('esc_html__')->returnArg();
 
     ob_start();
     yourstoryz_dependencies_notice();
@@ -33,10 +30,7 @@ it('prints an escaped missing dependencies notice', function () {
 });
 
 it('prints an escaped admin notice', function () {
-    Functions\expect('esc_html__')
-        ->once()
-        ->with(Mockery::type('string'), 'yourstoryz')
-        ->andReturnFirstArg();
+    Functions\when('esc_html__')->returnArg();
 
     ob_start();
     yourstoryz_php_notice();

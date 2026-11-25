@@ -6,6 +6,7 @@ namespace YourStoryz\Admin;
 
 use YourStoryz\Api\ApiException;
 use YourStoryz\Api\GatewayProvider;
+use YourStoryz\Import\ImportRunner;
 use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 
@@ -19,12 +20,21 @@ final class SettingsPage
 
     public const ACTION_REFRESH = 'yourstoryz_refresh_lists';
 
+    private const SITE_URL = 'https://yourstoryz.com';
+
+    private const CONTACT_URL = 'https://yourstoryz.com/contact/';
+
+    private const APP_STORE_URL = 'https://apps.apple.com/nl/app/yourstoryz/id1544965290';
+
+    private const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.yourstoryz.storyz&pcampaignid=web_share';
+
     public function __construct(
         private readonly Settings $settings,
         private readonly SourceSettings $source,
         private readonly GatewayProvider $gateways,
         private readonly Notices $notices = new Notices,
         private readonly AdminAction $adminAction = new AdminAction,
+        private readonly string $pluginFile = YOURSTORYZ_FILE,
     ) {}
 
     public function register(): void
@@ -47,6 +57,16 @@ final class SettingsPage
         if (isset($_POST['yourstoryz_import_status'])) {
             $this->settings->saveImportStatus(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_status'])));
         }
+
+        $this->settings->saveAutoImport(! empty($_POST['yourstoryz_auto_import']));
+
+        if (isset($_POST['yourstoryz_import_interval'])) {
+            $this->settings->saveImportInterval(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_interval'])));
+        }
+
+        $this->settings->saveAutoplay(! empty($_POST['yourstoryz_autoplay']));
+
+        ImportRunner::reschedule();
 
         $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
         $this->adminAction->redirect(Menu::SLUG);
@@ -105,6 +125,40 @@ final class SettingsPage
         $this->adminAction->redirect(Menu::SLUG);
     }
 
+    public function renderOnboarding(): void
+    {
+        $badges = [
+            [self::APP_STORE_URL, 'download-on-the-appstore.svg', __('Download in de App Store', 'yourstoryz')],
+            [self::PLAY_STORE_URL, 'get-it-on-google.png', __('Ontdek het op Google Play', 'yourstoryz')],
+        ];
+
+        echo '<div class="card yourstoryz-onboarding"><h2>'.esc_html__('Aan de slag', 'yourstoryz').'</h2><ol>';
+        printf(
+            '<li>%s <a href="%s" target="_blank" rel="noopener noreferrer">yourstoryz.com</a></li>',
+            esc_html__('Maak een YourStoryz-account aan op de website of in de app.', 'yourstoryz'),
+            esc_url(self::SITE_URL),
+        );
+        echo '<li>'.esc_html__('Maak een API-token aan: log in op het dashboard en ga naar My Companies → Tokens → API Tokens. Plak het token hieronder.', 'yourstoryz').'</li>';
+        echo '<li>'.esc_html__('Kies de bron en importeer je stories.', 'yourstoryz').'</li></ol><p>';
+
+        foreach ($badges as [$url, $image, $alt]) {
+            printf(
+                '<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="%s" height="40"></a> ',
+                esc_url($url),
+                esc_url(plugins_url('assets/images/'.$image, $this->pluginFile)),
+                esc_attr($alt),
+            );
+        }
+
+        echo '</p><p>'.esc_html__('Thumbnails worden opgeslagen in de mediabibliotheek. Video\'s worden niet lokaal opgeslagen en spelen af vanaf YourStoryz.', 'yourstoryz').'</p>';
+        printf(
+            '<p>%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></p></div>',
+            esc_html__('Hulp nodig?', 'yourstoryz'),
+            esc_url(self::CONTACT_URL),
+            esc_html__('Neem contact op met support', 'yourstoryz'),
+        );
+    }
+
     public function render(): void
     {
         if (! current_user_can('manage_options')) {
@@ -114,6 +168,8 @@ final class SettingsPage
         $masked = $this->settings->maskedToken();
 
         echo '<div class="wrap"><h1>'.esc_html__('YourStoryz instellingen', 'yourstoryz').'</h1>';
+
+        $this->renderOnboarding();
 
         $this->notices->render();
 
@@ -138,7 +194,31 @@ final class SettingsPage
         echo '<select id="yourstoryz_import_status" name="yourstoryz_import_status">';
         printf('<option value="draft"%s>%s</option>', selected($importStatus, 'draft', false), esc_html__('Concept', 'yourstoryz'));
         printf('<option value="publish"%s>%s</option>', selected($importStatus, 'publish', false), esc_html__('Gepubliceerd', 'yourstoryz'));
-        echo '</select></td></tr></table>';
+        echo '</select></td></tr>';
+
+        echo '<tr><th scope="row">'.esc_html__('Automatisch importeren', 'yourstoryz').'</th><td>';
+        printf(
+            '<label for="yourstoryz_auto_import"><input type="checkbox" id="yourstoryz_auto_import" name="yourstoryz_auto_import" value="1"%s> %s</label>',
+            checked($this->settings->autoImport(), true, false),
+            esc_html__('Stories automatisch importeren', 'yourstoryz'),
+        );
+        echo '</td></tr>';
+
+        $interval = $this->settings->importInterval();
+        echo '<tr><th scope="row"><label for="yourstoryz_import_interval">'.esc_html__('Interval', 'yourstoryz').'</label></th><td>';
+        echo '<select id="yourstoryz_import_interval" name="yourstoryz_import_interval">';
+        foreach (Settings::importIntervals() as $value => $label) {
+            printf('<option value="%s"%s>%s</option>', esc_attr($value), selected($interval, $value, false), esc_html($label));
+        }
+        echo '</select></td></tr>';
+
+        echo '<tr><th scope="row">'.esc_html__('Autoplay', 'yourstoryz').'</th><td>';
+        printf(
+            '<label for="yourstoryz_autoplay"><input type="checkbox" id="yourstoryz_autoplay" name="yourstoryz_autoplay" value="1"%s> %s</label>',
+            checked($this->settings->autoplay(), true, false),
+            esc_html__('Video automatisch afspelen (zonder geluid)', 'yourstoryz'),
+        );
+        echo '</td></tr></table>';
         submit_button(__('Opslaan', 'yourstoryz'));
         echo '</form>';
 

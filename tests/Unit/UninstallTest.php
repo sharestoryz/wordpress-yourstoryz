@@ -1,6 +1,12 @@
 <?php
 
 use Brain\Monkey\Functions;
+use YourStoryz\Import\DeletedStories;
+use YourStoryz\Import\ImportRunner;
+use YourStoryz\Import\LegacyImports;
+use YourStoryz\Settings;
+use YourStoryz\SourceSettings;
+use YourStoryz\Upgrade\Upgrader;
 
 function yourstoryz_run_uninstall(): void
 {
@@ -52,8 +58,25 @@ it('removes the options and the yourstoryz transients', function () {
 
     yourstoryz_run_uninstall();
 
-    expect($deleted)->toBe(['yourstoryz_token', 'yourstoryz_source', 'yourstoryz_import_status', 'yourstoryz_deleted_stories', 'yourstoryz_import_lock'])
-        ->and($cleared)->toBe(['yourstoryz_import']);
+    $legacyUpgraderOptions = Upgrader::LEGACY_OPTIONS;
+
+    expect($deleted)->toContain(
+        Settings::OPTION_TOKEN,
+        SourceSettings::OPTION,
+        Settings::OPTION_IMPORT_STATUS,
+        Settings::OPTION_AUTO_IMPORT,
+        Settings::OPTION_IMPORT_INTERVAL,
+        Settings::OPTION_AUTOPLAY,
+        DeletedStories::OPTION,
+        ImportRunner::LOCK,
+        Upgrader::OPTION_DB_VERSION,
+        Upgrader::OPTION_NOTICE,
+        Upgrader::OPTION_LOCK,
+        LegacyImports::OPTION,
+        ...$legacyUpgraderOptions,
+    )
+        ->and($cleared)->toBe(['yourstoryz_import', ...Upgrader::LEGACY_CRON_HOOKS])
+        ->and($cleared)->toContain(ImportRunner::HOOK);
 });
 
 it('keeps imported story posts and attachments', function () {

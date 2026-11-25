@@ -6,6 +6,8 @@ Connects a WordPress site to a YourStoryz account. Admin menu **YourStoryz**:
 - **Voorbeeld**: read-only list of the video stories of the selected source, plus the **Nu importeren** button.
 - **Alle stories**: the imported stories (post type `yourstoryz_story`, public at `/stories/`).
 
+The **Autoplay** setting (off by default) makes the story video start by itself, muted and inline, in the classic template and the `yourstoryz/video` block.
+
 Stories are imported daily by WP-Cron (`yourstoryz_import`) or on demand. Existing posts are never overwritten and permanently deleted stories are not re-imported.
 
 Requires WordPress 6.4+ and PHP 8.3+. The entry file `YourStoryz.php` and `uninstall.php` stay parseable on PHP 7.4 so older installs get a notice instead of a fatal error.
@@ -57,7 +59,8 @@ The test site is `https://yourstoryz-wp.test` (PHP 8.4).
 
 ```
 YourStoryz.php      Plugin header, PHP version guard, bootstrap
-uninstall.php       Removes options, transients and the import cron on deletion
+uninstall.php       Removes options (incl. legacy), transients and cron events on deletion
+src/Upgrade/        Upgrader: carries 1.3.2 and 2.0.x settings over on update
 src/Plugin.php      Wires hooks and boots the admin
 src/Settings.php    API token option (yourstoryz_token)
 src/SourceSettings.php  Company/department option (yourstoryz_source) and cached lists
@@ -76,4 +79,4 @@ bin/build-zip.sh    Release zip
 
 ## Uninstall
 
-`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` transient and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import` cron event. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.
+`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_auto_import`, `yourstoryz_import_interval`, `yourstoryz_autoplay`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` option, `yourstoryz_db_version`, `yourstoryz_upgrade_notice`, `yourstoryz_legacy_imports`, the options of 1.3.2 and 2.0.x (`yourstoryz_plugin_change_token`, `yourstoryz_api_token`, `yourstoryz_storiable_type`, `yourstoryz_storiable_id`, `yourstoryz_plugin_filter_on_department`, `yourstoryz_plugin_autoplay`, `yourstoryz_enable_cron`, `yourstoryz_cron_interval`, `yourstoryz_processed_ids`) and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import`, `yourstoryz_cron_event` and `yourstoryz_api_fetch` cron events. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.

@@ -28,6 +28,7 @@ function yourstoryzBlockWithContext(array $context): WP_Block
 
 beforeEach(function () {
     Functions\when('esc_html')->returnArg();
+    Functions\when('get_option')->justReturn('0');
     yourstoryzWpState([
         'meta' => ['_ysz_video_url' => 'https://cdn.test/a.mp4', '_ysz_orientation' => 'vertical'],
         'thumbnail' => 'https://cdn.test/p.jpg',
@@ -90,4 +91,19 @@ it('renders the real video in the editor when there is one', function () {
     expect(yourstoryzVideoBlock(true)->render([], '', yourstoryzBlockWithContext(['postId' => 12])))
         ->toContain('<video ')
         ->not->toContain('Story-video');
+});
+
+it('follows the autoplay setting', function () {
+    Functions\when('get_option')->justReturn('0');
+
+    expect(yourstoryzVideoBlock()->render([], '', yourstoryzBlockWithContext(['postId' => 12])))
+        ->not->toContain('autoplay')
+        ->not->toContain('muted');
+
+    Functions\when('get_option')->justReturn('1');
+
+    expect(yourstoryzVideoBlock()->render([], '', yourstoryzBlockWithContext(['postId' => 12])))
+        ->toContain('autoplay')
+        ->toContain('muted')
+        ->toContain('playsinline');
 });

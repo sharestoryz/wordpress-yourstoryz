@@ -47,6 +47,7 @@ beforeEach(function () {
     $this->status = 'draft';
     $this->deleted = [];
     $this->terms = [];
+    $this->legacy = [];
 
     $test = $this;
     $GLOBALS['wpdb'] = new class($test)
@@ -75,7 +76,11 @@ beforeEach(function () {
     Functions\when('wp_strip_all_tags')->alias(fn ($text) => strip_tags($text));
     Functions\when('wp_kses_post')->returnArg(1);
     Functions\when('wp_timezone')->alias(fn () => new DateTimeZone('Europe/Amsterdam'));
-    Functions\when('get_option')->alias(fn ($key, $default = false) => $key === 'yourstoryz_deleted_stories' ? $this->deleted : $this->status);
+    Functions\when('get_option')->alias(fn ($key, $default = false) => match ($key) {
+        'yourstoryz_deleted_stories' => $this->deleted,
+        'yourstoryz_legacy_imports' => $this->legacy,
+        default => $this->status,
+    });
     Functions\when('wp_set_post_terms')->alias(function (int $postId, array $tags, string $taxonomy) {
         $this->terms[$postId] = [$tags, $taxonomy];
 
@@ -280,4 +285,29 @@ it('skips a story whose key is in the deleted list', function () {
         ->and($result->skipped)->toBe(1)
         ->and($this->queries)->toBe(2)
         ->and(array_map(fn (array $arguments) => $arguments['meta_input']['_ysz_source_id'].'|'.$arguments['meta_input']['_ysz_lang'], $this->inserted))->toBe(['7|en', '8|nl']);
+});
+
+it('skips every language of a story whose story id or video id is in the legacy registry', function (array $legacy) {
+    $this->legacy = $legacy;
+
+    $result = (new Importer)->import([importerStory(7, 3, ['nl', 'en']), importerStory(8, 4)]);
+
+    expect($result->created)->toBe(1)
+        ->and($result->skipped)->toBe(2)
+        ->and($this->inserted)->toHaveCount(1)
+        ->and($this->inserted[0]['meta_input']['_ysz_source_id'])->toBe('8')
+        ->and($this->sideloads)->toHaveCount(1);
+})->with([
+    'story id' => [['story_ids' => [7]]],
+    'video id' => [['video_ids' => [3]]],
+]);
+
+it('skips only the draft whose content id is in the legacy registry', function () {
+    $this->legacy = ['content_ids' => [70]];
+
+    $result = (new Importer)->import([importerStory(7, 3, ['nl']), importerStory(8, 4)]);
+
+    expect($result->created)->toBe(1)
+        ->and($result->skipped)->toBe(1)
+        ->and($this->inserted[0]['meta_input']['_ysz_source_id'])->toBe('8');
 });
