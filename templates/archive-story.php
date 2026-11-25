@@ -20,7 +20,13 @@ $loader = new TemplateLoader;
             the_post();
             $stories[] = StoryCard::fromPost(get_post());
         }
-        $loader->part('story-grid', ['stories' => $stories, 'column_class' => 'ys:sm:grid-cols-2 ys:md:grid-cols-3']);
+        $loader->part(
+            'story-grid',
+            [
+                'stories' => $stories,
+                'column_class' => 'ys:sm:grid-cols-2 ys:md:grid-cols-3',
+            ],
+        );
         ?>
         <?php $loader->part('pagination', ['links' => (array) paginate_links(['type' => 'array'])]); ?>
     <?php } else { ?>

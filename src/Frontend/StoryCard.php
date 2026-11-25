@@ -16,7 +16,10 @@ final class StoryCard
         return [
             'url' => (string) get_permalink($post),
             'title' => get_the_title($post),
-            'thumbnail_url' => (string) get_the_post_thumbnail_url($post, 'medium_large'),
+            'thumbnail_url' => (string) get_the_post_thumbnail_url(
+                $post,
+                'medium_large',
+            ),
         ];
     }
 }

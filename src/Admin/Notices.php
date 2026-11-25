@@ -12,9 +12,16 @@ final class Notices
     {
         $notices = get_transient($this->key());
         $notices = is_array($notices) ? $notices : [];
-        $notices[] = ['type' => $type, 'message' => $message];
+        $notices[] = [
+            'type' => $type,
+            'message' => $message,
+        ];
 
-        set_transient($this->key(), $notices, self::TTL);
+        set_transient(
+            $this->key(),
+            $notices,
+            self::TTL,
+        );
     }
 
     public function render(): void

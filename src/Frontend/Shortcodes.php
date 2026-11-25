@@ -44,7 +44,11 @@ final class Shortcodes
         }
 
         if (isset($atts['archive_link'])) {
-            $blockAttributes['showArchiveLink'] = filter_var($atts['archive_link'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+            $blockAttributes['showArchiveLink'] = filter_var(
+                $atts['archive_link'],
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ) ?? true;
         }
 
         return $this->renderBlock('yourstoryz/stories', $blockAttributes);

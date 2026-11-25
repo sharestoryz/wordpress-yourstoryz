@@ -76,7 +76,10 @@ final class SettingsPage
             default => null,
         };
 
-        $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
+        $this->notices->flash(
+            'success',
+            $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'),
+        );
 
         if ($slugError !== null) {
             $this->notices->flash('error', $slugError);
