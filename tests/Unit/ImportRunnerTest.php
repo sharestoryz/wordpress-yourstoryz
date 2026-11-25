@@ -174,3 +174,62 @@ it('clears the event on unschedule', function () {
 
     expect($cleared)->toBe(['yourstoryz_import']);
 });
+
+it('schedules with the stored interval', function () {
+    $this->store['yourstoryz_import_interval'] = 'hourly';
+    $scheduled = [];
+    Functions\when('wp_next_scheduled')->justReturn(false);
+    Functions\when('wp_schedule_event')->alias(function ($time, $recurrence, $hook) use (&$scheduled) {
+        $scheduled[] = [$recurrence, $hook];
+
+        return true;
+    });
+
+    ImportRunner::schedule();
+
+    expect($scheduled)->toBe([['hourly', 'yourstoryz_import']]);
+});
+
+it('reschedules with the new interval after clearing the old event', function () {
+    $this->store['yourstoryz_import_interval'] = 'weekly';
+    $calls = [];
+    Functions\when('wp_clear_scheduled_hook')->alias(function ($hook) use (&$calls) {
+        $calls[] = ['clear', $hook];
+
+        return 1;
+    });
+    Functions\when('wp_next_scheduled')->justReturn(false);
+    Functions\when('wp_schedule_event')->alias(function ($time, $recurrence, $hook) use (&$calls) {
+        $calls[] = [$recurrence, $hook];
+
+        return true;
+    });
+
+    ImportRunner::reschedule();
+
+    expect($calls)->toBe([['clear', 'yourstoryz_import'], ['weekly', 'yourstoryz_import']]);
+});
+
+it('schedules no event when auto import is off', function () {
+    $this->store['yourstoryz_auto_import'] = '0';
+    $calls = [];
+    Functions\when('wp_clear_scheduled_hook')->justReturn(1);
+    Functions\when('wp_next_scheduled')->justReturn(false);
+    Functions\when('wp_schedule_event')->alias(function () use (&$calls) {
+        $calls[] = true;
+
+        return true;
+    });
+
+    ImportRunner::reschedule();
+    ImportRunner::schedule();
+
+    expect($calls)->toBe([]);
+});
+
+it('still runs a manual import when auto import is off', function () {
+    $this->store['yourstoryz_auto_import'] = '0';
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = [];
+
+    expect($this->runner->run()['status'])->toBe(ImportRunner::STATUS_DONE);
+});

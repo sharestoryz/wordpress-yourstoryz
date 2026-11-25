@@ -94,3 +94,43 @@ it('rejects an invalid import status', function () {
     expect((new Settings)->saveImportStatus('pending'))->toBeFalse()
         ->and($this->store['yourstoryz_import_status'])->toBe('draft');
 });
+
+it('defaults to auto import on with a daily interval', function () {
+    $settings = new Settings;
+
+    expect($settings->autoImport())->toBeTrue()
+        ->and($settings->importInterval())->toBe('daily');
+});
+
+it('stores the auto import toggle', function () {
+    $settings = new Settings;
+    $settings->saveAutoImport(false);
+
+    expect($this->store['yourstoryz_auto_import'])->toBe('0')
+        ->and($settings->autoImport())->toBeFalse();
+
+    $settings->saveAutoImport(true);
+
+    expect($settings->autoImport())->toBeTrue();
+});
+
+it('accepts every whitelisted interval', function (string $interval) {
+    $settings = new Settings;
+
+    expect($settings->saveImportInterval($interval))->toBeTrue()
+        ->and($settings->importInterval())->toBe($interval);
+})->with(['hourly', 'twicedaily', 'daily', 'weekly']);
+
+it('rejects an invalid interval and keeps the stored one', function () {
+    $this->store['yourstoryz_import_interval'] = 'hourly';
+    $settings = new Settings;
+
+    expect($settings->saveImportInterval('every_minute'))->toBeFalse()
+        ->and($settings->importInterval())->toBe('hourly');
+});
+
+it('falls back to daily when the stored interval is invalid', function () {
+    $this->store['yourstoryz_import_interval'] = 'bogus';
+
+    expect((new Settings)->importInterval())->toBe('daily');
+});

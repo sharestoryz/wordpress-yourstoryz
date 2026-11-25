@@ -6,6 +6,7 @@ namespace YourStoryz\Admin;
 
 use YourStoryz\Api\ApiException;
 use YourStoryz\Api\GatewayProvider;
+use YourStoryz\Import\ImportRunner;
 use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 
@@ -47,6 +48,14 @@ final class SettingsPage
         if (isset($_POST['yourstoryz_import_status'])) {
             $this->settings->saveImportStatus(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_status'])));
         }
+
+        $this->settings->saveAutoImport(! empty($_POST['yourstoryz_auto_import']));
+
+        if (isset($_POST['yourstoryz_import_interval'])) {
+            $this->settings->saveImportInterval(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_interval'])));
+        }
+
+        ImportRunner::reschedule();
 
         $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
         $this->adminAction->redirect(Menu::SLUG);
@@ -138,6 +147,28 @@ final class SettingsPage
         echo '<select id="yourstoryz_import_status" name="yourstoryz_import_status">';
         printf('<option value="draft"%s>%s</option>', selected($importStatus, 'draft', false), esc_html__('Concept', 'yourstoryz'));
         printf('<option value="publish"%s>%s</option>', selected($importStatus, 'publish', false), esc_html__('Gepubliceerd', 'yourstoryz'));
+        echo '</select></td></tr>';
+
+        echo '<tr><th scope="row">'.esc_html__('Automatisch importeren', 'yourstoryz').'</th><td>';
+        printf(
+            '<label for="yourstoryz_auto_import"><input type="checkbox" id="yourstoryz_auto_import" name="yourstoryz_auto_import" value="1"%s> %s</label>',
+            checked($this->settings->autoImport(), true, false),
+            esc_html__('Stories automatisch importeren', 'yourstoryz'),
+        );
+        echo '</td></tr>';
+
+        $intervals = [
+            'hourly' => __('Elk uur', 'yourstoryz'),
+            'twicedaily' => __('Twee keer per dag', 'yourstoryz'),
+            'daily' => __('Dagelijks', 'yourstoryz'),
+            'weekly' => __('Wekelijks', 'yourstoryz'),
+        ];
+        $interval = $this->settings->importInterval();
+        echo '<tr><th scope="row"><label for="yourstoryz_import_interval">'.esc_html__('Interval', 'yourstoryz').'</label></th><td>';
+        echo '<select id="yourstoryz_import_interval" name="yourstoryz_import_interval">';
+        foreach ($intervals as $value => $label) {
+            printf('<option value="%s"%s>%s</option>', esc_attr($value), selected($interval, $value, false), esc_html($label));
+        }
         echo '</select></td></tr></table>';
         submit_button(__('Opslaan', 'yourstoryz'));
         echo '</form>';

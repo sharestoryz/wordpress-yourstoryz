@@ -10,7 +10,15 @@ final class Settings
 
     public const OPTION_IMPORT_STATUS = 'yourstoryz_import_status';
 
+    public const OPTION_AUTO_IMPORT = 'yourstoryz_auto_import';
+
+    public const OPTION_IMPORT_INTERVAL = 'yourstoryz_import_interval';
+
     public const IMPORT_STATUSES = ['draft', 'publish'];
+
+    public const IMPORT_INTERVALS = ['hourly', 'twicedaily', 'daily', 'weekly'];
+
+    public const DEFAULT_INTERVAL = 'daily';
 
     public const MASK = '••••';
 
@@ -33,6 +41,34 @@ final class Settings
         }
 
         update_option(self::OPTION_IMPORT_STATUS, $status, false);
+
+        return true;
+    }
+
+    public function autoImport(): bool
+    {
+        return (string) get_option(self::OPTION_AUTO_IMPORT, '1') !== '0';
+    }
+
+    public function saveAutoImport(bool $enabled): void
+    {
+        update_option(self::OPTION_AUTO_IMPORT, $enabled ? '1' : '0', false);
+    }
+
+    public function importInterval(): string
+    {
+        $interval = (string) get_option(self::OPTION_IMPORT_INTERVAL, self::DEFAULT_INTERVAL);
+
+        return in_array($interval, self::IMPORT_INTERVALS, true) ? $interval : self::DEFAULT_INTERVAL;
+    }
+
+    public function saveImportInterval(string $interval): bool
+    {
+        if (! in_array($interval, self::IMPORT_INTERVALS, true)) {
+            return false;
+        }
+
+        update_option(self::OPTION_IMPORT_INTERVAL, $interval, false);
 
         return true;
     }

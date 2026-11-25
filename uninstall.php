@@ -9,6 +9,8 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 delete_option('yourstoryz_token');
 delete_option('yourstoryz_source');
 delete_option('yourstoryz_import_status');
+delete_option('yourstoryz_auto_import');
+delete_option('yourstoryz_import_interval');
 delete_option('yourstoryz_deleted_stories');
 delete_option('yourstoryz_import_lock');
 wp_clear_scheduled_hook('yourstoryz_import');
