@@ -4,7 +4,7 @@ Tags: api, freemium
 Requires at least: 6.4
 Requires PHP: 8.3
 Tested up to: 7.1
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,13 @@ The YourStoryz plugin connects your WordPress site to your YourStoryz account.
 * Import: stories are imported as posts of the `yourstoryz_story` post type, on a schedule via WP-Cron (switch it on or off and pick hourly, twice daily, daily or weekly) or on demand with the "Nu importeren" button. Choose whether imported stories become drafts or are published immediately.
 * Stories are shown at `/stories/` (archive) and `/stories/your-story/` (single), with tags and the video embedded.
 * Works with classic and block themes. Classic themes can override the templates by copying them to `{theme}/yourstoryz/single-story.php`, `{theme}/yourstoryz/archive-story.php` and `{theme}/yourstoryz/parts/<name>.php`. Block themes (WordPress 6.7+) can edit the story templates in the site editor and use the YourStoryz video block.
+
+= Blocks and shortcodes =
+* Block "Stories-overzicht" (`yourstoryz/stories`): a grid of the newest stories. Settings: number of stories (1-24), columns (1-4), an optional tag and a link to all stories.
+* Block "Story" (`yourstoryz/story`): one chosen story with video, title and content.
+* Block "Story video" (`yourstoryz/video`): the video of the current story.
+* Shortcode `[yourstoryz_stories count="6" columns="3" tag="" archive_link="1"]`: same output as the "Stories-overzicht" block. `tag` is a tag slug; `archive_link` accepts 1, 0, true, false, yes or no.
+* Shortcode `[yourstoryz_story id="123"]`: same output as the "Story" block. `id` is the post ID of a published story.
 
 Existing posts are never overwritten by the import, and stories you permanently delete are not imported again.
 
@@ -43,6 +50,9 @@ Contact YourStoryz support at https://yourstoryz.com/contact/.
 = Existing pages are not changed =
 The import only creates new story posts. It never edits your existing pages or posts, and it never overwrites a story post that was already imported, so your own edits are kept. The story templates only apply to the story post type.
 
+= Can I change the url of the stories? =
+Yes. On the settings page, change the "Url-slug" (default `stories`). The archive and the single stories then live at `/<slug>/` and `/<slug>/<story>/`. An empty slug, or a slug already used by a page, post, post type, taxonomy or WordPress itself, is refused and the previous slug is kept.
+
 = How do I change the look of a story? =
 Classic themes: copy `templates/single-story.php` or `templates/archive-story.php` from the plugin to `{theme}/yourstoryz/` in your theme. Block themes: edit the "Enkele story" and "Story-overzicht" templates in the site editor.
 
@@ -53,6 +63,11 @@ The terms and conditions for the API can be found at https://yourstoryz.com/wp-c
 The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies/
 
 == Changelog ==
+= 3.1.0 =
+* New block "Stories-overzicht" (`yourstoryz/stories`): a grid of the newest stories with a chosen number, columns and tag.
+* New block "Story" (`yourstoryz/story`): show one chosen story with video, title and content.
+* New shortcodes `[yourstoryz_stories]` and `[yourstoryz_story id="123"]`, with the same output as the blocks.
+* The url slug of the stories (default `stories`) is now configurable on the settings page.
 = 3.0.0 =
 Full rebuild of the plugin on top of the YourStoryz PHP SDK. Requires PHP 8.3 and WordPress 6.4.
 * Stories are imported as their own post type, `yourstoryz_story`: one post per news text per language, with a Dutch fallback. Existing posts are never overwritten.
@@ -78,5 +93,8 @@ Add horizontal/vertical styling for video embed
 Typo fix
 
 == Upgrade Notice ==
+= 3.1.0 =
+Adds the Stories-overzicht and Story blocks, two shortcodes and a configurable url slug. No action needed.
+
 = 3.0.0 =
 Major rebuild, requires PHP 8.3+ and WordPress 6.4+. Your settings are carried over automatically. Previously imported posts are kept and not imported again.

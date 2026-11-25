@@ -6,14 +6,47 @@ use YourStoryz\PostType;
 
 beforeEach(function () {
     Functions\when('__')->returnArg(1);
+    Functions\when('sanitize_title')->returnArg();
+    Functions\when('get_option')->alias(fn (string $key, mixed $default = false): mixed => $GLOBALS['yourstoryz_options'][$key] ?? $default);
+    $GLOBALS['yourstoryz_options'] = [];
 });
 
 it('registers the post type on init', function () {
-    Actions\expectAdded('init')->once();
+    Actions\expectAdded('init')->twice();
 
     (new PostType)->register();
 
     $this->addToAssertionCount(1);
+});
+
+it('uses the stored slug for the rewrite rules', function () {
+    $GLOBALS['yourstoryz_options']['yourstoryz_slug'] = 'verhalen';
+    $arguments = null;
+    Functions\expect('register_post_type')->once()->andReturnUsing(function (string $name, array $args) use (&$arguments) {
+        $arguments = $args;
+    });
+    Functions\expect('register_taxonomy_for_object_type')->once();
+
+    (new PostType)->registerPostType();
+
+    expect($arguments['rewrite'])->toBe(['slug' => 'verhalen']);
+});
+
+it('flushes the rewrite rules only when a flush is pending', function () {
+    Functions\when('delete_option')->justReturn(true);
+    $flushes = 0;
+    Functions\expect('flush_rewrite_rules')->once()->andReturnUsing(function () use (&$flushes) {
+        $flushes++;
+    });
+
+    (new PostType)->flushPendingRewrite();
+
+    expect($flushes)->toBe(0);
+
+    $GLOBALS['yourstoryz_options']['yourstoryz_flush_rewrite'] = '1';
+    (new PostType)->flushPendingRewrite();
+
+    expect($flushes)->toBe(1);
 });
 
 it('registers the story type with the expected arguments', function () {

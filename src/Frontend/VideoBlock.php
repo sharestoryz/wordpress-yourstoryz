@@ -46,6 +46,6 @@ final class VideoBlock
 
     private function isEditing(): bool
     {
-        return $this->editing ?? (function_exists('wp_is_serving_rest_request') ? wp_is_serving_rest_request() : (defined('REST_REQUEST') && REST_REQUEST));
+        return $this->editing ?? EditorContext::isBlockRenderer();
     }
 }

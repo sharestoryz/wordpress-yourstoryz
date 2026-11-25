@@ -20,7 +20,22 @@ final class Assets
 
     public function register(): void
     {
+        add_action('init', [$this, 'registerStyle']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue']);
+    }
+
+    public function registerStyle(): void
+    {
+        if (! file_exists($this->directory.self::STYLESHEET)) {
+            return;
+        }
+
+        wp_register_style(
+            self::HANDLE,
+            plugins_url(self::STYLESHEET, $this->file),
+            [],
+            $this->version,
+        );
     }
 
     public function enqueue(): void
@@ -29,15 +44,6 @@ final class Assets
             return;
         }
 
-        if (! file_exists($this->directory.self::STYLESHEET)) {
-            return;
-        }
-
-        wp_enqueue_style(
-            self::HANDLE,
-            plugins_url(self::STYLESHEET, $this->file),
-            [],
-            $this->version,
-        );
+        wp_enqueue_style(self::HANDLE);
     }
 }

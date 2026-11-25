@@ -33,6 +33,13 @@ function yourstoryzSetBuild(bool $exists): void
     }
 }
 
+beforeEach(function () {
+    $GLOBALS['yourstoryz_styles'] = [];
+    Functions\when('wp_enqueue_style')->alias(function (string $handle): void {
+        $GLOBALS['yourstoryz_styles'][] = $handle;
+    });
+});
+
 afterEach(function () {
     yourstoryzSetBuild(false);
 });
@@ -44,43 +51,47 @@ it('hooks into wp_enqueue_scripts', function () {
 });
 
 it('enqueues the stylesheet on a single story', function () {
-    yourstoryzSetBuild(true);
     yourstoryzWpState(['singular' => true]);
-    Functions\expect('plugins_url')->once()->with('assets/build/frontend.css', sys_get_temp_dir().'/yourstoryz-assets-test/YourStoryz.php')->andReturn('https://example.test/frontend.css');
-    Functions\expect('wp_enqueue_style')->once()->with('yourstoryz-frontend', 'https://example.test/frontend.css', [], '9.9.9');
 
     yourstoryzAssets()->enqueue();
 
-    $this->addToAssertionCount(1);
+    expect($GLOBALS['yourstoryz_styles'])->toBe(['yourstoryz-frontend']);
 });
 
 it('enqueues the stylesheet on the story archive', function () {
-    yourstoryzSetBuild(true);
     yourstoryzWpState(['archive' => true]);
-    Functions\expect('plugins_url')->once()->andReturn('https://example.test/frontend.css');
-    Functions\expect('wp_enqueue_style')->once();
 
     yourstoryzAssets()->enqueue();
 
-    $this->addToAssertionCount(1);
+    expect($GLOBALS['yourstoryz_styles'])->toBe(['yourstoryz-frontend']);
 });
 
 it('does not enqueue on other pages', function () {
-    yourstoryzSetBuild(true);
     yourstoryzWpState();
-    Functions\expect('wp_enqueue_style')->never();
 
     yourstoryzAssets()->enqueue();
+
+    expect($GLOBALS['yourstoryz_styles'])->toBe([]);
+});
+
+it('registers the stylesheet handle on init', function () {
+    yourstoryzSetBuild(true);
+    Actions\expectAdded('init')->once();
+    Functions\expect('plugins_url')->once()->andReturn('https://example.test/frontend.css');
+    Functions\expect('wp_register_style')->once()->with('yourstoryz-frontend', 'https://example.test/frontend.css', [], '9.9.9');
+
+    $assets = yourstoryzAssets();
+    $assets->register();
+    $assets->registerStyle();
 
     $this->addToAssertionCount(1);
 });
 
-it('does not enqueue when the build file is missing', function () {
+it('does not register the stylesheet when the build file is missing', function () {
     yourstoryzSetBuild(false);
-    yourstoryzWpState(['singular' => true]);
-    Functions\expect('wp_enqueue_style')->never();
+    Functions\expect('wp_register_style')->never();
 
-    yourstoryzAssets()->enqueue();
+    yourstoryzAssets()->registerStyle();
 
     $this->addToAssertionCount(1);
 });

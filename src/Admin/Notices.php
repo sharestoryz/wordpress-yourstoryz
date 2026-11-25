@@ -10,24 +10,41 @@ final class Notices
 
     public function flash(string $type, string $message): void
     {
-        set_transient($this->key(), ['type' => $type, 'message' => $message], self::TTL);
+        $notices = get_transient($this->key());
+        $notices = is_array($notices) ? $notices : [];
+        $notices[] = [
+            'type' => $type,
+            'message' => $message,
+        ];
+
+        set_transient(
+            $this->key(),
+            $notices,
+            self::TTL,
+        );
     }
 
     public function render(): void
     {
-        $notice = get_transient($this->key());
+        $notices = get_transient($this->key());
 
-        if (! is_array($notice) || ! isset($notice['type'], $notice['message'])) {
+        if (! is_array($notices)) {
             return;
         }
 
         delete_transient($this->key());
 
-        printf(
-            '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
-            esc_attr($notice['type'] === 'success' ? 'success' : 'error'),
-            esc_html((string) $notice['message']),
-        );
+        foreach ($notices as $notice) {
+            if (! isset($notice['type'], $notice['message'])) {
+                continue;
+            }
+
+            printf(
+                '<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+                esc_attr($notice['type'] === 'success' ? 'success' : 'error'),
+                esc_html((string) $notice['message']),
+            );
+        }
     }
 
     private function key(): string

@@ -45,7 +45,11 @@ final class TemplateLoader
      */
     public function part(string $name, array $args = []): void
     {
-        load_template($this->resolve('parts/'.$name.'.php'), false, $args);
+        load_template(
+            $this->resolve('parts/'.$name.'.php'),
+            false,
+            $args + ['loader' => $this],
+        );
     }
 
     private function resolve(string $file): string

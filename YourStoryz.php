@@ -5,7 +5,7 @@ use YourStoryz\Plugin;
 /**
  * Plugin Name: YourStoryz
  * Description: A plugin to create posts with data from the YourStoryz API.
- * Version: 3.0.0
+ * Version: 3.1.0
  * Requires at least: 6.4
  * Requires PHP: 8.3
  * Author: Concept7
@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-define('YOURSTORYZ_VERSION', '3.0.0');
+define('YOURSTORYZ_VERSION', '3.1.0');
 define('YOURSTORYZ_FILE', __FILE__);
 define('YOURSTORYZ_DIR', plugin_dir_path(__FILE__));
 

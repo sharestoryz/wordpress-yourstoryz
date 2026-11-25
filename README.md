@@ -43,9 +43,11 @@ Copy a template to your theme and edit it:
 
 ### Block themes
 
-On WordPress 6.7+ the plugin registers the block templates `single-yourstoryz_story` and `archive-yourstoryz_story`, editable in the site editor, and the block `yourstoryz/video`. On WordPress 6.4-6.6 block themes get the video prepended to the story content.
+On WordPress 6.7+ the plugin registers the block templates `single-yourstoryz_story` and `archive-yourstoryz_story`, editable in the site editor, and the blocks `yourstoryz/video`, `yourstoryz/stories` and `yourstoryz/story`. The shortcodes `[yourstoryz_stories count columns tag archive_link]` and `[yourstoryz_story id]` render the same blocks through `render_block()`. On WordPress 6.4-6.6 block themes get the video prepended to the story content.
 
 `vendor-prefixed/` is generated and must exist for the plugin to load. The release zip contains `YourStoryz.php`, `uninstall.php`, `readme.txt`, `src/`, `templates/`, `blocks/`, `vendor-prefixed/` and `assets/` (including `assets/build`).
+
+The archive and single url slug is the `yourstoryz_slug` option (default `stories`), set on the settings page. A change sets `yourstoryz_flush_rewrite`; `PostType` flushes the rewrite rules once on the next `init` after re-registering the post type.
 
 ## Local site (lerd)
 
@@ -66,11 +68,12 @@ src/Settings.php    API token option (yourstoryz_token)
 src/SourceSettings.php  Company/department option (yourstoryz_source) and cached lists
 src/Source.php      Value object for the selected source
 src/StoryCatalog.php    Fetches and caches stories
-src/PostType.php    Post type yourstoryz_story and /stories/ rewrite
+src/PostType.php    Post type yourstoryz_story and its (configurable) rewrite slug
+src/ReservedSlugs.php   Checks a story slug against WordPress, pages, post types and taxonomies
 src/Import/         Importer, runner (cron + lock), post planner, deleted-story registry
-src/Frontend/       Template loader, block templates, video block/renderer, assets
+src/Frontend/       Template loader, block templates, video/stories/story blocks, editor-request detection, shortcodes, assets
 templates/          Classic theme templates and parts (theme-overridable)
-blocks/             Block definitions (yourstoryz/video)
+blocks/             Block definitions (yourstoryz/video, stories, story)
 src/Admin/          Menu, settings page, source section, preview page, notices
 src/Api/            Gateway around the SDK, story mapper, DTOs
 tests/Unit/         Pest + Brain Monkey tests

@@ -3,6 +3,44 @@
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 
+if (! class_exists('WP_Post')) {
+    class WP_Post
+    {
+        public int $ID = 0;
+
+        public string $post_type = 'post';
+
+        public string $post_status = 'publish';
+
+        public string $post_title = '';
+
+        public string $post_content = '';
+
+        public string $post_password = '';
+    }
+}
+
+if (! class_exists('WP_Query')) {
+    class WP_Query
+    {
+        /** @var array<string, mixed> */
+        public static array $lastArgs = [];
+
+        /** @var list<object> */
+        public static array $stories = [];
+
+        /** @var list<object> */
+        public array $posts;
+
+        /** @param array<string, mixed> $args */
+        public function __construct(array $args)
+        {
+            self::$lastArgs = $args;
+            $this->posts = self::$stories;
+        }
+    }
+}
+
 beforeEach(function () {
     Monkey\setUp();
 });
@@ -46,4 +84,18 @@ function yourstoryzWpState(array $state = []): void
     Functions\when('__')->returnArg();
     Functions\when('esc_url')->returnArg();
     Functions\when('esc_attr')->returnArg();
+}
+
+/**
+ * @return ArrayObject<int, array{string, list<string>}>
+ */
+function yourstoryzCaptureBlockRegistrations(): ArrayObject
+{
+    $registrations = new ArrayObject;
+
+    Functions\when('register_block_type')->alias(function (string $path, array $args) use ($registrations): void {
+        $registrations->append([$path, array_keys($args)]);
+    });
+
+    return $registrations;
 }
