@@ -50,6 +50,9 @@ Contact YourStoryz support at https://yourstoryz.com/contact/.
 = Existing pages are not changed =
 The import only creates new story posts. It never edits your existing pages or posts, and it never overwrites a story post that was already imported, so your own edits are kept. The story templates only apply to the story post type.
 
+= Can I change the url of the stories? =
+Yes. On the settings page, change the "Url-slug" (default `stories`). The archive and the single stories then live at `/<slug>/` and `/<slug>/<story>/`. An empty slug, or a slug already used by a page, post, post type, taxonomy or WordPress itself, is refused and the previous slug is kept.
+
 = How do I change the look of a story? =
 Classic themes: copy `templates/single-story.php` or `templates/archive-story.php` from the plugin to `{theme}/yourstoryz/` in your theme. Block themes: edit the "Enkele story" and "Story-overzicht" templates in the site editor.
 

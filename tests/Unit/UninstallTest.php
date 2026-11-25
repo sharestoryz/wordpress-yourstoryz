@@ -67,6 +67,8 @@ it('removes the options and the yourstoryz transients', function () {
         Settings::OPTION_AUTO_IMPORT,
         Settings::OPTION_IMPORT_INTERVAL,
         Settings::OPTION_AUTOPLAY,
+        Settings::OPTION_SLUG,
+        Settings::OPTION_FLUSH_REWRITE,
         DeletedStories::OPTION,
         ImportRunner::LOCK,
         Upgrader::OPTION_DB_VERSION,

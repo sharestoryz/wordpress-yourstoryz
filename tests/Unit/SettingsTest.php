@@ -6,6 +6,7 @@ use YourStoryz\Settings;
 beforeEach(function () {
     $this->store = [];
 
+    Functions\when('__')->returnArg();
     Functions\when('get_option')->alias(fn ($key, $default = false) => $this->store[$key] ?? $default);
     Functions\when('update_option')->alias(function ($key, $value, $autoload = null) {
         $this->store[$key] = $value;
@@ -149,4 +150,69 @@ it('falls back to daily when the stored interval is invalid', function () {
     $this->store['yourstoryz_import_interval'] = 'bogus';
 
     expect((new Settings)->importInterval())->toBe('daily');
+});
+
+function yourstoryzStubSlugEnvironment(array $pageSlugs = [], array $postTypes = [], array $taxonomies = []): void
+{
+    Functions\when('sanitize_title')->alias(fn (string $title): string => strtolower(trim((string) preg_replace('/[^A-Za-z0-9-]+/', '-', $title), '-')));
+    Functions\when('get_page_by_path')->alias(fn (string $path): ?object => in_array($path, $pageSlugs, true) ? (object) ['ID' => 1] : null);
+    Functions\when('get_post_types')->justReturn($postTypes);
+    Functions\when('get_taxonomies')->justReturn($taxonomies);
+}
+
+it('defaults the slug to stories', function () {
+    yourstoryzStubSlugEnvironment();
+
+    expect((new Settings)->slug())->toBe('stories');
+
+    $this->store['yourstoryz_slug'] = '!!!';
+
+    expect((new Settings)->slug())->toBe('stories');
+});
+
+it('saves a new slug and flags a rewrite flush', function () {
+    yourstoryzStubSlugEnvironment();
+
+    expect((new Settings)->saveSlug('Verhalen'))->toBe(Settings::SLUG_SAVED)
+        ->and($this->store['yourstoryz_slug'])->toBe('verhalen')
+        ->and($this->store['yourstoryz_flush_rewrite'])->toBe('1')
+        ->and((new Settings)->slug())->toBe('verhalen');
+});
+
+it('does not flag a flush when the slug is unchanged', function () {
+    yourstoryzStubSlugEnvironment();
+
+    expect((new Settings)->saveSlug('stories'))->toBe(Settings::SLUG_UNCHANGED)
+        ->and($this->store)->toBe([]);
+});
+
+it('keeps the previous slug when the input is empty', function () {
+    yourstoryzStubSlugEnvironment();
+    $this->store['yourstoryz_slug'] = 'verhalen';
+
+    expect((new Settings)->saveSlug('  !! '))->toBe(Settings::SLUG_INVALID)
+        ->and($this->store['yourstoryz_slug'])->toBe('verhalen');
+});
+
+it('rejects reserved slugs', function (string $slug) {
+    yourstoryzStubSlugEnvironment(
+        ['sample-page'],
+        [
+            (object) ['name' => 'product', 'rewrite' => ['slug' => 'winkel']],
+            (object) ['name' => 'yourstoryz_story', 'rewrite' => ['slug' => 'stories']],
+            (object) ['name' => 'plain', 'rewrite' => false],
+        ],
+        [(object) ['name' => 'genre', 'rewrite' => ['slug' => 'soort']]],
+    );
+
+    expect((new Settings)->saveSlug($slug))->toBe(Settings::SLUG_RESERVED)
+        ->and($this->store)->not->toHaveKey('yourstoryz_slug');
+})->with(['wp-admin', 'wp-json', 'category', 'sample-page', 'winkel', 'product', 'soort', 'genre']);
+
+it('consumes the flush flag once', function () {
+    $this->store['yourstoryz_flush_rewrite'] = '1';
+
+    expect((new Settings)->consumeFlushRewrite())->toBeTrue()
+        ->and($this->store)->not->toHaveKey('yourstoryz_flush_rewrite')
+        ->and((new Settings)->consumeFlushRewrite())->toBeFalse();
 });

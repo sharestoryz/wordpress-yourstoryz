@@ -66,9 +66,18 @@ final class SettingsPage
 
         $this->settings->saveAutoplay(! empty($_POST['yourstoryz_autoplay']));
 
+        $slugResult = isset($_POST['yourstoryz_slug']) ? $this->settings->saveSlug(sanitize_text_field(wp_unslash($_POST['yourstoryz_slug']))) : Settings::SLUG_UNCHANGED;
+
         ImportRunner::reschedule();
 
-        $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
+        if ($slugResult === Settings::SLUG_INVALID || $slugResult === Settings::SLUG_RESERVED) {
+            $this->notices->flash('error', $slugResult === Settings::SLUG_INVALID
+                ? __('Url-slug is leeg of ongeldig; de vorige url-slug is behouden.', 'yourstoryz')
+                : __('Deze url-slug is al in gebruik of gereserveerd; de vorige url-slug is behouden.', 'yourstoryz'));
+        } else {
+            $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
+        }
+
         $this->adminAction->redirect(Menu::SLUG);
     }
 
@@ -217,6 +226,19 @@ final class SettingsPage
             '<label for="yourstoryz_autoplay"><input type="checkbox" id="yourstoryz_autoplay" name="yourstoryz_autoplay" value="1"%s> %s</label>',
             checked($this->settings->autoplay(), true, false),
             esc_html__('Video automatisch afspelen (zonder geluid)', 'yourstoryz'),
+        );
+        echo '</td></tr>';
+
+        $slug = $this->settings->slug();
+        echo '<tr><th scope="row"><label for="yourstoryz_slug">'.esc_html__('Url-slug', 'yourstoryz').'</label></th><td>';
+        printf(
+            '<input type="text" class="regular-text" id="yourstoryz_slug" name="yourstoryz_slug" value="%s" placeholder="%s">',
+            esc_attr($slug),
+            esc_attr(Settings::DEFAULT_SLUG),
+        );
+        printf(
+            '<p class="description">%s</p>',
+            esc_html(sprintf(__('Stories staan op %s', 'yourstoryz'), home_url('/'.$slug.'/'))),
         );
         echo '</td></tr></table>';
         submit_button(__('Opslaan', 'yourstoryz'));

@@ -16,6 +16,36 @@ final class Settings
 
     public const OPTION_IMPORT_INTERVAL = 'yourstoryz_import_interval';
 
+    public const OPTION_SLUG = 'yourstoryz_slug';
+
+    public const OPTION_FLUSH_REWRITE = 'yourstoryz_flush_rewrite';
+
+    public const DEFAULT_SLUG = 'stories';
+
+    public const SLUG_SAVED = 'saved';
+
+    public const SLUG_UNCHANGED = 'unchanged';
+
+    public const SLUG_INVALID = 'invalid';
+
+    public const SLUG_RESERVED = 'reserved';
+
+    private const RESERVED_SLUGS = [
+        'wp-admin',
+        'wp-content',
+        'wp-includes',
+        'wp-json',
+        'feed',
+        'page',
+        'tag',
+        'category',
+        'author',
+        'search',
+        'embed',
+        'attachment',
+        'comments',
+    ];
+
     public const IMPORT_STATUSES = ['draft', 'publish'];
 
     public const DEFAULT_INTERVAL = 'daily';
@@ -96,6 +126,46 @@ final class Settings
         return true;
     }
 
+    public function slug(): string
+    {
+        $slug = sanitize_title((string) get_option(self::OPTION_SLUG, self::DEFAULT_SLUG));
+
+        return $slug === '' ? self::DEFAULT_SLUG : $slug;
+    }
+
+    public function saveSlug(string $input): string
+    {
+        $slug = sanitize_title($input);
+
+        if ($slug === '') {
+            return self::SLUG_INVALID;
+        }
+
+        if ($slug === $this->slug()) {
+            return self::SLUG_UNCHANGED;
+        }
+
+        if ($this->isReservedSlug($slug)) {
+            return self::SLUG_RESERVED;
+        }
+
+        update_option(self::OPTION_SLUG, $slug, true);
+        update_option(self::OPTION_FLUSH_REWRITE, '1', true);
+
+        return self::SLUG_SAVED;
+    }
+
+    public function consumeFlushRewrite(): bool
+    {
+        if ((string) get_option(self::OPTION_FLUSH_REWRITE, '0') !== '1') {
+            return false;
+        }
+
+        delete_option(self::OPTION_FLUSH_REWRITE);
+
+        return true;
+    }
+
     public function hasToken(): bool
     {
         return $this->token() !== '';
@@ -142,5 +212,33 @@ final class Settings
     private function saveFlag(string $option, bool $enabled): void
     {
         update_option($option, $enabled ? '1' : '0', false);
+    }
+
+    private function isReservedSlug(string $slug): bool
+    {
+        $publicQueryVars = isset($GLOBALS['wp']) ? (array) ($GLOBALS['wp']->public_query_vars ?? []) : [];
+
+        if (in_array($slug, [...self::RESERVED_SLUGS, ...$publicQueryVars], true)) {
+            return true;
+        }
+
+        if (get_page_by_path($slug, 'OBJECT', ['page', 'post']) !== null) {
+            return true;
+        }
+
+        $objects = [
+            ...array_values(array_filter(get_post_types([], 'objects'), fn (object $type): bool => $type->name !== PostType::NAME)),
+            ...array_values(get_taxonomies([], 'objects')),
+        ];
+
+        foreach ($objects as $object) {
+            $rewriteSlug = is_array($object->rewrite ?? null) ? ($object->rewrite['slug'] ?? '') : '';
+
+            if (in_array($slug, [$object->name, $rewriteSlug], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

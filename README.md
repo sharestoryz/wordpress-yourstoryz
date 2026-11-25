@@ -47,6 +47,8 @@ On WordPress 6.7+ the plugin registers the block templates `single-yourstoryz_st
 
 `vendor-prefixed/` is generated and must exist for the plugin to load. The release zip contains `YourStoryz.php`, `uninstall.php`, `readme.txt`, `src/`, `templates/`, `blocks/`, `vendor-prefixed/` and `assets/` (including `assets/build`).
 
+The archive and single url slug is the `yourstoryz_slug` option (default `stories`), set on the settings page. A change sets `yourstoryz_flush_rewrite`; `PostType` flushes the rewrite rules once on the next `init` after re-registering the post type.
+
 ## Local site (lerd)
 
 The test site is `https://yourstoryz-wp.test` (PHP 8.4).

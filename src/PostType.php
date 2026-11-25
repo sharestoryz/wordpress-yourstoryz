@@ -10,6 +10,10 @@ final class PostType
 {
     public const NAME = 'yourstoryz_story';
 
+    public function __construct(
+        private readonly Settings $settings = new Settings,
+    ) {}
+
     public static function activate(): void
     {
         (new self)->registerPostType();
@@ -27,6 +31,14 @@ final class PostType
     public function register(): void
     {
         add_action('init', [$this, 'registerPostType']);
+        add_action('init', [$this, 'flushPendingRewrite'], 20);
+    }
+
+    public function flushPendingRewrite(): void
+    {
+        if ($this->settings->consumeFlushRewrite()) {
+            flush_rewrite_rules();
+        }
     }
 
     public function registerPostType(): void
@@ -49,7 +61,7 @@ final class PostType
             'has_archive' => true,
             'show_in_rest' => true,
             'show_in_menu' => Menu::SLUG,
-            'rewrite' => ['slug' => 'stories'],
+            'rewrite' => ['slug' => $this->settings->slug()],
             'supports' => ['title', 'editor', 'excerpt', 'thumbnail'],
             'taxonomies' => ['post_tag'],
         ]);
