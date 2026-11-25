@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace YourStoryz\Upgrade;
 
+use Throwable;
 use YourStoryz\Admin\Menu;
 use YourStoryz\Api\ApiException;
 use YourStoryz\Import\ImportRunner;
@@ -104,7 +105,7 @@ final class Upgrader
                 foreach ($this->legacySteps() as $step) {
                     try {
                         $step();
-                    } catch (\Throwable $exception) {
+                    } catch (Throwable $exception) {
                         add_option(self::OPTION_NOTICE, 'failed', '', false);
                         error_log('YourStoryz upgrade step failed: '.$exception::class.': '.$exception->getMessage());
                     }
