@@ -29,10 +29,16 @@ On uninstall the plugin removes its settings, the import schedule and cached dat
 
 == Frequently Asked Questions ==
 = How do I get an API key? =
-Follow the instructions on the plugin settings page to obtain and enter your API key.
+Create an account at https://yourstoryz.com (or in the YourStoryz app), log in to the dashboard and go to My Companies > Tokens > API Tokens. Create a token and paste it on the plugin settings page, which repeats these steps.
 
 = Why is my API key validation failing? =
 Ensure the key is correct and has required permissions.
+
+= Where are the thumbnails and videos stored? =
+Thumbnails are saved in your media library. Videos are not stored on your site: they play from YourStoryz.
+
+= Where can I get support? =
+Contact YourStoryz support at https://yourstoryz.com/contact/.
 
 = Existing pages are not changed =
 The import only creates new story posts. It never edits your existing pages or posts, and it never overwrites a story post that was already imported, so your own edits are kept. The story templates only apply to the story post type.
