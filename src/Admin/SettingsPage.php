@@ -204,16 +204,17 @@ final class SettingsPage
         );
         echo '</td></tr>';
 
-        $intervals = [
-            'hourly' => __('Elk uur', 'yourstoryz'),
-            'twicedaily' => __('Twee keer per dag', 'yourstoryz'),
-            'daily' => __('Dagelijks', 'yourstoryz'),
-            'weekly' => __('Wekelijks', 'yourstoryz'),
-        ];
         $interval = $this->settings->importInterval();
         echo '<tr><th scope="row"><label for="yourstoryz_import_interval">'.esc_html__('Interval', 'yourstoryz').'</label></th><td>';
         echo '<select id="yourstoryz_import_interval" name="yourstoryz_import_interval">';
-        foreach ($intervals as $value => $label) {
+        foreach (Settings::IMPORT_INTERVALS as $value) {
+            $label = match ($value) {
+                'hourly' => __('Elk uur', 'yourstoryz'),
+                'twicedaily' => __('Twee keer per dag', 'yourstoryz'),
+                'daily' => __('Dagelijks', 'yourstoryz'),
+                'weekly' => __('Wekelijks', 'yourstoryz'),
+            };
+
             printf('<option value="%s"%s>%s</option>', esc_attr($value), selected($interval, $value, false), esc_html($label));
         }
         echo '</select></td></tr>';

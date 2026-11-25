@@ -7,6 +7,7 @@ use YourStoryz\StoryMeta;
 beforeEach(function () {
     Functions\when('esc_url')->alias(fn (string $url): string => str_replace(' ', '%20', $url));
     Functions\when('esc_attr')->alias(fn (string $value): string => htmlspecialchars($value, ENT_QUOTES));
+    Functions\when('get_option')->justReturn('0');
 });
 
 it('renders a video with the expected attributes', function () {

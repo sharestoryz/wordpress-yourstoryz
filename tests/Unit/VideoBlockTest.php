@@ -28,6 +28,7 @@ function yourstoryzBlockWithContext(array $context): WP_Block
 
 beforeEach(function () {
     Functions\when('esc_html')->returnArg();
+    Functions\when('get_option')->justReturn('0');
     yourstoryzWpState([
         'meta' => ['_ysz_video_url' => 'https://cdn.test/a.mp4', '_ysz_orientation' => 'vertical'],
         'thumbnail' => 'https://cdn.test/p.jpg',

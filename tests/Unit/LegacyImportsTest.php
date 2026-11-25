@@ -50,3 +50,23 @@ it('merges ids without duplicates and saves without autoload', function () {
     expect($this->store['yourstoryz_legacy_imports'])->toBe(['story_ids' => [4, 5, 6], 'video_ids' => [1, 2], 'content_ids' => [9]])
         ->and($this->autoload)->toBeFalse();
 });
+
+it('reads the option once per instance and sees its own merges', function () {
+    $reads = 0;
+    Functions\when('get_option')->alias(function ($key, $default = false) use (&$reads) {
+        $reads++;
+
+        return $this->store[$key] ?? $default;
+    });
+    $this->store['yourstoryz_legacy_imports'] = ['story_ids' => [5]];
+
+    $legacyImports = new LegacyImports;
+
+    expect($legacyImports->contains(5, 0, null))->toBeTrue()
+        ->and($legacyImports->contains(6, 0, null))->toBeFalse()
+        ->and($reads)->toBe(1);
+
+    $legacyImports->merge([6]);
+
+    expect($legacyImports->contains(6, 0, null))->toBeTrue();
+});

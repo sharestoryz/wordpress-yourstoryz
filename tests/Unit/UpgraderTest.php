@@ -321,6 +321,8 @@ it('clears the old 2.0.x cron and schedules the default', function () {
 });
 
 it('shows the notice once to administrators', function () {
+    Functions\when('esc_html__')->returnArg();
+    Functions\when('esc_url')->returnArg();
     $this->store = ['yourstoryz_upgrade_notice' => 'source'];
     $upgrader = ($this->upgrader)();
 

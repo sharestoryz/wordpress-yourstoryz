@@ -7,6 +7,10 @@ use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 
 it('renders the onboarding box with support and store links', function () {
+    Functions\when('__')->returnArg();
+    Functions\when('esc_html__')->returnArg();
+    Functions\when('esc_url')->returnArg();
+    Functions\when('esc_attr')->returnArg();
     Functions\expect('plugins_url')->twice()->andReturnUsing(fn (string $path, string $file): string => 'https://site.test/plugin/'.$path);
 
     $page = new SettingsPage(
@@ -31,4 +35,12 @@ it('renders the onboarding box with support and store links', function () {
     expect($html)->toContain('class="card yourstoryz-onboarding"')
         ->and($html)->toContain('https://site.test/plugin/assets/images/download-on-the-appstore.svg')
         ->and($html)->toContain('https://site.test/plugin/assets/images/get-it-on-google.png');
+});
+
+it('has a label for every whitelisted import interval', function () {
+    $source = file_get_contents(dirname(__DIR__, 2).'/src/Admin/SettingsPage.php');
+
+    foreach (Settings::IMPORT_INTERVALS as $interval) {
+        expect($source)->toContain("'{$interval}' =>");
+    }
 });

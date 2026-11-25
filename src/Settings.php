@@ -49,22 +49,22 @@ final class Settings
 
     public function autoImport(): bool
     {
-        return (string) get_option(self::OPTION_AUTO_IMPORT, '1') !== '0';
+        return $this->flag(self::OPTION_AUTO_IMPORT, true);
     }
 
     public function saveAutoImport(bool $enabled): void
     {
-        update_option(self::OPTION_AUTO_IMPORT, $enabled ? '1' : '0', false);
+        $this->saveFlag(self::OPTION_AUTO_IMPORT, $enabled);
     }
 
     public function autoplay(): bool
     {
-        return (string) get_option(self::OPTION_AUTOPLAY, '0') === '1';
+        return $this->flag(self::OPTION_AUTOPLAY, false);
     }
 
     public function saveAutoplay(bool $enabled): void
     {
-        update_option(self::OPTION_AUTOPLAY, $enabled ? '1' : '0', false);
+        $this->saveFlag(self::OPTION_AUTOPLAY, $enabled);
     }
 
     public function importInterval(): string
@@ -121,5 +121,15 @@ final class Settings
         }
 
         update_option(self::OPTION_TOKEN, $token, false);
+    }
+
+    private function flag(string $option, bool $default): bool
+    {
+        return (string) get_option($option, $default ? '1' : '0') === '1';
+    }
+
+    private function saveFlag(string $option, bool $enabled): void
+    {
+        update_option($option, $enabled ? '1' : '0', false);
     }
 }

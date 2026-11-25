@@ -77,7 +77,6 @@ final class Upgrader
             return;
         }
 
-        // Legacy options stay in the DB, so they are only carried over on the first upgrade into this plugin.
         if (get_option(self::OPTION_DB_VERSION, false) === false && $this->hasLegacyData()) {
             foreach ($this->steps() as $step) {
                 $step();
@@ -128,7 +127,6 @@ final class Upgrader
             return;
         }
 
-        // 2.0.x is newer than 1.3.2, so it wins when both exist.
         $this->settings->save($this->legacy(self::LEGACY_TOKEN_200) ?: $this->legacy(self::LEGACY_TOKEN_132));
     }
 
@@ -159,7 +157,6 @@ final class Upgrader
         }
 
         if ($resolved === null) {
-            // 1.3.2 without a department filter: pick the company only when the token sees exactly one.
             $resolved = $this->onlyCompany();
         }
 

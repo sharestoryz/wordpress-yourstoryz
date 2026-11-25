@@ -12,17 +12,24 @@ final class LegacyImports
 {
     public const OPTION = 'yourstoryz_legacy_imports';
 
-    private const LISTS = ['story_ids', 'video_ids', 'content_ids'];
+    /** @var array{story_ids: list<int>, video_ids: list<int>, content_ids: list<int>}|null */
+    private ?array $snapshot = null;
 
     /**
+     * Read once per instance, so checking many drafts in one import run does not re-read the option.
+     *
      * @return array{story_ids: list<int>, video_ids: list<int>, content_ids: list<int>}
      */
     public function all(): array
     {
+        if ($this->snapshot !== null) {
+            return $this->snapshot;
+        }
+
         $saved = get_option(self::OPTION, []);
         $saved = is_array($saved) ? $saved : [];
 
-        return [
+        return $this->snapshot = [
             'story_ids' => $this->normalize($saved['story_ids'] ?? []),
             'video_ids' => $this->normalize($saved['video_ids'] ?? []),
             'content_ids' => $this->normalize($saved['content_ids'] ?? []),
@@ -49,11 +56,13 @@ final class LegacyImports
     {
         $current = $this->all();
 
-        update_option(self::OPTION, [
+        $this->snapshot = [
             'story_ids' => $this->normalize([...$current['story_ids'], ...$storyIds]),
             'video_ids' => $this->normalize([...$current['video_ids'], ...$videoIds]),
             'content_ids' => $this->normalize([...$current['content_ids'], ...$contentIds]),
-        ], false);
+        ];
+
+        update_option(self::OPTION, $this->snapshot, false);
     }
 
     /**
