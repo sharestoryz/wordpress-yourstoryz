@@ -18,6 +18,13 @@ The YourStoryz plugin connects your WordPress site to your YourStoryz account.
 * Stories are shown at `/stories/` (archive) and `/stories/your-story/` (single), with tags and the video embedded.
 * Works with classic and block themes. Classic themes can override the templates by copying them to `{theme}/yourstoryz/single-story.php`, `{theme}/yourstoryz/archive-story.php` and `{theme}/yourstoryz/parts/<name>.php`. Block themes (WordPress 6.7+) can edit the story templates in the site editor and use the YourStoryz video block.
 
+= Blocks and shortcodes =
+* Block "Stories-overzicht" (`yourstoryz/stories`): a grid of the newest stories. Settings: number of stories (1-24), columns (1-4), an optional tag and a link to all stories.
+* Block "Story" (`yourstoryz/story`): one chosen story with video, title and content.
+* Block "Story video" (`yourstoryz/video`): the video of the current story.
+* Shortcode `[yourstoryz_stories count="6" columns="3" tag="" archive_link="1"]`: same output as the "Stories-overzicht" block. `tag` is a tag slug; `archive_link` accepts 1, 0, true, false, yes or no.
+* Shortcode `[yourstoryz_story id="123"]`: same output as the "Story" block. `id` is the post ID of a published story.
+
 Existing posts are never overwritten by the import, and stories you permanently delete are not imported again.
 
 On uninstall the plugin removes its settings, the import schedule and cached data. Imported story posts and their images stay in your site.
