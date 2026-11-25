@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace YourStoryz\Frontend;
 
+use WP_Post;
 use WP_Query;
 use YourStoryz\PostType;
 
@@ -71,17 +72,18 @@ final class StoriesBlock
         if ($stories === []) {
             echo '<p>'.esc_html__('Er zijn nog geen stories.', 'yourstoryz').'</p>';
         } else {
-            echo '<div class="ys:grid ys:grid-cols-1 ys:gap-6 ys:sm:grid-cols-2 '.esc_attr(self::COLUMN_CLASSES[$columns]).'">';
-
-            foreach ($stories as $story) {
-                $this->loader->part('story-card', [
-                    'url' => (string) get_permalink($story),
-                    'title' => get_the_title($story),
-                    'thumbnail_url' => (string) get_the_post_thumbnail_url($story, 'medium_large'),
-                ]);
-            }
-
-            echo '</div>';
+            $this->loader->part('story-grid', [
+                'stories' => array_map(
+                    fn (WP_Post $story): array => [
+                        'url' => (string) get_permalink($story),
+                        'title' => get_the_title($story),
+                        'thumbnail_url' => (string) get_the_post_thumbnail_url($story, 'medium_large'),
+                    ],
+                    $stories,
+                ),
+                'column_class' => self::COLUMN_CLASSES[$columns],
+                'loader' => $this->loader,
+            ]);
         }
 
         $archiveLink = $showArchiveLink ? get_post_type_archive_link(PostType::NAME) : false;

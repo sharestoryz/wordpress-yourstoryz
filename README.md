@@ -68,9 +68,10 @@ src/Settings.php    API token option (yourstoryz_token)
 src/SourceSettings.php  Company/department option (yourstoryz_source) and cached lists
 src/Source.php      Value object for the selected source
 src/StoryCatalog.php    Fetches and caches stories
-src/PostType.php    Post type yourstoryz_story and /stories/ rewrite
+src/PostType.php    Post type yourstoryz_story and its (configurable) rewrite slug
+src/ReservedSlugs.php   Checks a story slug against WordPress, pages, post types and taxonomies
 src/Import/         Importer, runner (cron + lock), post planner, deleted-story registry
-src/Frontend/       Template loader, block templates, video/stories/story blocks, shortcodes, assets
+src/Frontend/       Template loader, block templates, video/stories/story blocks, editor-request detection, shortcodes, assets
 templates/          Classic theme templates and parts (theme-overridable)
 blocks/             Block definitions (yourstoryz/video, stories, story)
 src/Admin/          Menu, settings page, source section, preview page, notices

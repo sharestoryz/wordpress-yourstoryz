@@ -30,27 +30,15 @@ final class Settings
 
     public const SLUG_RESERVED = 'reserved';
 
-    private const RESERVED_SLUGS = [
-        'wp-admin',
-        'wp-content',
-        'wp-includes',
-        'wp-json',
-        'feed',
-        'page',
-        'tag',
-        'category',
-        'author',
-        'search',
-        'embed',
-        'attachment',
-        'comments',
-    ];
-
     public const IMPORT_STATUSES = ['draft', 'publish'];
 
     public const DEFAULT_INTERVAL = 'daily';
 
     public const MASK = '••••';
+
+    public function __construct(
+        private readonly ReservedSlugs $reservedSlugs = new ReservedSlugs,
+    ) {}
 
     public function token(): string
     {
@@ -145,7 +133,7 @@ final class Settings
             return self::SLUG_UNCHANGED;
         }
 
-        if ($this->isReservedSlug($slug)) {
+        if ($this->reservedSlugs->contains($slug)) {
             return self::SLUG_RESERVED;
         }
 
@@ -212,33 +200,5 @@ final class Settings
     private function saveFlag(string $option, bool $enabled): void
     {
         update_option($option, $enabled ? '1' : '0', false);
-    }
-
-    private function isReservedSlug(string $slug): bool
-    {
-        $publicQueryVars = isset($GLOBALS['wp']) ? (array) ($GLOBALS['wp']->public_query_vars ?? []) : [];
-
-        if (in_array($slug, [...self::RESERVED_SLUGS, ...$publicQueryVars], true)) {
-            return true;
-        }
-
-        if (get_page_by_path($slug, 'OBJECT', ['page', 'post']) !== null) {
-            return true;
-        }
-
-        $objects = [
-            ...array_values(array_filter(get_post_types([], 'objects'), fn (object $type): bool => $type->name !== PostType::NAME)),
-            ...array_values(get_taxonomies([], 'objects')),
-        ];
-
-        foreach ($objects as $object) {
-            $rewriteSlug = is_array($object->rewrite ?? null) ? ($object->rewrite['slug'] ?? '') : '';
-
-            if (in_array($slug, [$object->name, $rewriteSlug], true)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

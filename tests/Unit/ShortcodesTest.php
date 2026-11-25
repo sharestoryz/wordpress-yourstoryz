@@ -58,7 +58,7 @@ it('maps and sanitizes the stories attributes', function () {
 it('passes out of range numbers to the block for clamping', function () {
     (new Shortcodes)->stories(['count' => '99', 'columns' => '-2']);
 
-    expect(yourstoryzRenderedBlock()['attrs'])->toMatchArray(['count' => 99, 'columns' => 2]);
+    expect(yourstoryzRenderedBlock()['attrs'])->toMatchArray(['count' => 99, 'columns' => -2]);
 });
 
 it('parses the archive_link boolean', function (string $value, bool $expected) {

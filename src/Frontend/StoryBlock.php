@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace YourStoryz\Frontend;
 
 use WP_Post;
-use WP_Term;
 use YourStoryz\PostType;
-use YourStoryz\StoryMeta;
 
 final class StoryBlock
 {
@@ -16,7 +14,6 @@ final class StoryBlock
 
     public function __construct(
         private readonly TemplateLoader $loader = new TemplateLoader,
-        private readonly VideoRenderer $video = new VideoRenderer,
         private readonly string $directory = YOURSTORYZ_DIR,
         private readonly ?bool $editing = null,
     ) {}
@@ -62,11 +59,6 @@ final class StoryBlock
 
     private function article(WP_Post $story): string
     {
-        $tags = array_map(
-            fn (WP_Term $tag): array => ['name' => $tag->name, 'url' => (string) get_tag_link($tag)],
-            get_the_tags($story->ID) ?: [],
-        );
-
         $outerPost = $GLOBALS['post'] ?? null;
         $GLOBALS['post'] = $story;
         setup_postdata($story);
@@ -82,13 +74,13 @@ final class StoryBlock
         }
 
         ob_start();
-        echo '<article class="ys:flex ys:flex-col ys:gap-6">';
-        echo '<h2 class="ys:m-0">'.esc_html(get_the_title($story)).'</h2>';
-        echo $this->video->renderPost($story->ID);
-        $this->loader->part('author-line', ['author' => (string) get_post_meta($story->ID, StoryMeta::AUTHOR, true)]);
-        echo '<div class="ys:w-full">'.$content.'</div>';
-        $this->loader->part('tag-list', ['tags' => $tags]);
-        echo '</article>';
+        $this->loader->part('story-article', [
+            'post_id' => $story->ID,
+            'title' => get_the_title($story),
+            'content' => $content,
+            'heading_level' => 2,
+            'loader' => $this->loader,
+        ]);
 
         return (string) ob_get_clean();
     }
@@ -100,6 +92,6 @@ final class StoryBlock
 
     private function isEditing(): bool
     {
-        return $this->editing ?? (function_exists('wp_is_serving_rest_request') ? wp_is_serving_rest_request() : (defined('REST_REQUEST') && REST_REQUEST));
+        return $this->editing ?? EditorContext::isBlockRenderer();
     }
 }

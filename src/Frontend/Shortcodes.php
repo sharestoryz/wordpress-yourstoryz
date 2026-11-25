@@ -30,8 +30,8 @@ final class Shortcodes
         ], (array) $attributes, 'yourstoryz_stories');
 
         return $this->renderBlock('yourstoryz/stories', [
-            'count' => absint($atts['count']),
-            'columns' => absint($atts['columns']),
+            'count' => (int) $atts['count'],
+            'columns' => (int) $atts['columns'],
             'tag' => sanitize_title((string) $atts['tag']),
             'showArchiveLink' => filter_var($atts['archive_link'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true,
         ]);

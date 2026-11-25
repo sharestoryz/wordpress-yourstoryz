@@ -33,9 +33,13 @@ function yourstoryzStoriesBlock(): StoriesBlock
     return new StoriesBlock(new TemplateLoader($directory), $directory);
 }
 
-function yourstoryzStory(int $id, string $title): object
+function yourstoryzStory(int $id, string $title): WP_Post
 {
-    return (object) ['ID' => $id, 'post_title' => $title];
+    $post = new WP_Post;
+    $post->ID = $id;
+    $post->post_title = $title;
+
+    return $post;
 }
 
 beforeEach(function () {
@@ -45,8 +49,8 @@ beforeEach(function () {
     Functions\when('esc_html')->alias(fn (string $text): string => htmlspecialchars($text));
     Functions\when('esc_html__')->returnArg();
     Functions\when('locate_template')->justReturn('');
-    Functions\when('get_permalink')->alias(fn (object $post): string => 'https://example.test/story/'.$post->ID);
-    Functions\when('get_the_title')->alias(fn (object $post): string => $post->post_title);
+    Functions\when('get_permalink')->alias(fn (WP_Post $post): string => 'https://example.test/story/'.$post->ID);
+    Functions\when('get_the_title')->alias(fn (WP_Post $post): string => $post->post_title);
     Functions\when('get_post_type_archive_link')->justReturn('https://example.test/stories/');
     Functions\when('get_block_wrapper_attributes')->justReturn('class="wp-block-yourstoryz-stories"');
     Functions\when('load_template')->alias(function (string $file, bool $once, array $args): void {
@@ -63,15 +67,13 @@ it('hooks the block registration on init', function () {
 });
 
 it('registers the block from its directory with a render callback', function () {
-    $GLOBALS['yourstoryz_registered'] = [];
-    Functions\expect('register_block_type')->andReturnUsing(function (string $path, array $args): void {
-        $GLOBALS['yourstoryz_registered'] = [$path, array_keys($args)];
-    });
+    $registrations = yourstoryzCaptureBlockRegistrations();
 
     yourstoryzStoriesBlock()->registerBlock();
 
-    expect($GLOBALS['yourstoryz_registered'][0])->toEndWith('/blocks/stories')
-        ->and($GLOBALS['yourstoryz_registered'][1])->toBe(['render_callback']);
+    expect($registrations)->toHaveCount(1)
+        ->and($registrations[0][0])->toEndWith('/blocks/stories')
+        ->and($registrations[0][1])->toBe(['render_callback']);
 });
 
 it('queries the newest published stories with the default count', function () {

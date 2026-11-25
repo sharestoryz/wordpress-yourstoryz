@@ -62,3 +62,20 @@ function yourstoryzWpState(array $state = []): void
     Functions\when('esc_url')->returnArg();
     Functions\when('esc_attr')->returnArg();
 }
+
+/**
+ * Stubs register_block_type() with Functions\when() and returns the registrations it receives.
+ * Unlike Functions\expect() this survives random test order.
+ *
+ * @return ArrayObject<int, array{string, list<string>}>
+ */
+function yourstoryzCaptureBlockRegistrations(): ArrayObject
+{
+    $registrations = new ArrayObject;
+
+    Functions\when('register_block_type')->alias(function (string $path, array $args) use ($registrations): void {
+        $registrations->append([$path, array_keys($args)]);
+    });
+
+    return $registrations;
+}

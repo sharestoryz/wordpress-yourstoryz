@@ -4,7 +4,7 @@ Tags: api, freemium
 Requires at least: 6.4
 Requires PHP: 8.3
 Tested up to: 7.1
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,11 @@ The terms and conditions for the API can be found at https://yourstoryz.com/wp-c
 The privacy policy can be found at https://yourstoryz.com/privacy-policy-cookies/
 
 == Changelog ==
+= 3.1.0 =
+* New block "Stories-overzicht" (`yourstoryz/stories`): a grid of the newest stories with a chosen number, columns and tag.
+* New block "Story" (`yourstoryz/story`): show one chosen story with video, title and content.
+* New shortcodes `[yourstoryz_stories]` and `[yourstoryz_story id="123"]`, with the same output as the blocks.
+* The url slug of the stories (default `stories`) is now configurable on the settings page.
 = 3.0.0 =
 Full rebuild of the plugin on top of the YourStoryz PHP SDK. Requires PHP 8.3 and WordPress 6.4.
 * Stories are imported as their own post type, `yourstoryz_story`: one post per news text per language, with a Dutch fallback. Existing posts are never overwritten.
@@ -88,5 +93,8 @@ Add horizontal/vertical styling for video embed
 Typo fix
 
 == Upgrade Notice ==
+= 3.1.0 =
+Adds the Stories-overzicht and Story blocks, two shortcodes and a configurable url slug. No action needed.
+
 = 3.0.0 =
 Major rebuild, requires PHP 8.3+ and WordPress 6.4+. Your settings are carried over automatically. Previously imported posts are kept and not imported again.

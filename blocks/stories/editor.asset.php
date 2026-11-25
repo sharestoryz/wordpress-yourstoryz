@@ -10,5 +10,5 @@ return [
         'wp-i18n',
         'wp-server-side-render',
     ],
-    'version' => '1.0.0',
+    'version' => YOURSTORYZ_VERSION,
 ];

@@ -70,10 +70,14 @@ final class SettingsPage
 
         ImportRunner::reschedule();
 
-        if ($slugResult === Settings::SLUG_INVALID || $slugResult === Settings::SLUG_RESERVED) {
-            $this->notices->flash('error', $slugResult === Settings::SLUG_INVALID
-                ? __('Url-slug is leeg of ongeldig; de vorige url-slug is behouden.', 'yourstoryz')
-                : __('Deze url-slug is al in gebruik of gereserveerd; de vorige url-slug is behouden.', 'yourstoryz'));
+        $slugError = match ($slugResult) {
+            Settings::SLUG_INVALID => __('Url-slug is leeg of ongeldig; de vorige url-slug is behouden.', 'yourstoryz'),
+            Settings::SLUG_RESERVED => __('Deze url-slug is al in gebruik of gereserveerd; de vorige url-slug is behouden.', 'yourstoryz'),
+            default => null,
+        };
+
+        if ($slugError !== null) {
+            $this->notices->flash('error', $slugError);
         } else {
             $this->notices->flash('success', $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'));
         }

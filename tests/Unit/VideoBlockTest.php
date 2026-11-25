@@ -44,14 +44,11 @@ it('hooks the block registration on init', function () {
 });
 
 it('registers the block from its directory with a render callback', function () {
-    $GLOBALS['yourstoryz_registered'] = [];
-    Functions\expect('register_block_type')->andReturnUsing(function (string $path, array $args): void {
-        $GLOBALS['yourstoryz_registered'] = [$path, array_keys($args)];
-    });
+    $registrations = yourstoryzCaptureBlockRegistrations();
 
     yourstoryzVideoBlock()->registerBlock();
 
-    expect($GLOBALS['yourstoryz_registered'])->toBe(['/plugin/blocks/video', ['render_callback']]);
+    expect($registrations->getArrayCopy())->toBe([['/plugin/blocks/video', ['render_callback']]]);
 });
 
 it('renders the video of the post in the block context', function () {

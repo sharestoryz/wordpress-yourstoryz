@@ -5,13 +5,12 @@ use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use YourStoryz\Frontend\StoryBlock;
 use YourStoryz\Frontend\TemplateLoader;
-use YourStoryz\Frontend\VideoRenderer;
 
 function yourstoryzStoryBlock(bool $editing = false): StoryBlock
 {
     $directory = dirname(__DIR__, 2).'/';
 
-    return new StoryBlock(new TemplateLoader($directory), new VideoRenderer, $directory, $editing);
+    return new StoryBlock(new TemplateLoader($directory), $directory, $editing);
 }
 
 function yourstoryzStoryPost(int $id, array $fields = []): WP_Post
@@ -59,15 +58,13 @@ it('hooks the block registration on init', function () {
 });
 
 it('registers the block from its directory with a render callback', function () {
-    $GLOBALS['yourstoryz_registered'] = [];
-    Functions\expect('register_block_type')->andReturnUsing(function (string $path, array $args): void {
-        $GLOBALS['yourstoryz_registered'] = [$path, array_keys($args)];
-    });
+    $registrations = yourstoryzCaptureBlockRegistrations();
 
     yourstoryzStoryBlock()->registerBlock();
 
-    expect($GLOBALS['yourstoryz_registered'][0])->toEndWith('/blocks/story')
-        ->and($GLOBALS['yourstoryz_registered'][1])->toBe(['render_callback']);
+    expect($registrations)->toHaveCount(1)
+        ->and($registrations[0][0])->toEndWith('/blocks/story')
+        ->and($registrations[0][1])->toBe(['render_callback']);
 });
 
 it('renders the video, title and content of a published story', function () {
