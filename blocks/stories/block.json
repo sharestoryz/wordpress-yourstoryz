@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "yourstoryz/stories",
+  "title": "Stories-overzicht",
+  "category": "widgets",
+  "icon": "grid-view",
+  "description": "Toont een raster met de nieuwste stories.",
+  "textdomain": "yourstoryz",
+  "attributes": {
+    "count": {
+      "type": "integer",
+      "default": 6
+    },
+    "columns": {
+      "type": "integer",
+      "default": 3
+    },
+    "tag": {
+      "type": "string",
+      "default": ""
+    },
+    "showArchiveLink": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./editor.js",
+  "style": "yourstoryz-frontend"
+}

@@ -13,6 +13,6 @@ defined('ABSPATH') || exit;
         <?php } else { ?>
             <div class="ys:aspect-video ys:w-full ys:bg-neutral-200"></div>
         <?php } ?>
-        <h2 class="ys:m-0 ys:p-4 ys:text-lg ys:leading-snug"><?php echo esc_html($args['title']); ?></h2>
+        <h2 class="ys:m-0 ys:p-4 ys:text-lg ys:leading-snug ys:break-words"><?php echo esc_html($args['title']); ?></h2>
     </a>
 </article>

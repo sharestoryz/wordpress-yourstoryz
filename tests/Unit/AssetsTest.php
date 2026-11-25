@@ -84,3 +84,25 @@ it('does not enqueue when the build file is missing', function () {
 
     $this->addToAssertionCount(1);
 });
+
+it('registers the stylesheet handle on init', function () {
+    yourstoryzSetBuild(true);
+    Actions\expectAdded('init')->once();
+    Functions\expect('plugins_url')->once()->andReturn('https://example.test/frontend.css');
+    Functions\expect('wp_register_style')->once()->with('yourstoryz-frontend', 'https://example.test/frontend.css', [], '9.9.9');
+
+    $assets = yourstoryzAssets();
+    $assets->register();
+    $assets->registerStyle();
+
+    $this->addToAssertionCount(1);
+});
+
+it('does not register the stylesheet when the build file is missing', function () {
+    yourstoryzSetBuild(false);
+    Functions\expect('wp_register_style')->never();
+
+    yourstoryzAssets()->registerStyle();
+
+    $this->addToAssertionCount(1);
+});
