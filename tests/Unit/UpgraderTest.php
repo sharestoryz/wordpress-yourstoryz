@@ -46,6 +46,29 @@ beforeEach(function () {
     Functions\when('admin_url')->alias(fn ($path = '') => 'https://site.test/wp-admin/'.$path);
     Functions\when('current_user_can')->alias(fn () => $this->cap);
 
+    $this->referenceIds = [];
+    $test = $this;
+    $GLOBALS['wpdb'] = new class($test)
+    {
+        public string $postmeta = 'wp_postmeta';
+
+        public string $posts = 'wp_posts';
+
+        public function __construct(private $test) {}
+
+        public function prepare(string $query, ...$args): string
+        {
+            return $query.'|'.implode('|', $args);
+        }
+
+        public function get_col(string $query): array
+        {
+            $this->test->referenceQuery = $query;
+
+            return $this->test->referenceIds;
+        }
+    };
+
     $this->mocks = [
         GetCompanies::class => MockResponse::make(['data' => [['id' => 116, 'name' => 'Concept7']]]),
         GetDepartments::class => MockResponse::make(['data' => [['id' => 5, 'name' => 'CES']]]),
@@ -62,6 +85,10 @@ beforeEach(function () {
 
         return new Upgrader($settings, new SourceSettings($gateways), $version);
     };
+});
+
+afterEach(function () {
+    unset($GLOBALS['wpdb']);
 });
 
 it('registers on init and admin_notices', function () {
@@ -318,4 +345,38 @@ it('keeps the notice for a user who cannot manage options', function () {
 
     expect(ob_get_clean())->toBe('')
         ->and($this->store)->toHaveKey('yourstoryz_upgrade_notice');
+});
+
+it('fills the legacy registry from 1.3.2 processed ids and 2.0.x reference ids', function () {
+    $this->store = [
+        'yourstoryz_plugin_change_token' => 'abc',
+        'yourstoryz_processed_ids' => [
+            'videos' => [11 => ['post_id' => 1], '12' => ['post_id' => 2]],
+            'contents' => [21 => ['post_id' => 3]],
+        ],
+    ];
+    $this->referenceIds = ['101', '102', '101'];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store['yourstoryz_legacy_imports'])->toBe(['story_ids' => [101, 102], 'video_ids' => [11, 12], 'content_ids' => [21]])
+        ->and($this->referenceQuery)->toContain('wp_posts AS posts')->toContain('post_type = %s')->toContain('|reference_id|post')
+        ->and($this->store['yourstoryz_processed_ids'])->toHaveKeys(['videos', 'contents']);
+});
+
+it('merges into an existing legacy registry without duplicates', function () {
+    $this->store = ['yourstoryz_api_token' => 'abc', 'yourstoryz_legacy_imports' => ['story_ids' => [101], 'video_ids' => [], 'content_ids' => []]];
+    $this->referenceIds = ['101', '103'];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store['yourstoryz_legacy_imports']['story_ids'])->toBe([101, 103]);
+});
+
+it('ignores a corrupt processed ids option', function () {
+    $this->store = ['yourstoryz_plugin_change_token' => 'abc', 'yourstoryz_processed_ids' => 'broken'];
+
+    ($this->upgrader)()->maybeRun();
+
+    expect($this->store['yourstoryz_legacy_imports'])->toBe(['story_ids' => [], 'video_ids' => [], 'content_ids' => []]);
 });

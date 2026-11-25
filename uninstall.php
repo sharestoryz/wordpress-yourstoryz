@@ -16,6 +16,7 @@ delete_option('yourstoryz_deleted_stories');
 delete_option('yourstoryz_import_lock');
 delete_option('yourstoryz_db_version');
 delete_option('yourstoryz_upgrade_notice');
+delete_option('yourstoryz_legacy_imports');
 
 // Options of 1.3.2 and 2.0.x, left in place by the upgrader.
 foreach (['yourstoryz_plugin_change_token', 'yourstoryz_api_token', 'yourstoryz_storiable_type', 'yourstoryz_storiable_id', 'yourstoryz_plugin_filter_on_department', 'yourstoryz_plugin_autoplay', 'yourstoryz_enable_cron', 'yourstoryz_cron_interval', 'yourstoryz_processed_ids'] as $legacyOption) {

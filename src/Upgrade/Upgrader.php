@@ -7,6 +7,7 @@ namespace YourStoryz\Upgrade;
 use YourStoryz\Admin\Menu;
 use YourStoryz\Api\ApiException;
 use YourStoryz\Import\ImportRunner;
+use YourStoryz\Import\LegacyImports;
 use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 
@@ -37,6 +38,11 @@ final class Upgrader
 
     public const LEGACY_INTERVAL_132 = 'yourstoryz_cron_interval';
 
+    public const LEGACY_PROCESSED_132 = 'yourstoryz_processed_ids';
+
+    /** Post meta that 2.0.x wrote on its posts, holding the story id. */
+    public const LEGACY_REFERENCE_META_200 = 'reference_id';
+
     public const LEGACY_CRON_HOOKS = ['yourstoryz_cron_event', 'yourstoryz_api_fetch'];
 
     /** Options read by the upgrader that uninstall.php must remove. */
@@ -49,12 +55,14 @@ final class Upgrader
         self::LEGACY_AUTOPLAY_132,
         self::LEGACY_CRON_132,
         self::LEGACY_INTERVAL_132,
+        self::LEGACY_PROCESSED_132,
     ];
 
     public function __construct(
         private readonly Settings $settings,
         private readonly SourceSettings $source,
         private readonly string $version = YOURSTORYZ_VERSION,
+        private readonly LegacyImports $legacyImports = new LegacyImports,
     ) {}
 
     public function register(): void
@@ -110,6 +118,7 @@ final class Upgrader
             $this->migrateToken(...),
             $this->migrateSource(...),
             $this->migrateImportSchedule(...),
+            $this->migrateLegacyImports(...),
         ];
     }
 
@@ -180,6 +189,38 @@ final class Upgrader
         }
 
         ImportRunner::reschedule();
+    }
+
+    private function migrateLegacyImports(): void
+    {
+        $processed = get_option(self::LEGACY_PROCESSED_132, []);
+        $processed = is_array($processed) ? $processed : [];
+
+        $this->legacyImports->merge(
+            $this->referenceIds200(),
+            array_keys(is_array($processed['videos'] ?? null) ? $processed['videos'] : []),
+            array_keys(is_array($processed['contents'] ?? null) ? $processed['contents'] : []),
+        );
+    }
+
+    /**
+     * Story ids on 2.0.x posts of any status. 2.0.x inserts without a post type, so they are plain posts; other
+     * plugins also use the generic reference_id meta key on their own post types.
+     *
+     * @return list<string>
+     */
+    private function referenceIds200(): array
+    {
+        global $wpdb;
+
+        return array_map('strval', (array) $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT meta.meta_value
+            FROM {$wpdb->postmeta} AS meta
+            INNER JOIN {$wpdb->posts} AS posts ON posts.ID = meta.post_id
+            WHERE meta.meta_key = %s AND posts.post_type = %s",
+            self::LEGACY_REFERENCE_META_200,
+            'post',
+        )));
     }
 
     /**
