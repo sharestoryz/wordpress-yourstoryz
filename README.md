@@ -59,7 +59,8 @@ The test site is `https://yourstoryz-wp.test` (PHP 8.4).
 
 ```
 YourStoryz.php      Plugin header, PHP version guard, bootstrap
-uninstall.php       Removes options, transients and the import cron on deletion
+uninstall.php       Removes options (incl. legacy), transients and cron events on deletion
+src/Upgrade/        Upgrader: carries 1.3.2 and 2.0.x settings over on update
 src/Plugin.php      Wires hooks and boots the admin
 src/Settings.php    API token option (yourstoryz_token)
 src/SourceSettings.php  Company/department option (yourstoryz_source) and cached lists
@@ -78,4 +79,4 @@ bin/build-zip.sh    Release zip
 
 ## Uninstall
 
-`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_auto_import`, `yourstoryz_import_interval`, `yourstoryz_autoplay`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` transient and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import` cron event. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.
+`uninstall.php` deletes `yourstoryz_token`, `yourstoryz_source`, `yourstoryz_import_status`, `yourstoryz_auto_import`, `yourstoryz_import_interval`, `yourstoryz_autoplay`, `yourstoryz_deleted_stories`, the `yourstoryz_import_lock` option, `yourstoryz_db_version`, `yourstoryz_upgrade_notice`, the options of 1.3.2 and 2.0.x (`yourstoryz_plugin_change_token`, `yourstoryz_api_token`, `yourstoryz_storiable_type`, `yourstoryz_storiable_id`, `yourstoryz_plugin_filter_on_department`, `yourstoryz_plugin_autoplay`, `yourstoryz_enable_cron`, `yourstoryz_cron_interval`, `yourstoryz_processed_ids`) and all other `yourstoryz_*` transients (value and timeout rows), and clears the `yourstoryz_import`, `yourstoryz_cron_event` and `yourstoryz_api_fetch` cron events. Imported story posts and their attachments are kept. Multisite is not handled: on a network install only the current site is cleaned.
