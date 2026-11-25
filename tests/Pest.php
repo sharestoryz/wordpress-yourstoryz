@@ -87,9 +87,6 @@ function yourstoryzWpState(array $state = []): void
 }
 
 /**
- * Stubs register_block_type() with Functions\when() and returns the registrations it receives.
- * Unlike Functions\expect() this survives random test order.
- *
  * @return ArrayObject<int, array{string, list<string>}>
  */
 function yourstoryzCaptureBlockRegistrations(): ArrayObject
