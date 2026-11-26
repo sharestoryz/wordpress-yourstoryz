@@ -23,6 +23,8 @@ final class ImportRunner
 
     public const LOCK_TTL = 900;
 
+    public const OPTION_LAST_IMPORT = 'yourstoryz_last_import';
+
     public const STATUS_DONE = 'done';
 
     public const STATUS_LOCKED = 'locked';
@@ -92,7 +94,10 @@ final class ImportRunner
             $this->catalog->refresh($source);
             $stories = $this->catalog->load($source)['stories'];
 
-            return $this->outcome(self::STATUS_DONE, $this->importer->import($stories));
+            $result = $this->importer->import($stories);
+            update_option(self::OPTION_LAST_IMPORT, ['time' => time(), 'created' => $result->created, 'failed' => $result->failed], false);
+
+            return $this->outcome(self::STATUS_DONE, $result);
         } catch (ApiException $exception) {
             return $this->outcome(self::STATUS_ERROR, null, $exception->userMessage());
         } catch (Throwable $throwable) {

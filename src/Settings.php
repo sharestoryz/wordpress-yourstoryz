@@ -20,6 +20,8 @@ final class Settings
 
     public const OPTION_FLUSH_REWRITE = 'yourstoryz_flush_rewrite';
 
+    public const OPTION_ACCOUNT = 'yourstoryz_account';
+
     public const DEFAULT_SLUG = 'stories';
 
     public const SLUG_SAVED = 'saved';
@@ -175,21 +177,41 @@ final class Settings
         return trim((string) preg_replace('/^\s*Bearer\s+/i', '', trim($input)));
     }
 
-    public function save(string $input, bool $delete = false): void
+    /**
+     * Returns whether the stored token changed. A changed token drops the account name verified for the old one.
+     */
+    public function save(string $input, bool $delete = false): bool
     {
         if ($delete) {
             delete_option(self::OPTION_TOKEN);
+            delete_option(self::OPTION_ACCOUNT);
 
-            return;
+            return true;
         }
 
         $token = $this->normalize($input);
 
-        if ($token === '' || $token === $this->maskedToken()) {
-            return;
+        if ($token === '' || $token === $this->maskedToken() || $token === $this->token()) {
+            return false;
         }
 
         update_option(self::OPTION_TOKEN, $token, false);
+        delete_option(self::OPTION_ACCOUNT);
+
+        return true;
+    }
+
+    /**
+     * Name of the account the token was last verified against; empty when it has not been verified.
+     */
+    public function account(): string
+    {
+        return (string) get_option(self::OPTION_ACCOUNT, '');
+    }
+
+    public function saveAccount(string $name): void
+    {
+        update_option(self::OPTION_ACCOUNT, $name, false);
     }
 
     private function flag(string $option, bool $default): bool

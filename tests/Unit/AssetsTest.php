@@ -77,8 +77,9 @@ it('does not enqueue on other pages', function () {
 it('registers the stylesheet handle on init', function () {
     yourstoryzSetBuild(true);
     Actions\expectAdded('init')->once();
-    Functions\expect('plugins_url')->once()->andReturn('https://example.test/frontend.css');
-    Functions\expect('wp_register_style')->once()->with('yourstoryz-frontend', 'https://example.test/frontend.css', [], '9.9.9');
+    // Same closure as SettingsPageTest: Brain Monkey keeps whichever plugins_url closure runs first.
+    Functions\expect('plugins_url')->once()->andReturnUsing(fn (string $path): string => 'https://site.test/plugin/'.$path);
+    Functions\expect('wp_register_style')->once()->with('yourstoryz-frontend', 'https://site.test/plugin/assets/build/frontend.css', [], '9.9.9');
 
     $assets = yourstoryzAssets();
     $assets->register();

@@ -117,6 +117,22 @@ it('takes the lock without autoload for the run and releases it afterwards', fun
         ->and($this->store)->not->toHaveKey(ImportRunner::LOCK);
 });
 
+it('records when the last import ran and what it created, and nothing when it fails', function () {
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = [];
+
+    $this->runner->run();
+
+    expect($this->store[ImportRunner::OPTION_LAST_IMPORT])->toMatchArray(['created' => 0, 'failed' => 0])
+        ->and($this->store[ImportRunner::OPTION_LAST_IMPORT]['time'])->toBeInt();
+
+    unset($this->store[ImportRunner::OPTION_LAST_IMPORT]);
+    $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = ['not a story'];
+
+    $this->runner->run();
+
+    expect($this->store)->not->toHaveKey(ImportRunner::OPTION_LAST_IMPORT);
+});
+
 it('releases the lock when the import fails', function () {
     $this->transients['yourstoryz_stories_v2_'.substr(md5('secret'), 0, 8).'_116_0'] = ['not a story'];
 

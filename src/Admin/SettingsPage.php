@@ -7,6 +7,7 @@ namespace YourStoryz\Admin;
 use YourStoryz\Api\ApiException;
 use YourStoryz\Api\GatewayProvider;
 use YourStoryz\Import\ImportRunner;
+use YourStoryz\PostType;
 use YourStoryz\Settings;
 use YourStoryz\SourceSettings;
 
@@ -16,9 +17,15 @@ final class SettingsPage
 
     public const ACTION_TEST = 'yourstoryz_test_connection';
 
-    public const ACTION_SAVE_SOURCE = 'yourstoryz_save_source';
+    public const ACTION_DISCONNECT = 'yourstoryz_disconnect';
 
     public const ACTION_REFRESH = 'yourstoryz_refresh_lists';
+
+    public const AJAX_DEPARTMENTS = 'yourstoryz_departments';
+
+    public const HOOK_SUFFIX = 'toplevel_page_'.Menu::SLUG;
+
+    private const ASSET_HANDLE = 'yourstoryz-settings';
 
     private const SITE_URL = 'https://yourstoryz.com';
 
@@ -35,14 +42,17 @@ final class SettingsPage
         private readonly Notices $notices = new Notices,
         private readonly AdminAction $adminAction = new AdminAction,
         private readonly string $pluginFile = YOURSTORYZ_FILE,
+        private readonly string $template = YOURSTORYZ_DIR.'templates/admin/settings.php',
     ) {}
 
     public function register(): void
     {
         add_action('admin_post_'.self::ACTION_SAVE, [$this, 'handleSave']);
         add_action('admin_post_'.self::ACTION_TEST, [$this, 'handleTest']);
-        add_action('admin_post_'.self::ACTION_SAVE_SOURCE, [$this, 'handleSaveSource']);
+        add_action('admin_post_'.self::ACTION_DISCONNECT, [$this, 'handleDisconnect']);
         add_action('admin_post_'.self::ACTION_REFRESH, [$this, 'handleRefresh']);
+        add_action('wp_ajax_'.self::AJAX_DEPARTMENTS, [$this, 'handleDepartments']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue']);
     }
 
     public function handleSave(): void
@@ -50,25 +60,33 @@ final class SettingsPage
         $this->adminAction->authorize(self::ACTION_SAVE);
 
         $input = isset($_POST['yourstoryz_token']) ? sanitize_text_field(wp_unslash($_POST['yourstoryz_token'])) : '';
-        $delete = ! empty($_POST['yourstoryz_delete_token']);
-
-        $this->settings->save($input, $delete);
+        $tokenChanged = $this->settings->save($input);
 
         if (isset($_POST['yourstoryz_import_status'])) {
             $this->settings->saveImportStatus(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_status'])));
         }
 
-        $this->settings->saveAutoImport(! empty($_POST['yourstoryz_auto_import']));
+        $slugResult = Settings::SLUG_UNCHANGED;
+
+        // The onboarding form posts only the token; the other fields, the slug among them, appear once connected.
+        // Without this check the missing checkboxes would read as "off".
+        if (isset($_POST['yourstoryz_slug'])) {
+            $this->settings->saveAutoImport(! empty($_POST['yourstoryz_auto_import']));
+            $this->settings->saveAutoplay(! empty($_POST['yourstoryz_autoplay']));
+            $slugResult = $this->settings->saveSlug(sanitize_text_field(wp_unslash($_POST['yourstoryz_slug'])));
+        }
 
         if (isset($_POST['yourstoryz_import_interval'])) {
             $this->settings->saveImportInterval(sanitize_text_field(wp_unslash($_POST['yourstoryz_import_interval'])));
         }
 
-        $this->settings->saveAutoplay(! empty($_POST['yourstoryz_autoplay']));
-
-        $slugResult = isset($_POST['yourstoryz_slug']) ? $this->settings->saveSlug(sanitize_text_field(wp_unslash($_POST['yourstoryz_slug']))) : Settings::SLUG_UNCHANGED;
-
         ImportRunner::reschedule();
+
+        $this->notices->flash('success', __('Instellingen opgeslagen.', 'yourstoryz'));
+
+        if (! $tokenChanged && isset($_POST['yourstoryz_company_id']) && $_POST['yourstoryz_company_id'] !== '') {
+            $this->saveSource();
+        }
 
         $slugError = match ($slugResult) {
             Settings::SLUG_INVALID => __('Url-slug is leeg of ongeldig; de vorige url-slug is behouden.', 'yourstoryz'),
@@ -76,13 +94,12 @@ final class SettingsPage
             default => null,
         };
 
-        $this->notices->flash(
-            'success',
-            $delete ? __('Token verwijderd.', 'yourstoryz') : __('Instellingen opgeslagen.', 'yourstoryz'),
-        );
-
         if ($slugError !== null) {
             $this->notices->flash('error', $slugError);
+        }
+
+        if ($tokenChanged) {
+            $this->verifyConnection();
         }
 
         $this->adminAction->redirect(Menu::SLUG);
@@ -97,38 +114,16 @@ final class SettingsPage
             $this->adminAction->redirect(Menu::SLUG);
         }
 
-        try {
-            $me = $this->gateways->gateway()->me();
-            $data = is_array($me['data'] ?? null) ? $me['data'] : $me;
-            $name = (string) ($data['name'] ?? $data['email'] ?? '');
-
-            $this->notices->flash('success', $name !== '' ? sprintf(__('Verbonden als %s', 'yourstoryz'), $name) : __('Verbonden.', 'yourstoryz'));
-        } catch (ApiException $exception) {
-            $this->notices->flash('error', $exception->userMessage());
-        }
-
+        $this->verifyConnection();
         $this->adminAction->redirect(Menu::SLUG);
     }
 
-    public function handleSaveSource(): void
+    public function handleDisconnect(): void
     {
-        $this->adminAction->authorize(self::ACTION_SAVE_SOURCE);
+        $this->adminAction->authorize(self::ACTION_DISCONNECT);
 
-        $companyId = absint(wp_unslash($_POST['yourstoryz_company_id'] ?? 0));
-        $departmentInput = sanitize_text_field(wp_unslash($_POST['yourstoryz_department_id'] ?? ''));
-        $departmentId = $departmentInput === '' ? null : absint($departmentInput);
-
-        try {
-            $saved = $this->source->save($companyId, $departmentId);
-
-            $this->notices->flash(
-                $saved ? 'success' : 'error',
-                $saved ? __('Bron opgeslagen.', 'yourstoryz') : __('Ongeldige selectie; de opgeslagen bron is niet gewijzigd.', 'yourstoryz'),
-            );
-        } catch (ApiException $exception) {
-            $this->notices->flash('error', $exception->userMessage());
-        }
-
+        $this->settings->save('', true);
+        $this->notices->flash('success', __('Verbinding verbroken. Het token is verwijderd.', 'yourstoryz'));
         $this->adminAction->redirect(Menu::SLUG);
     }
 
@@ -141,38 +136,37 @@ final class SettingsPage
         $this->adminAction->redirect(Menu::SLUG);
     }
 
-    public function renderOnboarding(): void
+    public function handleDepartments(): void
     {
-        $badges = [
-            [self::APP_STORE_URL, 'download-on-the-appstore.svg', __('Download in de App Store', 'yourstoryz')],
-            [self::PLAY_STORE_URL, 'get-it-on-google.png', __('Ontdek het op Google Play', 'yourstoryz')],
-        ];
-
-        echo '<div class="card yourstoryz-onboarding"><h2>'.esc_html__('Aan de slag', 'yourstoryz').'</h2><ol>';
-        printf(
-            '<li>%s <a href="%s" target="_blank" rel="noopener noreferrer">yourstoryz.com</a></li>',
-            esc_html__('Maak een YourStoryz-account aan op de website of in de app.', 'yourstoryz'),
-            esc_url(self::SITE_URL),
-        );
-        echo '<li>'.esc_html__('Maak een API-token aan: log in op het dashboard en ga naar My Companies → Tokens → API Tokens. Plak het token hieronder.', 'yourstoryz').'</li>';
-        echo '<li>'.esc_html__('Kies de bron en importeer je stories.', 'yourstoryz').'</li></ol><p>';
-
-        foreach ($badges as [$url, $image, $alt]) {
-            printf(
-                '<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="%s" height="40"></a> ',
-                esc_url($url),
-                esc_url(plugins_url('assets/images/'.$image, $this->pluginFile)),
-                esc_attr($alt),
-            );
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(null, 403);
         }
 
-        echo '</p><p>'.esc_html__('Thumbnails worden opgeslagen in de mediabibliotheek. Video\'s worden niet lokaal opgeslagen en spelen af vanaf YourStoryz.', 'yourstoryz').'</p>';
-        printf(
-            '<p>%s <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></p></div>',
-            esc_html__('Hulp nodig?', 'yourstoryz'),
-            esc_url(self::CONTACT_URL),
-            esc_html__('Neem contact op met support', 'yourstoryz'),
-        );
+        check_ajax_referer(self::AJAX_DEPARTMENTS);
+
+        try {
+            wp_send_json_success($this->source->departments(absint(wp_unslash($_GET['company'] ?? 0))));
+        } catch (ApiException $exception) {
+            wp_send_json_error(['message' => $exception->userMessage()]);
+        }
+    }
+
+    public function enqueue(string $hookSuffix): void
+    {
+        if ($hookSuffix !== self::HOOK_SUFFIX) {
+            return;
+        }
+
+        wp_enqueue_style(self::ASSET_HANDLE, plugins_url('assets/admin/settings.css', $this->pluginFile), [], YOURSTORYZ_VERSION);
+        wp_enqueue_script(self::ASSET_HANDLE, plugins_url('assets/admin/settings.js', $this->pluginFile), [], YOURSTORYZ_VERSION, true);
+        wp_localize_script(self::ASSET_HANDLE, 'yourstoryzSettings', [
+            'departmentsUrl' => add_query_arg(
+                ['action' => self::AJAX_DEPARTMENTS, '_wpnonce' => wp_create_nonce(self::AJAX_DEPARTMENTS)],
+                admin_url('admin-ajax.php'),
+            ),
+            'wholeCompany' => __('Hele company', 'yourstoryz'),
+            'confirmDisconnect' => __('Verbinding verbreken? Het token wordt verwijderd en er worden geen nieuwe stories meer geïmporteerd.', 'yourstoryz'),
+        ]);
     }
 
     public function render(): void
@@ -181,84 +175,134 @@ final class SettingsPage
             return;
         }
 
-        $masked = $this->settings->maskedToken();
+        $view = $this->view();
+        $notices = $this->notices;
 
-        echo '<div class="wrap"><h1>'.esc_html__('YourStoryz instellingen', 'yourstoryz').'</h1>';
+        require $this->template;
+    }
 
-        $this->renderOnboarding();
-
-        $this->notices->render();
-
-        $this->adminAction->formOpen(self::ACTION_SAVE);
-        echo '<table class="form-table" role="presentation"><tr><th scope="row"><label for="yourstoryz_token">'
-            .esc_html__('Token', 'yourstoryz').'</label></th><td>';
-        printf(
-            '<input type="text" class="regular-text" id="yourstoryz_token" name="yourstoryz_token" value="" placeholder="%s" autocomplete="off">',
-            esc_attr($masked),
-        );
-        echo '<p class="description">'.esc_html__('Laat leeg om het huidige token te behouden.', 'yourstoryz').'</p>';
-
-        if ($masked !== '') {
-            echo '<p><label><input type="checkbox" name="yourstoryz_delete_token" value="1"> '
-                .esc_html__('Token verwijderen', 'yourstoryz').'</label></p>';
-        }
-
-        echo '</td></tr>';
-
-        $importStatus = $this->settings->importStatus();
-        echo '<tr><th scope="row"><label for="yourstoryz_import_status">'.esc_html__('Status bij import', 'yourstoryz').'</label></th><td>';
-        echo '<select id="yourstoryz_import_status" name="yourstoryz_import_status">';
-        printf('<option value="draft"%s>%s</option>', selected($importStatus, 'draft', false), esc_html__('Concept', 'yourstoryz'));
-        printf('<option value="publish"%s>%s</option>', selected($importStatus, 'publish', false), esc_html__('Gepubliceerd', 'yourstoryz'));
-        echo '</select></td></tr>';
-
-        echo '<tr><th scope="row">'.esc_html__('Automatisch importeren', 'yourstoryz').'</th><td>';
-        printf(
-            '<label for="yourstoryz_auto_import"><input type="checkbox" id="yourstoryz_auto_import" name="yourstoryz_auto_import" value="1"%s> %s</label>',
-            checked($this->settings->autoImport(), true, false),
-            esc_html__('Stories automatisch importeren', 'yourstoryz'),
-        );
-        echo '</td></tr>';
-
-        $interval = $this->settings->importInterval();
-        echo '<tr><th scope="row"><label for="yourstoryz_import_interval">'.esc_html__('Interval', 'yourstoryz').'</label></th><td>';
-        echo '<select id="yourstoryz_import_interval" name="yourstoryz_import_interval">';
-        foreach (Settings::importIntervals() as $value => $label) {
-            printf('<option value="%s"%s>%s</option>', esc_attr($value), selected($interval, $value, false), esc_html($label));
-        }
-        echo '</select></td></tr>';
-
-        echo '<tr><th scope="row">'.esc_html__('Autoplay', 'yourstoryz').'</th><td>';
-        printf(
-            '<label for="yourstoryz_autoplay"><input type="checkbox" id="yourstoryz_autoplay" name="yourstoryz_autoplay" value="1"%s> %s</label>',
-            checked($this->settings->autoplay(), true, false),
-            esc_html__('Video automatisch afspelen (zonder geluid)', 'yourstoryz'),
-        );
-        echo '</td></tr>';
-
+    /**
+     * The data the settings template prints, resolved up front so the template makes no API calls.
+     *
+     * @return array<string, mixed>
+     */
+    public function view(): array
+    {
+        $connected = $this->settings->hasToken();
         $slug = $this->settings->slug();
-        echo '<tr><th scope="row"><label for="yourstoryz_slug">'.esc_html__('Url-slug', 'yourstoryz').'</label></th><td>';
-        printf(
-            '<input type="text" class="regular-text" id="yourstoryz_slug" name="yourstoryz_slug" value="%s" placeholder="%s">',
-            esc_attr($slug),
-            esc_attr(Settings::DEFAULT_SLUG),
-        );
-        printf(
-            '<p class="description">%s</p>',
-            esc_html(sprintf(__('Stories staan op %s', 'yourstoryz'), home_url('/'.$slug.'/'))),
-        );
-        echo '</td></tr></table>';
-        submit_button(__('Opslaan', 'yourstoryz'));
-        echo '</form>';
+        $intervals = Settings::importIntervals();
 
-        if ($masked !== '') {
-            $this->adminAction->formOpen(self::ACTION_TEST);
-            submit_button(__('Verbinding testen', 'yourstoryz'), 'secondary');
-            echo '</form>';
+        return [
+            'connected' => $connected,
+            'account' => $connected ? $this->account() : '',
+            'masked' => $this->settings->maskedToken(),
+            'source' => $connected ? (new SourceSection($this->source))->view() : null,
+            'import_status' => $this->settings->importStatus(),
+            'auto_import' => $this->settings->autoImport(),
+            'interval' => $this->settings->importInterval(),
+            'intervals' => $intervals,
+            'next_import' => $this->nextImport(),
+            'last_import' => $this->lastImport(),
+            'autoplay' => $this->settings->autoplay(),
+            'slug' => $slug,
+            'home_url' => home_url('/'),
+            'urls' => [
+                'site' => self::SITE_URL,
+                'contact' => self::CONTACT_URL,
+                'preview' => add_query_arg('page', PreviewPage::SLUG, admin_url('admin.php')),
+                'app_store' => self::APP_STORE_URL,
+                'play_store' => self::PLAY_STORE_URL,
+                'logo' => plugins_url('assets/images/logo.svg', $this->pluginFile),
+                'app_store_badge' => plugins_url('assets/images/download-on-the-appstore.svg', $this->pluginFile),
+                'play_store_badge' => plugins_url('assets/images/get-it-on-google.png', $this->pluginFile),
+            ],
+        ];
+    }
+
+    private function saveSource(): void
+    {
+        $companyId = absint(wp_unslash($_POST['yourstoryz_company_id']));
+        $departmentInput = sanitize_text_field(wp_unslash($_POST['yourstoryz_department_id'] ?? ''));
+        $departmentId = $departmentInput === '' ? null : absint($departmentInput);
+
+        try {
+            if (! $this->source->save($companyId, $departmentId)) {
+                $this->notices->flash('error', __('Ongeldige bron; de opgeslagen bron is niet gewijzigd.', 'yourstoryz'));
+            }
+        } catch (ApiException $exception) {
+            $this->notices->flash('error', $exception->userMessage());
+        }
+    }
+
+    /**
+     * Sites that had a token before the account was stored get it looked up once, instead of a warning until someone tests.
+     */
+    private function account(): string
+    {
+        $account = $this->settings->account();
+
+        if ($account !== '') {
+            return $account;
         }
 
-        (new SourceSection($this->settings, $this->source, $this->adminAction))->render();
+        try {
+            $account = $this->accountName();
+        } catch (ApiException) {
+            return '';
+        }
 
-        echo '</div>';
+        $this->settings->saveAccount($account);
+
+        return $account;
+    }
+
+    /**
+     * @throws ApiException
+     */
+    private function accountName(): string
+    {
+        $me = $this->gateways->gateway()->me();
+        $data = is_array($me['data'] ?? null) ? $me['data'] : $me;
+
+        return (string) ($data['name'] ?? $data['email'] ?? '');
+    }
+
+    private function verifyConnection(): void
+    {
+        try {
+            $name = $this->accountName();
+
+            $this->settings->saveAccount($name);
+            $this->notices->flash('success', $name !== '' ? sprintf(__('Verbonden als %s', 'yourstoryz'), $name) : __('Verbonden.', 'yourstoryz'));
+        } catch (ApiException $exception) {
+            $this->notices->flash('error', $exception->userMessage());
+        }
+    }
+
+    private function nextImport(): ?string
+    {
+        $timestamp = wp_next_scheduled(ImportRunner::HOOK);
+
+        return $timestamp === false ? null : wp_date('j F, H:i', $timestamp);
+    }
+
+    /**
+     * @return array{date: string, created: int, total: int}|null
+     */
+    private function lastImport(): ?array
+    {
+        $last = get_option(ImportRunner::OPTION_LAST_IMPORT);
+
+        if (! is_array($last) || ! isset($last['time'])) {
+            return null;
+        }
+
+        $counts = wp_count_posts(PostType::NAME);
+
+        return [
+            'date' => wp_date('j F, H:i', (int) $last['time']),
+            'created' => (int) ($last['created'] ?? 0),
+            'total' => (int) ($counts->publish ?? 0) + (int) ($counts->draft ?? 0),
+        ];
     }
 }
