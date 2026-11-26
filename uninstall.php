@@ -14,6 +14,8 @@ delete_option('yourstoryz_import_interval');
 delete_option('yourstoryz_autoplay');
 delete_option('yourstoryz_slug');
 delete_option('yourstoryz_flush_rewrite');
+delete_option('yourstoryz_account');
+delete_option('yourstoryz_last_import');
 delete_option('yourstoryz_deleted_stories');
 delete_option('yourstoryz_import_lock');
 delete_option('yourstoryz_db_version');

@@ -79,7 +79,9 @@ final class PreviewPage
             });
         }
 
-        $this->adminAction->redirect(self::SLUG);
+        // The settings page posts here too and wants its user back on the settings page.
+        $returnTo = ($_POST['yourstoryz_return'] ?? '') === Menu::SLUG ? Menu::SLUG : self::SLUG;
+        $this->adminAction->redirect($returnTo);
     }
 
     public function render(): void
