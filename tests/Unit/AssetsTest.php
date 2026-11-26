@@ -78,21 +78,35 @@ it('registers the stylesheet handle on init', function () {
     yourstoryzSetBuild(true);
     Actions\expectAdded('init')->once();
     // Same closure as SettingsPageTest: Brain Monkey keeps whichever plugins_url closure runs first.
-    Functions\expect('plugins_url')->once()->andReturnUsing(fn (string $path): string => 'https://site.test/plugin/'.$path);
+    Functions\expect('plugins_url')->twice()->andReturnUsing(fn (string $path): string => 'https://site.test/plugin/'.$path);
     Functions\expect('wp_register_style')->once()->with('yourstoryz-frontend', 'https://site.test/plugin/assets/build/frontend.css', [], '9.9.9');
 
     $assets = yourstoryzAssets();
     $assets->register();
-    $assets->registerStyle();
+    $assets->registerAssets();
 
     $this->addToAssertionCount(1);
 });
 
+it('registers the video script in the footer, also without a stylesheet build', function () {
+    yourstoryzSetBuild(false);
+    Functions\expect('plugins_url')->zeroOrMoreTimes()->andReturnUsing(fn (string $path): string => 'https://site.test/plugin/'.$path);
+    $scripts = [];
+    Functions\when('wp_register_script')->alias(function (string $handle, string $src, array $deps, string $version, array $args) use (&$scripts): void {
+        $scripts[] = [$handle, $src, $args];
+    });
+
+    yourstoryzAssets()->registerAssets();
+
+    expect($scripts)->toBe([['yourstoryz-video', 'https://site.test/plugin/assets/js/video.js', ['in_footer' => true, 'strategy' => 'defer']]]);
+});
+
 it('does not register the stylesheet when the build file is missing', function () {
     yourstoryzSetBuild(false);
+    Functions\expect('plugins_url')->zeroOrMoreTimes()->andReturnUsing(fn (string $path): string => 'https://site.test/plugin/'.$path);
     Functions\expect('wp_register_style')->never();
 
-    yourstoryzAssets()->registerStyle();
+    yourstoryzAssets()->registerAssets();
 
     $this->addToAssertionCount(1);
 });

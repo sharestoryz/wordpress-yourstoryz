@@ -88,7 +88,7 @@ it('clamps the count between 1 and 24', function (int $given, int $expected) {
 
 it('clamps the columns between 1 and 4', function (int $given, string $expected) {
     expect(yourstoryzStoriesBlock()->render(['columns' => $given]))
-        ->toContain('ys:grid-cols-1 ys:gap-6 '.$expected);
+        ->toContain('ys:grid-cols-1 ys:gap-x-8 ys:gap-y-12 '.$expected);
 })->with([
     [0, 'ys:md:grid-cols-1'],
     [2, 'ys:sm:grid-cols-2 ys:md:grid-cols-2'],

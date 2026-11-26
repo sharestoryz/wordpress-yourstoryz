@@ -92,3 +92,25 @@ it('renders autoplay muted playsinline when the setting is on', function () {
     expect((new VideoRenderer)->render('https://cdn.test/a.mp4', null))
         ->toContain(' controls preload="none" playsinline autoplay muted');
 });
+
+it('adds a play button and loads its script while autoplay is off', function () {
+    $scripts = [];
+    Functions\when('wp_enqueue_script')->alias(function (string $handle) use (&$scripts): void {
+        $scripts[] = $handle;
+    });
+
+    $html = (new VideoRenderer)->render('https://cdn.test/a.mp4', null);
+
+    expect($html)->toStartWith('<div class="ys-video ys:relative" data-ys-video><video ')
+        ->toContain('<button type="button" class="ys-video__play" data-ys-play hidden aria-label="Video afspelen">')
+        ->and($scripts)->toBe(['yourstoryz-video']);
+});
+
+it('leaves the play button and its script out when the video autoplays', function () {
+    Functions\when('get_option')->justReturn('1');
+    Functions\expect('wp_enqueue_script')->never();
+
+    expect((new VideoRenderer)->render('https://cdn.test/a.mp4', null))
+        ->toStartWith('<video ')
+        ->not->toContain('data-ys-play');
+});

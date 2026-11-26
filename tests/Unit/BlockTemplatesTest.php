@@ -38,8 +38,8 @@ it('registers both templates on a block theme with support', function () {
         'yourstoryz//single-yourstoryz_story',
         'yourstoryz//archive-yourstoryz_story',
     ]);
-    expect($GLOBALS['yourstoryz_wp']['registered']['yourstoryz//single-yourstoryz_story']['content'])->toContain('wp:yourstoryz/video');
-    expect($GLOBALS['yourstoryz_wp']['registered']['yourstoryz//archive-yourstoryz_story']['content'])->toContain('"inherit":true');
+    expect($GLOBALS['yourstoryz_wp']['registered']['yourstoryz//single-yourstoryz_story']['content'])->toContain('wp:yourstoryz/story-page {"view":"single"}');
+    expect($GLOBALS['yourstoryz_wp']['registered']['yourstoryz//archive-yourstoryz_story']['content'])->toContain('wp:yourstoryz/story-page {"view":"archive"}');
 });
 
 it('does not register templates on a classic theme', function () {
@@ -63,7 +63,7 @@ it('prepends the video on a singular story in a block theme without template sup
     yourstoryzBlockContext(true, true, true, true);
 
     expect(yourstoryzBlockTemplates(false)->prependVideo('<p>Body</p>'))
-        ->toStartWith('<video ')
+        ->toStartWith('<div class="ys-video')
         ->toEndWith('<p>Body</p>');
 });
 

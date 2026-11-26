@@ -13,6 +13,7 @@ use YourStoryz\Frontend\BlockTemplates;
 use YourStoryz\Frontend\Shortcodes;
 use YourStoryz\Frontend\StoriesBlock;
 use YourStoryz\Frontend\StoryBlock;
+use YourStoryz\Frontend\StoryPage;
 use YourStoryz\Frontend\TemplateLoader;
 use YourStoryz\Frontend\VideoBlock;
 use YourStoryz\Import\DeletedStories;
@@ -44,6 +45,7 @@ final class Plugin
         (new VideoBlock)->register();
         (new StoriesBlock)->register();
         (new StoryBlock)->register();
+        (new StoryPage)->register();
         (new Shortcodes)->register();
         (new BlockTemplates)->register();
         $settingsPage->register();
