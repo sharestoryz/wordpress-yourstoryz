@@ -75,8 +75,8 @@ it('registers the block from its directory with a render callback', function () 
 it('renders the video, title and content of a published story', function () {
     $html = yourstoryzStoryBlock()->render(['storyId' => 12]);
 
-    expect($html)->toStartWith('<div class="wp-block-yourstoryz-story"><article')
-        ->toContain('<h2 class="ys:m-0">Story 12</h2>')
+    expect($html)->toStartWith('<div class="wp-block-yourstoryz-story"><article class="ys-story')
+        ->toContain('>Story 12</h2>')
         ->toContain('<video ')
         ->toContain('<p>Inhoud 12</p>');
 });

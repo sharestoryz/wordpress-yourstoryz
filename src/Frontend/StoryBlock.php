@@ -59,37 +59,10 @@ final class StoryBlock
         try {
             wp_enqueue_style(Assets::HANDLE);
 
-            return $this->wrap($this->article($story));
+            return $this->wrap((new StoryPage($this->loader, $this->directory))->article($story, 2));
         } finally {
             array_pop(self::$rendering);
         }
-    }
-
-    private function article(WP_Post $story): string
-    {
-        $outerPost = $GLOBALS['post'] ?? null;
-        $GLOBALS['post'] = $story;
-        setup_postdata($story);
-
-        try {
-            $content = apply_filters('the_content', $story->post_content);
-        } finally {
-            $GLOBALS['post'] = $outerPost;
-
-            if ($outerPost instanceof WP_Post) {
-                setup_postdata($outerPost);
-            }
-        }
-
-        ob_start();
-        $this->loader->part('story-article', [
-            'post_id' => $story->ID,
-            'title' => get_the_title($story),
-            'content' => $content,
-            'heading_level' => 2,
-        ]);
-
-        return (string) ob_get_clean();
     }
 
     private function wrap(string $html): string

@@ -4,3 +4,205 @@
 @source "../../templates";
 @source "../../src/Frontend";
 @source "../../blocks";
+
+/*
+ * Story components. Fonts and the text colour come from the theme; the muted text, lines and tints are
+ * derived from that text colour so they work on light and dark themes. Themes can override the variables.
+ */
+:where(.yourstoryz, .wp-block-yourstoryz-stories, .wp-block-yourstoryz-story, .wp-block-yourstoryz-video) {
+    --ys-accent: #171e77;
+    --ys-accent-2: #3e7eff;
+    --ys-stage: #0e1233;
+    --ys-muted: color-mix(in srgb, currentColor 68%, transparent);
+    --ys-line: color-mix(in srgb, currentColor 14%, transparent);
+    --ys-tint: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.ys-rule {
+    border: 0;
+    border-top: 1px solid var(--ys-line);
+}
+
+.ys-rule-bottom {
+    border: 0;
+    border-bottom: 1px solid var(--ys-line);
+}
+
+.ys-lang {
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    background: var(--ys-tint);
+    color: inherit;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+.ys-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0 0.875rem;
+    border-radius: 999px;
+    background: var(--ys-tint);
+    color: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ys-chip:hover,
+.ys-chip:focus-visible {
+    background: color-mix(in srgb, var(--ys-accent-2) 14%, transparent);
+}
+
+.ys-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ys-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ys-back:hover,
+.ys-back:focus-visible {
+    color: inherit;
+}
+
+.ys-play {
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ys-accent);
+    box-shadow: 0 10px 30px rgb(14 18 51 / 0.3);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.ys-play svg,
+.ys-video__play svg {
+    width: 42%;
+    height: 42%;
+    margin-left: 8%;
+}
+
+.ys-card a:hover .ys-play,
+.ys-card a:focus-visible .ys-play {
+    background: var(--ys-accent-2);
+    color: #fff;
+}
+
+/*
+ * Themes style every button, Twenty Twenty-One with `.site button:not(:hover):not(:active):not(.has-background)`
+ * (specificity 0,4,1). Load order only settles ties, so this selector is one step more specific (0,5,1).
+ */
+.ys-video button.ys-video__play[data-ys-play][type="button"] {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    margin: -2.75rem 0 0 -2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ys-accent);
+    box-shadow: 0 10px 30px rgb(14 18 51 / 0.3);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.ys-video button.ys-video__play[data-ys-play][type="button"]:is(:hover, :focus-visible) {
+    background: var(--ys-accent-2);
+    color: #fff;
+}
+
+.ys-video button.ys-video__play[data-ys-play][hidden] {
+    display: none;
+}
+
+.ys-media__image {
+    transition: transform 0.4s ease;
+}
+
+.ys-card a:hover .ys-media__image {
+    scale: 1.03;
+}
+
+.ys-card a:hover .ys-card__title,
+.ys-card a.ys-card__title:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.ys-prose {
+    font-size: 1.125rem;
+    line-height: 1.7;
+}
+
+.ys-prose > :first-child {
+    margin-top: 0;
+}
+
+.ys-prose :where(p, ul, ol) {
+    margin: 0 0 1.1em;
+}
+
+.ys-prose :where(h2, h3) {
+    margin: 1.8em 0 0.6em;
+    line-height: 1.25;
+}
+
+.ys-prose a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.ys-pagination .page-numbers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 2.625rem;
+    height: 2.625rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--ys-line);
+    border-radius: 999px;
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.ys-pagination .page-numbers.dots {
+    min-width: 0;
+    border-color: transparent;
+}
+
+.ys-pagination a.page-numbers:hover,
+.ys-pagination a.page-numbers:focus-visible {
+    border-color: currentColor;
+}
+
+.ys-pagination .page-numbers.current {
+    border-color: var(--ys-accent);
+    background: var(--ys-accent);
+    color: #fff;
+}
+
+@media (max-width: 480px) {
+    .ys-pagination__label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+}

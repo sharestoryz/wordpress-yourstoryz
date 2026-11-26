@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "yourstoryz/story-page",
+  "title": "Story-pagina",
+  "category": "media",
+  "icon": "format-video",
+  "description": "Toont de huidige story of het story-overzicht in de templates van de plugin.",
+  "textdomain": "yourstoryz",
+  "attributes": {
+    "view": {
+      "type": "string",
+      "enum": ["single", "archive"],
+      "default": "single"
+    }
+  },
+  "supports": {
+    "html": false,
+    "inserter": false,
+    "autoRegister": true
+  }
+}

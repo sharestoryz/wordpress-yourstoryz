@@ -20,6 +20,13 @@ if (! class_exists('WP_Post')) {
     }
 }
 
+if (! class_exists('WP_Term')) {
+    class WP_Term
+    {
+        public string $name = '';
+    }
+}
+
 if (! class_exists('WP_Query')) {
     class WP_Query
     {
@@ -31,6 +38,8 @@ if (! class_exists('WP_Query')) {
 
         /** @var list<object> */
         public array $posts;
+
+        public int $found_posts = 0;
 
         /** @param array<string, mixed> $args */
         public function __construct(array $args)
@@ -44,6 +53,14 @@ if (! class_exists('WP_Query')) {
 beforeEach(function () {
     Monkey\setUp();
 });
+
+// Front-end renders call these on every story; a test that cares stubs them again.
+pest()->beforeEach(function () {
+    Functions\when('wp_enqueue_script')->justReturn(null);
+    Functions\when('wp_register_script')->justReturn(true);
+    Functions\when('esc_attr__')->returnArg();
+    Functions\when('get_the_date')->alias(fn (string $format = ''): string => $format === 'c' ? '2025-01-07T10:00:00+00:00' : '7 januari 2025');
+})->in('Unit');
 
 afterEach(function () {
     Monkey\tearDown();

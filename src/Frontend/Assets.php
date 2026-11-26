@@ -10,7 +10,11 @@ final class Assets
 {
     public const HANDLE = 'yourstoryz-frontend';
 
+    public const VIDEO_HANDLE = 'yourstoryz-video';
+
     private const STYLESHEET = 'assets/build/frontend.css';
+
+    private const VIDEO_SCRIPT = 'assets/js/video.js';
 
     public function __construct(
         private readonly string $directory = YOURSTORYZ_DIR,
@@ -20,12 +24,20 @@ final class Assets
 
     public function register(): void
     {
-        add_action('init', [$this, 'registerStyle']);
+        add_action('init', [$this, 'registerAssets']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue']);
     }
 
-    public function registerStyle(): void
+    public function registerAssets(): void
     {
+        wp_register_script(
+            self::VIDEO_HANDLE,
+            plugins_url(self::VIDEO_SCRIPT, $this->file),
+            [],
+            $this->version,
+            ['in_footer' => true, 'strategy' => 'defer'],
+        );
+
         if (! file_exists($this->directory.self::STYLESHEET)) {
             return;
         }

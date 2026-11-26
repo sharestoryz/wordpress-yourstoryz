@@ -31,14 +31,25 @@ final class VideoRenderer
         }
 
         $classes = $orientation === 'vertical'
-            ? 'ys:mx-auto ys:block ys:aspect-9/16 ys:w-full ys:max-w-sm! ys:bg-black ys:object-contain'
-            : 'ys:block ys:aspect-video ys:w-full ys:bg-black ys:object-contain';
+            ? 'ys:mx-auto ys:block ys:aspect-9/16 ys:w-full ys:max-w-sm! ys:rounded-lg ys:bg-black ys:object-contain'
+            : 'ys:block ys:aspect-video ys:w-full ys:rounded-xl ys:bg-black ys:object-contain';
 
         $poster = esc_url($posterUrl);
         $posterAttribute = $poster === '' ? '' : ' poster="'.esc_attr($poster).'"';
 
-        $autoplayAttributes = $this->settings->autoplay() ? ' autoplay muted' : '';
+        $autoplay = $this->settings->autoplay();
+        $video = '<video class="'.esc_attr($classes).'" controls preload="none" playsinline'.($autoplay ? ' autoplay muted' : '').$posterAttribute.' src="'.esc_attr($source).'"></video>';
 
-        return '<video class="'.esc_attr($classes).'" controls preload="none" playsinline'.$autoplayAttributes.$posterAttribute.' src="'.esc_attr($source).'"></video>';
+        if ($autoplay) {
+            return $video;
+        }
+
+        // video.js shows the play button and hides the native controls until the video plays.
+        wp_enqueue_script(Assets::VIDEO_HANDLE);
+
+        return '<div class="ys-video ys:relative" data-ys-video>'.$video
+            .'<button type="button" class="ys-video__play" data-ys-play hidden aria-label="'.esc_attr__('Video afspelen', 'yourstoryz').'">'
+            .'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>'
+            .'</button></div>';
     }
 }
